@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PlayerBucket.Core\PlayerBucket.Core.csproj" />
+    <ProjectReference Include="..\PlayerBucket.Worker.Core\PlayerBucket.Worker.Core.csproj" />
   </ItemGroup>
 
 </Project>

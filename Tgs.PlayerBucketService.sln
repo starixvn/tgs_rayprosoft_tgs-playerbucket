@@ -19,6 +19,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucket.Repositories",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerBucket.Worker.Core", "PlayerBucket.Worker.Core\PlayerBucket.Worker.Core.csproj", "{ECBD87D6-D0F1-4029-83EB-D8EEBA2EE747}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerBucket.Common", "PlayerBucket.Common\PlayerBucket.Common.csproj", "{6C7FDFA3-E9A3-4DF2-AEA9-4E05B98157CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerBucket.Worker.Core.UnitTests", "PlayerBucket.Worker.Core.UnitTests\PlayerBucket.Worker.Core.UnitTests.csproj", "{BA0DEFF0-82A5-4036-BCB5-9586D6AF8754}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +49,14 @@ Global
 		{ECBD87D6-D0F1-4029-83EB-D8EEBA2EE747}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECBD87D6-D0F1-4029-83EB-D8EEBA2EE747}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECBD87D6-D0F1-4029-83EB-D8EEBA2EE747}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C7FDFA3-E9A3-4DF2-AEA9-4E05B98157CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C7FDFA3-E9A3-4DF2-AEA9-4E05B98157CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C7FDFA3-E9A3-4DF2-AEA9-4E05B98157CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C7FDFA3-E9A3-4DF2-AEA9-4E05B98157CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA0DEFF0-82A5-4036-BCB5-9586D6AF8754}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA0DEFF0-82A5-4036-BCB5-9586D6AF8754}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA0DEFF0-82A5-4036-BCB5-9586D6AF8754}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA0DEFF0-82A5-4036-BCB5-9586D6AF8754}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

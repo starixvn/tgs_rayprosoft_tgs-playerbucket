@@ -7,4 +7,14 @@
     <RootNamespace>Tgs.Service.PlayerBuckets</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.Interactive.Async" Version="6.0.1" />
+    <PackageReference Include="Tgs.SerialNumberGenerator" Version="0.0.3" />
+    <PackageReference Include="TGS.ServiceUtility" Version="0.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PlayerBucket.Common\PlayerBucket.Common.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -5,7 +5,7 @@ using Tgs.SerialNumberGenerator;
 using Tgs.Service.PlayerBuckets;
 using Tgs.Service.PlayerBuckets.ApplicationServices;
 
-namespace PlayerBucket.Core.UnitTests;
+namespace PlayerBucket.Worker.Core.UnitTests;
 
 [TestClass]
 public class BucketTests
