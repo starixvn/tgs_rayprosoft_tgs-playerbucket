@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+option csharp_namespace = "Tgs.Services.PlayerBucket.Protos";
+
+import "phoenix/protobuf/guid.proto";
+import "phoenix/protobuf/decimal.proto";
+
+message BidRequest {
+	string player_code = 1;
+}
+
+message BidResponse {
+	string subject = 1;
+}
+
+message CreateBucketRequest {
+	string player_code = 1;
+	phoenix.protobuf.DecimalValue amount = 2;
+	string bucket_type = 3;
+	string external_id = 4;
+}
+
+message CreateBucketResponse {
+	phoenix.protobuf.GuidValue bucket_id = 1;
+}
+
+message FillInRequest {
+	string player_code = 1;
+	phoenix.protobuf.DecimalValue amount = 2;
+	string fill_type = 3;
+	string external_id = 4;
+}

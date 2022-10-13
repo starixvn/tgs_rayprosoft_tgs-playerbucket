@@ -93,7 +93,7 @@ public class BucketTests
 					true).CreateJsonPatch()),
 				DateTime.UtcNow)
 		};
-		_ = fakeTgsRepository.GetBucetAllEventsAsync(Arg.Is(command.BucketId))
+		_ = fakeTgsRepository.GetBucketAllEventsAsync(Arg.Is(command.BucketId))
 			.Returns(allEvents.ToAsyncEnumerable());
 
 		var expected = new BucketInfo(

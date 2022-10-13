@@ -3,7 +3,7 @@ using Json.Patch;
 using Json.Pointer;
 
 namespace Tgs.Service.PlayerBuckets;
-public record BucketCreateInfo(string PlayerCode, decimal Amount, BucketType Type)
+public record BucketCreateInfo(string PlayerCode, decimal Amount, BucketType Type, string? ExternalId)
 {
 	public string CreateJsonPatch(Guid bucketId)
 	{

@@ -20,7 +20,7 @@ internal class TgsRepository : ITgsRepository
 			Id = createId,
 			BucketId = bucketId,
 			ChangeAmount = bucket.Amount,
-			ExternalId = null,
+			ExternalId = bucket.ExternalId,
 			FillType = FillType.Create.ToString(),
 			CreatedOn = DateTime.UtcNow,
 			ChangeSets = bucket.CreateJsonPatch(bucketId)
@@ -73,7 +73,7 @@ internal class TgsRepository : ITgsRepository
 		_ = await _dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 	}
 
-	public IAsyncEnumerable<BucketEvent> GetBucetAllEventsAsync(Guid bucketId, CancellationToken cancellationToken = default)
+	public IAsyncEnumerable<BucketEvent> GetBucketAllEventsAsync(Guid bucketId, CancellationToken cancellationToken = default)
 		=> _dbContext.PlayerBucketEventSources
 			.Where(evt => evt.BucketId == bucketId)
 			.OrderBy(evt => evt.Id)
@@ -121,4 +121,35 @@ internal class TgsRepository : ITgsRepository
 
 		_ = await _dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 	}
+
+	public IAsyncEnumerable<BucketEvent> GetBucketAllEventsAsync(Guid bucketId, Guid snapshotId, CancellationToken cancellationToken = default)
+		=> _dbContext.PlayerBucketEventSources
+			.FromSqlInterpolated($@"
+				SELECT
+					id,
+					bucket_id,
+					change_amount,
+					change_sets,
+					created_on,
+					external_id,
+					fill_type
+				FROM
+					dbo.player_bucket_event_source
+				WHERE
+					bucket_id = {bucketId}
+					AND
+					id > {snapshotId}
+				ORDER BY
+					id")
+			.ToArrayAsync(cancellationToken)
+			.ToAsyncEnumerable()
+			.SelectMany(arr => arr.ToAsyncEnumerable())
+			.Select(evt => new BucketEvent(
+				evt.Id,
+				evt.BucketId,
+				evt.ChangeAmount,
+				Enum.Parse<FillType>(evt.FillType),
+				evt.ExternalId,
+				JsonDocument.Parse(evt.ChangeSets),
+				evt.CreatedOn));
 }

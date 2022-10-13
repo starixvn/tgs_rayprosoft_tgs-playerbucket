@@ -14,7 +14,7 @@ public class SnapshotPlayerBucketCommandService : ICommandService<SnapshotPlayer
 	}
 	public async ValueTask ExecuteAsync(SnapshotPlayerBucketCommand command, CancellationToken cancellationToken = default)
 	{
-		var allBucketEvents = _tgsRepository.GetBucetAllEventsAsync(command.BucketId, cancellationToken);
+		var allBucketEvents = _tgsRepository.GetBucketAllEventsAsync(command.BucketId, cancellationToken);
 
 		var snapshotId = Guid.Empty;
 		var usedAmount = 0M;
