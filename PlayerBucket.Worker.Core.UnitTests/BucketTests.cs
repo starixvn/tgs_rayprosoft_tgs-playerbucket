@@ -1,7 +1,6 @@
 using System.Text.Json;
 using Json.Patch;
 using NSubstitute;
-using Tgs.SerialNumberGenerator;
 using Tgs.Service.PlayerBuckets;
 using Tgs.Service.PlayerBuckets.ApplicationServices;
 
@@ -11,40 +10,136 @@ namespace PlayerBucket.Worker.Core.UnitTests;
 public class BucketTests
 {
 	[TestMethod]
-	public async Task Create_A_Bucket()
+	public async Task CreateBucketCommand_建立Bucket()
 	{
-		var fakeTgsRepository = Substitute.For<ITgsRepository>();
-		var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();
+		var externalId = Guid.NewGuid().ToString();
+		var sut = new CreateBucketCommand(100M, BucketType.Deposit, externalId);
 
-		var sut = new CreateBucketCommandService(
-			fakeTgsRepository,
-			fakeSerialNumberGenerator);
+		var fakeBucketStore = Substitute.For<IBucketStore>();
 
-		var command = new CreateBucketCommand(
-			"test1",
-			1000M,
-			BucketType.Deposit);
+		await sut.ExecuteAsync(fakeBucketStore);
 
-		var createId = Guid.NewGuid();
-		var expectedBucketInfo = new BucketCreateInfo(
-			command.PlayerCode,
-			command.Amount,
-			command.BucketType);
-
-		_ = fakeSerialNumberGenerator.GenerateAsync()
-			.Returns(createId);
-
-		_ = await sut.GetAsync(command);
-
-		_ = fakeTgsRepository.Received(1)
-			.AddPlayerBucketAsync(
-				Arg.Is(createId),
-				Arg.Is(createId),
-				Arg.Is(expectedBucketInfo));
+		_ = fakeBucketStore.Received(1)
+			.CreateBucketAsync(
+				Arg.Is(100M),
+				Arg.Is(BucketType.Deposit),
+				Arg.Is(externalId));
 	}
 
 	[TestMethod]
-	public async Task Create_PlayerBucket_Snapshot()
+	public async Task FillInBucketCommand_填充Bucket_當Bucket的容量大於等於填充容量時_只會填充一次()
+	{
+		var externalId = Guid.NewGuid().ToString();
+		var sut = new FillInBucketCommand(100M, FillType.Game, externalId);
+
+		var fakeBucketStore = Substitute.For<IBucketStore>();
+
+		var bucket = new BucketInfo(
+			Guid.NewGuid(),
+			"player1",
+			150M,
+			BucketType.Deposit,
+			0M,
+			false,
+			null);
+
+		_ = fakeBucketStore.GetNotFullBucketAsync()
+			.Returns(bucket);
+
+		var expectedFillInfo = new FillInBucketInfo(
+			100M,
+			FillType.Game,
+			externalId,
+			false);
+
+		await sut.ExecuteAsync(fakeBucketStore);
+
+		await sut.WaitAsync().WaitAsync(TimeSpan.FromSeconds(1D));
+
+		_ = fakeBucketStore.Received(1)
+			.FillInBucketAsync(
+				Arg.Is(bucket),
+				Arg.Is(expectedFillInfo));
+	}
+
+	[TestMethod]
+	public async Task FillInBucketCommand_填充Bucket_當Bucket的容量小於填充容量時_會找下一個Bucket填充()
+	{
+		var externalId = Guid.NewGuid().ToString();
+		var sut = new FillInBucketCommand(100M, FillType.Game, externalId);
+
+		var fakeBucketStore = Substitute.For<IBucketStore>();
+
+		var firstBucket = new BucketInfo(
+			Guid.NewGuid(),
+			"player1",
+			40M,
+			BucketType.Deposit,
+			0M,
+			false,
+			null);
+		var secondBucket = new BucketInfo(
+			Guid.NewGuid(),
+			"player1",
+			200M,
+			BucketType.Deposit,
+			0M,
+			false,
+			null);
+
+		var returnBuckets = new Queue<BucketInfo>(new[] { firstBucket, secondBucket });
+
+		_ = fakeBucketStore.GetNotFullBucketAsync()
+			.Returns(_ => returnBuckets.Dequeue());
+
+		var expectedFillInfo = new FillInBucketInfo(
+			40M,
+			FillType.Game,
+			externalId,
+			true);
+
+		await sut.ExecuteAsync(fakeBucketStore);
+
+		await sut.WaitAsync().WaitAsync(TimeSpan.FromSeconds(1D));
+
+		_ = fakeBucketStore.Received(1)
+			.FillInBucketAsync(
+				Arg.Is(firstBucket),
+				Arg.Is(expectedFillInfo));
+
+		_ = fakeBucketStore.Received(1)
+			.FillInBucketAsync(
+				Arg.Is(secondBucket),
+				Arg.Is(expectedFillInfo with
+				{
+					Amount = 60M,
+					SetFull = false
+				}));
+	}
+
+	[TestMethod]
+	public async Task FillInBucketCommand_填充Bucket_如果沒有可以填充的Bucket_會結束填充()
+	{
+		var externalId = Guid.NewGuid().ToString();
+		var sut = new FillInBucketCommand(100M, FillType.Game, externalId);
+
+		var fakeBucketStore = Substitute.For<IBucketStore>();
+
+		_ = fakeBucketStore.GetNotFullBucketAsync()
+			.Returns(default(BucketInfo));
+
+		await sut.ExecuteAsync(fakeBucketStore);
+
+		await sut.WaitAsync().WaitAsync(TimeSpan.FromSeconds(1D));
+
+		_ = fakeBucketStore.Received(0)
+			.FillInBucketAsync(
+				Arg.Any<BucketInfo>(),
+				Arg.Any<FillInBucketInfo>());
+	}
+
+	[TestMethod]
+	public async Task 建立Bucket快照()
 	{
 		var fakeTgsRepository = Substitute.For<ITgsRepository>();
 
@@ -62,7 +157,8 @@ public class BucketTests
 				JsonDocument.Parse(new BucketCreateInfo(
 					"test1",
 					1000M,
-					BucketType.Deposit).CreateJsonPatch(command.BucketId)),
+					BucketType.Deposit,
+					null).CreateJsonPatch(command.BucketId)),
 				DateTime.UtcNow),
 			new BucketEvent(
 				Guid.NewGuid(),
@@ -114,9 +210,9 @@ public class BucketTests
 	}
 
 	[TestMethod]
-	public void Create_JsonPatch_By_BucketCreateInfo()
+	public void BucketCreateInfo_產生JsonPatch字串()
 	{
-		var sut = new BucketCreateInfo("test1", 100M, BucketType.Deposit);
+		var sut = new BucketCreateInfo("test1", 100M, BucketType.Deposit, null);
 
 		var bucketId = Guid.NewGuid();
 		var expected = new BucketInfo(
@@ -137,7 +233,7 @@ public class BucketTests
 	}
 
 	[TestMethod]
-	public void Create_JsonPatch_By_FillInBucketInfo()
+	public void FillInBucketInfo_產生JsonPatch字串()
 	{
 		var sut = new FillInBucketInfo(100M, FillType.Game, null, false);
 
@@ -152,7 +248,7 @@ public class BucketTests
 	}
 
 	[TestMethod]
-	public void Create_JsonPatch_By_FillInBucketInfo_SetFull_Is_True()
+	public void FillInBucketInfo_當SetFull為True時產生JsonPatch字串()
 	{
 		var sut = new FillInBucketInfo(100M, FillType.Game, null, true);
 

@@ -25,7 +25,7 @@ public class FillInBucketCommand : IBucketCommand
 				.ConfigureAwait(false);
 
 			if (bucket == null)
-				return;
+				break;
 
 			var bucketNotFillAmount = bucket.Amount - bucket.FillInAmount;
 
@@ -47,9 +47,6 @@ public class FillInBucketCommand : IBucketCommand
 				bucket,
 				fillInfo,
 				cancellationToken).ConfigureAwait(false);
-
-			if (remainingAmount <= 0M)
-				break;
 		}
 
 		_taskCompletionSource.SetResult();

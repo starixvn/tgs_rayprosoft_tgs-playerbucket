@@ -82,7 +82,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 				_playerCode,
 				amount,
 				type,
-				null),
+				externalId),
 			cancellationToken).ConfigureAwait(false);
 
 		_buckets.Add(new BucketInfo(
@@ -190,7 +190,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 
 		var snapshotId = Guid.Empty;
 		var usedAmount = 0M;
-		var snapshotBucket = default(BucketInfo);
+		var snapshotBucket = source;
 
 		await foreach (var evt in bucketEvents
 			.WithCancellation(cancellationToken)
