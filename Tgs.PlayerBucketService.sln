@@ -17,13 +17,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucket.Core.UnitTests
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucket.Repositories", "PlayerBucket.Repositories\PlayerBucket.Repositories.csproj", "{B6E596B3-43E6-4C0A-B8D9-D6681C402C63}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerBucket.Worker.Core", "PlayerBucket.Worker.Core\PlayerBucket.Worker.Core.csproj", "{ECBD87D6-D0F1-4029-83EB-D8EEBA2EE747}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucket.Worker.Core", "PlayerBucket.Worker.Core\PlayerBucket.Worker.Core.csproj", "{ECBD87D6-D0F1-4029-83EB-D8EEBA2EE747}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerBucket.Common", "PlayerBucket.Common\PlayerBucket.Common.csproj", "{6C7FDFA3-E9A3-4DF2-AEA9-4E05B98157CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucket.Common", "PlayerBucket.Common\PlayerBucket.Common.csproj", "{6C7FDFA3-E9A3-4DF2-AEA9-4E05B98157CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerBucket.Worker.Core.UnitTests", "PlayerBucket.Worker.Core.UnitTests\PlayerBucket.Worker.Core.UnitTests.csproj", "{BA0DEFF0-82A5-4036-BCB5-9586D6AF8754}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucket.Worker.Core.UnitTests", "PlayerBucket.Worker.Core.UnitTests\PlayerBucket.Worker.Core.UnitTests.csproj", "{BA0DEFF0-82A5-4036-BCB5-9586D6AF8754}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tgs.PlayerBucketWorker", "Tgs.PlayerBucketWorker\Tgs.PlayerBucketWorker.csproj", "{F22E6BED-3F76-450A-B16D-C2EAD715C579}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tgs.PlayerBucketWorker", "Tgs.PlayerBucketWorker\Tgs.PlayerBucketWorker.csproj", "{F22E6BED-3F76-450A-B16D-C2EAD715C579}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerBucket.Client", "PlayerBucket.Client\PlayerBucket.Client.csproj", "{3E550A6E-E1A2-4A9B-A782-A585460437C3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{F22E6BED-3F76-450A-B16D-C2EAD715C579}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F22E6BED-3F76-450A-B16D-C2EAD715C579}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F22E6BED-3F76-450A-B16D-C2EAD715C579}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E550A6E-E1A2-4A9B-A782-A585460437C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E550A6E-E1A2-4A9B-A782-A585460437C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E550A6E-E1A2-4A9B-A782-A585460437C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E550A6E-E1A2-4A9B-A782-A585460437C3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

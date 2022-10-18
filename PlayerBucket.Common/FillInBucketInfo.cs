@@ -8,13 +8,17 @@ public record FillInBucketInfo(
 	string? ExternalId,
 	bool SetFull)
 {
-	private static JsonPatch _EmptyPatch = new JsonPatch();
-	private static JsonPatch _SetFullPatch = new { IsFull = false }.CreatePatch(new { IsFull = true }, PlayerBucketUtility.SerializerOptions);
-
 	public string CreateJsonPatch()
-	{
-		var patch = SetFull ? _SetFullPatch : _EmptyPatch;
+		=> JsonSerializer.Serialize(CreatePatch());
 
-		return JsonSerializer.Serialize(patch);
-	}
+	public BucketInfo ApplyPatch(BucketInfo source)
+		=> CreatePatch().Apply(source, PlayerBucketUtility.SerializerOptions)! with
+		{
+			FillInAmount = source.FillInAmount + Amount
+		};
+
+	private JsonPatch CreatePatch()
+		=> SetFull
+			? new { IsFull = false }.CreatePatch(new { IsFull = true }, PlayerBucketUtility.SerializerOptions)
+			: new JsonPatch();
 }

@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using System.Threading.Channels;
 using Json.Patch;
+using Microsoft.Extensions.Logging;
 using Tgs.SerialNumberGenerator;
 
 namespace Tgs.Service.PlayerBuckets;
@@ -10,8 +11,15 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 	private readonly string _playerCode;
 	private readonly ISerialNumberGenerator _serialNumberGenerator;
 	private readonly ITgsRepository _tgsRepository;
+	private readonly ILogger<BucketCounter> _logger;
 	private readonly List<BucketInfo> _buckets = new();
-	private readonly Channel<IBucketCommand> _channel = Channel.CreateUnbounded<IBucketCommand>();
+
+	private readonly Channel<IBucketCommand> _channel = Channel.CreateUnbounded<IBucketCommand>(
+		new UnboundedChannelOptions
+		{
+			SingleReader = true
+		});
+
 	private readonly SemaphoreSlim _locker = new(1, 1);
 	private readonly CancellationTokenSource _cancellationTokenSource = new();
 	private Task? _backgroundTask;
@@ -23,7 +31,8 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 	public BucketCounter(
 		string playerCode,
 		ISerialNumberGenerator serialNumberGenerator,
-		ITgsRepository tgsRepository)
+		ITgsRepository tgsRepository,
+		ILogger<BucketCounter> logger)
 	{
 		if (string.IsNullOrWhiteSpace(playerCode))
 			throw new ArgumentException($"'{nameof(playerCode)}' 不得為 Null 或空白字元。", nameof(playerCode));
@@ -31,6 +40,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 		_playerCode = playerCode;
 		_serialNumberGenerator = serialNumberGenerator ?? throw new ArgumentNullException(nameof(serialNumberGenerator));
 		_tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
+		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	}
 
 	public ValueTask PushCommandAsync(IBucketCommand command, CancellationToken cancellationToken = default)
@@ -122,13 +132,27 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 	}
 
 	async ValueTask IBucketStore.FillInBucketAsync(BucketInfo bucket, FillInBucketInfo fillInInfo, CancellationToken cancellationToken)
-		=> await _tgsRepository.FillInBucketAsync(
-			await _serialNumberGenerator
-				.GenerateAsync(cancellationToken)
-				.ConfigureAwait(false),
+	{
+		var newEventId = await _serialNumberGenerator
+			.GenerateAsync(cancellationToken)
+			.ConfigureAwait(false);
+
+		await _tgsRepository.FillInBucketAsync(
+			newEventId,
 			bucket.Id,
 			fillInInfo,
 			cancellationToken).ConfigureAwait(false);
+
+		var newBucket = fillInInfo.ApplyPatch(bucket) with
+		{
+			SnapshotId = newEventId
+		};
+
+		if (newBucket.IsFull)
+			_buckets.Remove(bucket);
+		else
+			_buckets[0] = newBucket;
+	}
 
 	public ValueTask DisposeAsync()
 	{
@@ -168,14 +192,22 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 
 	private async Task ProcessCommandLoopAsync(CancellationToken cancellationToken = default)
 	{
-		while (await _channel.Reader
+		var reader = _channel.Reader;
+		while (await reader
 			.WaitToReadAsync(cancellationToken)
 			.ConfigureAwait(false))
 		{
-			if (_channel.Reader.TryRead(out var command))
-				await CountAsync(
-					command,
-					cancellationToken).ConfigureAwait(false);
+			if (reader.TryRead(out var command))
+				try
+				{
+					await CountAsync(
+						command,
+						cancellationToken).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+					_logger.LogError(ex, "Process command occur errors.");
+				}
 		}
 	}
 
@@ -201,13 +233,13 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 
 			snapshotId = evt.Id;
 			if (evt.ChangeAmount < 0M)
-				usedAmount += evt.ChangeAmount;
+				usedAmount -= evt.ChangeAmount;
 		}
 
 		return snapshotBucket! with
 		{
 			SnapshotId = snapshotId,
-			FillInAmount = usedAmount
+			FillInAmount = source.FillInAmount + usedAmount
 		};
 	}
 
