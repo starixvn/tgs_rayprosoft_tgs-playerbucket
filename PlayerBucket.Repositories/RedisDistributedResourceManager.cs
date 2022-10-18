@@ -38,4 +38,11 @@ internal class RedisDistributedResourceManager : IDistributedResourceManager
 
 		return token;
 	}
+
+	public async ValueTask DiscardBidAsync(string playerCode, CancellationToken cancellationToken = default)
+	{
+		var redisKey = new RedisKey($"Tgs:Bucket:{playerCode}");
+
+		_ = await _redisDatabase.KeyDeleteAsync(redisKey).ConfigureAwait(false);
+	}
 }
