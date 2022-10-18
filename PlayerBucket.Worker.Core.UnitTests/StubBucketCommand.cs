@@ -4,7 +4,7 @@ namespace PlayerBucket.Worker.Core.UnitTests;
 
 internal class StubBucketCommand : IBucketCommand
 {
-	private TaskCompletionSource _completionSource = new();
+	private readonly TaskCompletionSource _completionSource = new();
 
 	public bool IsExcuted { get; private set; }
 

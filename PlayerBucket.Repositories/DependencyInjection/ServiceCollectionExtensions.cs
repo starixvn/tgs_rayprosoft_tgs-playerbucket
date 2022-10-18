@@ -13,4 +13,12 @@ public static class ServiceCollectionExtensions
 		=> services
 			.AddDbContext<TgsContext>(dbContextConfigure)
 			.AddTransient<ITgsRepository, TgsRepository>();
+
+	public static IServiceCollection AddPlayerBucketDistributedResourceManager(
+		this IServiceCollection services,
+		Func<IServiceProvider, StackExchange.Redis.IDatabase> resolveRedisDatabase)
+		=> services
+			.AddSingleton<IDistributedResourceManager>(sp => ActivatorUtilities.CreateInstance<RedisDistributedResourceManager>(
+				sp,
+				resolveRedisDatabase(sp)));
 }

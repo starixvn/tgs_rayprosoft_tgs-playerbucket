@@ -10,7 +10,7 @@ message BidRequest {
 }
 
 message BidResponse {
-	string subject = 1;
+	string token = 1;
 }
 
 message CreateBucketRequest {

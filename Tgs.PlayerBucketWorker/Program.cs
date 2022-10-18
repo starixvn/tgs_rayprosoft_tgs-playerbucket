@@ -1,6 +1,5 @@
 using System.Text.Json.Serialization;
 using FluentdForward.OpenTelemetry.MessagePack;
-using Json.More;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Npgsql;
@@ -8,8 +7,8 @@ using OpenTelemetry.Exporter;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using Tgs.PlayerBucket.Clients.DependencyInjection;
+using Tgs.PlayerBucketWorker;
 using Tgs.PlayerBucketWorker.MessageQueue;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,6 +36,10 @@ builder.Services
 	.AddPlayerBucketWorker()
 	.AddPlayerBucketRepositories((_, contextBuilder) => contextBuilder
 		.UseNpgsql("name=Tgs"))
+	.AddSingleton(sp => ActivatorUtilities.CreateInstance<RedisConnectionManager>(
+		sp,
+		builder.Configuration.GetConnectionString("Redis")))
+	.AddPlayerBucketDistributedResourceManager(sp => sp.GetRequiredService<RedisConnectionManager>().Database)
 	.AddPlayerBucketClient();
 
 builder.Services
@@ -48,6 +51,7 @@ builder.Services
 
 			options.Url = configuration.GetConnectionString("Nats");
 		})
+		.AddProcessor<BidProcessor>("tgs.bucket.bid")
 		.AddProcessor<CreateBucketProcessor>($"tgs.bucket.worker.create.{Environment.MachineName}")
 		.AddReplyHandler<FillInBucketHandler>($"tgs.bucket.worker.fill.{Environment.MachineName}")
 		.AddProcessor<CreateBucketDispatchProcessor>("tgs.bucket.create", "tgs.bucket.create")
@@ -68,7 +72,6 @@ builder.Services
 		foreach (var xmlFileName in xmlFileNames)
 			c.IncludeXmlComments(xmlFileName);
 	});
-
 
 builder.Services
 	.AddHealthChecks();

@@ -1,11 +1,30 @@
-﻿using Tgs.MessageQueue;
+﻿using Google.Protobuf;
+using Tgs.MessageQueue;
+using Tgs.Service.PlayerBuckets;
+using Tgs.Services.PlayerBucket.Protos;
 
 namespace Tgs.PlayerBucketWorker.MessageQueue;
 
 public class BidProcessor : IMessageProcessor
 {
-	public ValueTask<ReadOnlyMemory<byte>> HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
+	private readonly IDistributedResourceManager _distributedResourceManager;
+
+	public BidProcessor(IDistributedResourceManager distributedResourceManager)
 	{
-		throw new NotImplementedException();
+		_distributedResourceManager = distributedResourceManager ?? throw new ArgumentNullException(nameof(distributedResourceManager));
+	}
+
+	public async ValueTask<ReadOnlyMemory<byte>> HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
+	{
+		var request = BidRequest.Parser.ParseFrom(data.Span);
+
+		var response = new BidResponse()
+		{
+			Token = await _distributedResourceManager
+				.BidAsync(request.PlayerCode, Environment.MachineName, cancellationToken)
+				.ConfigureAwait(false)
+		};
+
+		return response.ToByteArray();
 	}
 }

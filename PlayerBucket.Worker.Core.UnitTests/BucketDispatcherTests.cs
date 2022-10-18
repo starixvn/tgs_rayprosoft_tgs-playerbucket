@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Castle.Core.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
@@ -20,22 +23,25 @@ public class BucketDispatcherTests
 		var command = new StubBucketCommand();
 
 		var fakeServiceScopeFactory = Substitute.For<IServiceScopeFactory>();
-		fakeServiceProvider.GetService<IServiceScopeFactory>()
+		_ = fakeServiceProvider.GetService<IServiceScopeFactory>()
 			.Returns(fakeServiceScopeFactory);
 
 		var fakeScope = Substitute.For<IServiceScope>();
-		fakeScope.ServiceProvider
+		_ = fakeScope.ServiceProvider
 			.Returns(fakeServiceProvider);
-		fakeServiceScopeFactory.CreateScope()
+		_ = fakeServiceScopeFactory.CreateScope()
 			.Returns(fakeScope);
 
 		var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();
-		fakeServiceProvider.GetService<ISerialNumberGenerator>()
+		_ = fakeServiceProvider.GetService<ISerialNumberGenerator>()
 			.Returns(fakeSerialNumberGenerator);
 
 		var fakeTgsRepository = Substitute.For<ITgsRepository>();
-		fakeServiceProvider.GetService<ITgsRepository>()
+		_ = fakeServiceProvider.GetService<ITgsRepository>()
 			.Returns(fakeTgsRepository);
+
+		_ = fakeServiceProvider.GetService<ILogger<BucketCounter>>()
+			.Returns(NullLogger<BucketCounter>.Instance);
 
 		await sut.PushCommandAsync("test1", command);
 
@@ -52,22 +58,25 @@ public class BucketDispatcherTests
 		var sut = new BucketDispatcher(fakeServiceProvider);
 
 		var fakeServiceScopeFactory = Substitute.For<IServiceScopeFactory>();
-		fakeServiceProvider.GetService<IServiceScopeFactory>()
+		_ = fakeServiceProvider.GetService<IServiceScopeFactory>()
 			.Returns(fakeServiceScopeFactory);
 
 		var fakeScope = Substitute.For<IServiceScope>();
-		fakeScope.ServiceProvider
+		_ = fakeScope.ServiceProvider
 			.Returns(fakeServiceProvider);
-		fakeServiceScopeFactory.CreateScope()
+		_ = fakeServiceScopeFactory.CreateScope()
 			.Returns(fakeScope);
 
 		var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();
-		fakeServiceProvider.GetService<ISerialNumberGenerator>()
+		_ = fakeServiceProvider.GetService<ISerialNumberGenerator>()
 			.Returns(fakeSerialNumberGenerator);
 
 		var fakeTgsRepository = Substitute.For<ITgsRepository>();
-		fakeServiceProvider.GetService<ITgsRepository>()
+		_ = fakeServiceProvider.GetService<ITgsRepository>()
 			.Returns(fakeTgsRepository);
+
+		_ = fakeServiceProvider.GetService<ILogger<BucketCounter>>()
+			.Returns(NullLogger<BucketCounter>.Instance);
 
 		var createCommand = new CreateBucketCommand(30M, BucketType.Deposit, null);
 

@@ -1,20 +1,32 @@
 ﻿using Tgs.MessageQueue;
+using Tgs.Service.PlayerBuckets;
+using Tgs.Services.PlayerBucket.Protos;
 
 namespace Tgs.PlayerBucketWorker.MessageQueue;
 
-public class CreateBucketDispatchProcessor : IMessageProcessor
+public class CreateBucketDispatchProcessor : BucketRequestDispatcher, IMessageProcessor
 {
-	private readonly IMessageSender _messageSender;
-
-	public CreateBucketDispatchProcessor(IMessageSender messageSender)
+	public CreateBucketDispatchProcessor(
+		IMessageSender messageSender,
+		IDistributedResourceManager distributedResourceManager,
+		ILogger<CreateBucketDispatchProcessor> logger)
+		: base(messageSender, distributedResourceManager, logger)
 	{
-		_messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
 	}
 
-	public ValueTask<ReadOnlyMemory<byte>> HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
+	public async ValueTask<ReadOnlyMemory<byte>> HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
 	{
-		var subject = $"tgs.bucket.worker.create.{Environment.MachineName}";
+		var request = CreateBucketRequest.Parser.ParseFrom(data.Span);
 
-		return _messageSender.RequestAsync(subject, data, cancellationToken);
+		var bidToken = await GetBidTokenAsync(
+			request.PlayerCode,
+			cancellationToken).ConfigureAwait(false);
+
+		var subject = $"tgs.bucket.worker.create.{bidToken}";
+
+		return await MessageSender.RequestAsync(
+			subject,
+			data,
+			cancellationToken).ConfigureAwait(false);
 	}
 }

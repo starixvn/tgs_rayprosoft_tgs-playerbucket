@@ -72,7 +72,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 		}
 		finally
 		{
-			_locker.Release();
+			_ = _locker.Release();
 		}
 	}
 
@@ -149,7 +149,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 		};
 
 		if (newBucket.IsFull)
-			_buckets.Remove(bucket);
+			_ = _buckets.Remove(bucket);
 		else
 			_buckets[0] = newBucket;
 	}

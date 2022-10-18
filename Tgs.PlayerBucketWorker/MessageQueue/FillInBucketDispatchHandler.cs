@@ -1,20 +1,32 @@
 ﻿using Tgs.MessageQueue;
+using Tgs.Service.PlayerBuckets;
+using Tgs.Services.PlayerBucket.Protos;
 
 namespace Tgs.PlayerBucketWorker.MessageQueue;
 
-public class FillInBucketDispatchHandler : IMessageHandler
+public class FillInBucketDispatchHandler : BucketRequestDispatcher, IMessageHandler
 {
-	private readonly IMessageSender _messageSender;
-
-	public FillInBucketDispatchHandler(IMessageSender messageSender)
+	public FillInBucketDispatchHandler(
+		IMessageSender messageSender,
+		IDistributedResourceManager distributedResourceManager,
+		ILogger<FillInBucketDispatchHandler> logger)
+		: base(messageSender, distributedResourceManager, logger)
 	{
-		_messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
 	}
 
-	public ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
+	public async ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
 	{
-		var subject = $"tgs.bucket.worker.fill.{Environment.MachineName}";
+		var request = FillInRequest.Parser.ParseFrom(data.Span);
 
-		return _messageSender.SendAsync(subject, data, cancellationToken);
+		var bidToken = await GetBidTokenAsync(
+			request.PlayerCode,
+			cancellationToken).ConfigureAwait(false);
+
+		var subject = $"tgs.bucket.worker.fill.{bidToken}";
+
+		await MessageSender.SendAsync(
+			subject,
+			data,
+			cancellationToken).ConfigureAwait(false);
 	}
 }

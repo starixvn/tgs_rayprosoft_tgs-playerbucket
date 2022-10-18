@@ -7,7 +7,7 @@ internal class BucketDispatcher : IBucketDispatcher, IDisposable, IAsyncDisposab
 {
 	private readonly IServiceProvider _serviceProvider;
 	private readonly ConcurrentDictionary<string, BucketCounter> _counters = new();
-	private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+	private readonly CancellationTokenSource _cancellationTokenSource = new();
 
 	private bool _disposedValue;
 
