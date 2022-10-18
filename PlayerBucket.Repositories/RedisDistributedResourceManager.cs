@@ -18,7 +18,7 @@ internal class RedisDistributedResourceManager : IDistributedResourceManager
 		var isGot = await _redisDatabase.StringSetAsync(
 			redisKey,
 			token,
-			expiry: TimeSpan.FromMinutes(10),
+			expiry: TimeSpan.FromMinutes(10D),
 			when: When.NotExists).ConfigureAwait(false);
 
 		return isGot
