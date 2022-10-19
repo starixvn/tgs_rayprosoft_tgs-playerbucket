@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
 using Server::Tgs.PlayerBucketWorker.MessageQueue;
 using Tgs.MessageQueue;
+using Tgs.Service.PlayerBuckets;
 using Tgs.Service.PlayerBuckets.Repositories.Entities;
 
 namespace Tgs.PlayerBucketWorker.IntegrationTests;
@@ -24,8 +25,10 @@ public class CreateBucketTests
 
 		var playerCode = "test1";
 		var amount = 100M;
-		var bucketType = BucketType.Deposit;
+		var bucketType = Client::Tgs.PlayerBucket.Clients.BucketType.Deposit;
 		var externalId = Guid.NewGuid().ToString();
+
+		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
 
 		await using var web = PlayerBucketWorkerTestHost.Instance
 			.WithWebHostBuilder(hostBuilder => hostBuilder
@@ -40,7 +43,8 @@ public class CreateBucketTests
 								InMemoryEventId.TransactionIgnoredWarning));
 
 						return new TgsContext(dbContextOptionsBuilder.Options);
-					}))));
+					}))
+					.Replace(ServiceDescriptor.Singleton(fakeBucketEventRepository))));
 
 		_ = fakeClientMessageSender.RequestAsync(
 			Arg.Is("tgs.bucket.create"),
@@ -58,9 +62,12 @@ public class CreateBucketTests
 
 		var createdId = await client.CreateBucketAsync(playerCode, amount, bucketType, externalId);
 
-		var actual = await dbContext.PlayerBucketEventSources.Where(evt => evt.BucketId == createdId).CountAsync();
-
-		Assert.AreEqual(1, actual);
+		_ = fakeBucketEventRepository.Received(1)
+			.AddPlayerBucketAsync(
+				Arg.Any<Guid>(),
+				Arg.Is(createdId),
+				Arg.Any<BucketCreateInfo>(),
+				Arg.Any<CancellationToken>());
 	}
 
 	[TestMethod]
@@ -71,8 +78,10 @@ public class CreateBucketTests
 
 		var playerCode = "test1";
 		var amount = 100M;
-		var fillType = FillType.Game;
+		var fillType = Client::Tgs.PlayerBucket.Clients.FillType.Game;
 		var externalId = Guid.NewGuid().ToString();
+
+		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
 
 		await using var web = PlayerBucketWorkerTestHost.Instance
 			.WithWebHostBuilder(hostBuilder => hostBuilder
@@ -87,7 +96,8 @@ public class CreateBucketTests
 								InMemoryEventId.TransactionIgnoredWarning));
 
 						return new TgsContext(dbContextOptionsBuilder.Options);
-					}))));
+					}))
+					.Replace(ServiceDescriptor.Singleton(fakeBucketEventRepository))));
 
 		_ = fakeClientMessageSender.RequestAsync(
 			Arg.Is("tgs.bucket.create"),
@@ -113,13 +123,25 @@ public class CreateBucketTests
 				return processor.HandleAsync(data);
 			});
 
-		var dbContext = web.Services.GetRequiredService<TgsContext>();
+		var expected = new FillInBucketInfo(
+			playerCode,
+			amount,
+			Service.PlayerBuckets.FillType.Game,
+			externalId,
+			true);
 
-		_ = await client.CreateBucketAsync(playerCode, amount, BucketType.Deposit, externalId);
+		var bucketId = await client.CreateBucketAsync(
+			playerCode,
+			amount,
+			Client::Tgs.PlayerBucket.Clients.BucketType.Deposit,
+			externalId);
 		await client.FillInBucketAsync(playerCode, amount, fillType, externalId);
 
-		var actual = await dbContext.PlayerBucketEventSources.CountAsync();
-
-		Assert.AreEqual(2, actual);
+		_ = fakeBucketEventRepository.Received(1)
+			.FillInBucketAsync(
+				Arg.Any<Guid>(),
+				Arg.Is(bucketId),
+				Arg.Is(expected),
+				Arg.Any<CancellationToken>());
 	}
 }

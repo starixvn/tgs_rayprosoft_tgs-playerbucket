@@ -1,8 +1,9 @@
-﻿using StackExchange.Redis;
+﻿using System.Text.Json;
+using StackExchange.Redis;
 
 namespace Tgs.Service.PlayerBuckets.Repositories;
 
-internal class RedisDistributedResourceManager : IDistributedResourceManager
+internal class RedisDistributedResourceManager : IDistributedResourceManager, IBucketEventRepository
 {
 	private readonly IDatabase _redisDatabase;
 
@@ -44,5 +45,71 @@ internal class RedisDistributedResourceManager : IDistributedResourceManager
 		var redisKey = new RedisKey($"Tgs:Bucket:{playerCode}");
 
 		_ = await _redisDatabase.KeyDeleteAsync(redisKey).ConfigureAwait(false);
+	}
+
+	public async ValueTask AddPlayerBucketAsync(Guid createId, Guid bucketId, BucketCreateInfo bucket, CancellationToken cancellationToken = default)
+	{
+		var currentDate = DateTimeOffset.UtcNow;
+
+		var record = new BucketEvent(
+			createId,
+			bucketId,
+			bucket.Amount,
+			FillType.Create,
+			bucket.ExternalId,
+			bucket.CreateJsonPatchDocument(bucketId),
+			currentDate.UtcDateTime);
+
+		var json = JsonSerializer.Serialize(record, PlayerBucketUtility.SerializerOptions);
+
+		_ = await _redisDatabase.ListRightPushAsync(
+			$"Tgs:Bucket:Events:{bucketId}",
+			json).ConfigureAwait(false);
+
+		_ = await _redisDatabase.SortedSetAddAsync(
+			$"Tgs.Bucket:CreateBuckets:{bucket.PlayerCode}",
+			bucketId.ToString(),
+			currentDate.ToUnixTimeMilliseconds()).ConfigureAwait(false);
+	}
+
+	public IAsyncEnumerable<BucketEvent> GetBucketAllEventsAsync(Guid bucketId, Guid snapshotId, CancellationToken cancellationToken = default)
+		=> _redisDatabase
+			.ListRangeAsync($"Tgs:Bucket:Events:{bucketId}")
+			.ToAsyncEnumerable()
+			.SelectMany(values => values.ToAsyncEnumerable())
+			.Select(value => (string)value!)
+			.Select(value => JsonSerializer.Deserialize<BucketEvent>(value, PlayerBucketUtility.SerializerOptions))
+			.Where(evt => evt is not null)
+			.Select(evt => evt!)
+			.Where(evt => evt.Id.CompareTo(snapshotId) > 0)
+			.OrderBy(evt => evt.Id)
+			.ToArrayAsync(cancellationToken)
+			.AsTask()
+			.ToAsyncEnumerable()
+			.SelectMany(arr => arr.ToAsyncEnumerable());
+
+	public async ValueTask FillInBucketAsync(Guid createId, Guid bucketId, FillInBucketInfo bucketInfo, CancellationToken cancellationToken = default)
+	{
+		var currentDate = DateTimeOffset.UtcNow;
+
+		var record = new BucketEvent(
+			createId,
+			bucketId,
+			-bucketInfo.Amount,
+			bucketInfo.Type,
+			bucketInfo.ExternalId,
+			bucketInfo.CreateJsonPatchDocument(),
+			currentDate.UtcDateTime);
+
+		var json = JsonSerializer.Serialize(record, PlayerBucketUtility.SerializerOptions);
+
+		_ = await _redisDatabase.ListRightPushAsync(
+			$"Tgs:Bucket:Events:{bucketId}",
+			json).ConfigureAwait(false);
+
+		_ = await _redisDatabase.SortedSetAddAsync(
+			$"Tgs.Bucket:CreateBuckets:{bucketInfo.PlayerCode}",
+			bucketId.ToString(),
+			currentDate.ToUnixTimeMilliseconds()).ConfigureAwait(false);
 	}
 }

@@ -5,9 +5,11 @@ using Json.Pointer;
 namespace Tgs.Service.PlayerBuckets;
 public record BucketCreateInfo(string PlayerCode, decimal Amount, BucketType Type, string? ExternalId)
 {
-	public string CreateJsonPatch(Guid bucketId)
-	{
-		var patch = new JsonPatch(
+	public JsonDocument CreateJsonPatchDocument(Guid bucketId)
+		=> JsonSerializer.SerializeToDocument(CreateJsonPatch(bucketId));
+
+	public JsonPatch CreateJsonPatch(Guid bucketId)
+		=> new(
 			PatchOperation.Add(
 				JsonPointer.Create<BucketInfo>(o => o),
 				JsonSerializer.SerializeToNode(new
@@ -17,7 +19,4 @@ public record BucketCreateInfo(string PlayerCode, decimal Amount, BucketType Typ
 					Amount,
 					Type
 				}, PlayerBucketUtility.SerializerOptions)));
-
-		return JsonSerializer.Serialize(patch);
-	}
 }

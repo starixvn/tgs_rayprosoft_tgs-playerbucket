@@ -18,4 +18,7 @@ internal class StubBucketCommand : IBucketCommand
 	}
 
 	public Task WaitAsync() => _completionSource.Task;
+
+	public Task WaitAsync(TimeSpan timeout, CancellationToken cancellationToken = default)
+		=> _completionSource.Task.WaitAsync(timeout, cancellationToken);
 }

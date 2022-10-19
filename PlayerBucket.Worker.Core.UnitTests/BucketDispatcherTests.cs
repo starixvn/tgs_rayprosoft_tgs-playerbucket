@@ -40,12 +40,16 @@ public class BucketDispatcherTests
 		_ = fakeServiceProvider.GetService<ITgsRepository>()
 			.Returns(fakeTgsRepository);
 
+		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
+		_ = fakeServiceProvider.GetService<IBucketEventRepository>()
+			.Returns(fakeBucketEventRepository);
+
 		_ = fakeServiceProvider.GetService<ILogger<BucketCounter>>()
 			.Returns(NullLogger<BucketCounter>.Instance);
 
 		await sut.PushCommandAsync("test1", command);
 
-		await command.WaitAsync().WaitAsync(TimeSpan.FromSeconds(1D));
+		await command.WaitAsync(TimeSpan.FromSeconds(1D));
 
 		Assert.IsTrue(command.IsExcuted);
 	}
@@ -75,6 +79,10 @@ public class BucketDispatcherTests
 		_ = fakeServiceProvider.GetService<ITgsRepository>()
 			.Returns(fakeTgsRepository);
 
+		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
+		_ = fakeServiceProvider.GetService<IBucketEventRepository>()
+			.Returns(fakeBucketEventRepository);
+
 		_ = fakeServiceProvider.GetService<ILogger<BucketCounter>>()
 			.Returns(NullLogger<BucketCounter>.Instance);
 
@@ -86,7 +94,7 @@ public class BucketDispatcherTests
 		var command4 = new FillInBucketCommand(10M, FillType.Game, null);
 
 		var createExpected = new BucketCreateInfo("test1", 30M, BucketType.Deposit, null);
-		var fillExpected = new FillInBucketInfo(10M, FillType.Game, null, false);
+		var fillExpected = new FillInBucketInfo("test1", 10M, FillType.Game, null, false);
 
 		await sut.PushCommandAsync("test1", createCommand);
 		await sut.PushCommandAsync("test1", command1);
@@ -100,19 +108,19 @@ public class BucketDispatcherTests
 		await command3.WaitAsync().WaitAsync(TimeSpan.FromSeconds(1D));
 		await command4.WaitAsync().WaitAsync(TimeSpan.FromSeconds(1D));
 
-		_ = fakeTgsRepository.Received(1)
+		_ = fakeBucketEventRepository.Received(1)
 			.AddPlayerBucketAsync(
 				Arg.Any<Guid>(),
 				Arg.Any<Guid>(),
 				Arg.Is(createExpected),
 				Arg.Any<CancellationToken>());
-		_ = fakeTgsRepository.Received(2)
+		_ = fakeBucketEventRepository.Received(2)
 			.FillInBucketAsync(
 				Arg.Any<Guid>(),
 				Arg.Any<Guid>(),
 				Arg.Is(fillExpected),
 				Arg.Any<CancellationToken>());
-		_ = fakeTgsRepository.Received(1)
+		_ = fakeBucketEventRepository.Received(1)
 			.FillInBucketAsync(
 				Arg.Any<Guid>(),
 				Arg.Any<Guid>(),

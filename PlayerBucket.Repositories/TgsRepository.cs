@@ -13,26 +13,6 @@ internal class TgsRepository : ITgsRepository
 		_dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
 	}
 
-	public async ValueTask AddPlayerBucketAsync(Guid createId, Guid bucketId, BucketCreateInfo bucket, CancellationToken cancellationToken = default)
-	{
-		var playerBucketEvent = new PlayerBucketEventSource
-		{
-			Id = createId,
-			BucketId = bucketId,
-			ChangeAmount = bucket.Amount,
-			ExternalId = bucket.ExternalId,
-			FillType = FillType.Create.ToString(),
-			CreatedOn = DateTime.UtcNow,
-			ChangeSets = bucket.CreateJsonPatch(bucketId)
-		};
-
-		_ = await _dbContext.PlayerBucketEventSources
-			.AddAsync(playerBucketEvent, cancellationToken)
-			.ConfigureAwait(false);
-
-		_ = await _dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-	}
-
 	public IAsyncEnumerable<BucketInfo> GetPlayerNotFullBucketsAsync(string playerCode, CancellationToken cancellationToken = default)
 		=> _dbContext.PlayerBuckets
 			.Where(pb => pb.PlayerCode == playerCode
@@ -48,30 +28,6 @@ internal class TgsRepository : ITgsRepository
 			.ToArrayAsync(cancellationToken)
 			.ToAsyncEnumerable()
 			.SelectMany(arr => arr.ToAsyncEnumerable());
-
-	public async ValueTask FillInBucketAsync(
-		Guid createId,
-		Guid bucketId,
-		FillInBucketInfo bucketInfo,
-		CancellationToken cancellationToken = default)
-	{
-		var playerBucketEvent = new PlayerBucketEventSource
-		{
-			Id = createId,
-			BucketId = bucketId,
-			ChangeAmount = -bucketInfo.Amount,
-			ExternalId = bucketInfo.ExternalId,
-			FillType = bucketInfo.Type.ToString(),
-			CreatedOn = DateTime.UtcNow,
-			ChangeSets = bucketInfo.CreateJsonPatch()
-		};
-
-		_ = await _dbContext.PlayerBucketEventSources
-			.AddAsync(playerBucketEvent, cancellationToken)
-			.ConfigureAwait(false);
-
-		_ = await _dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-	}
 
 	public IAsyncEnumerable<BucketEvent> GetBucketAllEventsAsync(Guid bucketId, CancellationToken cancellationToken = default)
 		=> _dbContext.PlayerBucketEventSources

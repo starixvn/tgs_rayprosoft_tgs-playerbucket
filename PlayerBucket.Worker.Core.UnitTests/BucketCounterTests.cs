@@ -15,6 +15,7 @@ public class BucketCounterTests
 			"test1",
 			Substitute.For<ISerialNumberGenerator>(),
 			Substitute.For<ITgsRepository>(),
+			Substitute.For<IBucketEventRepository>(),
 			NullLogger<BucketCounter>.Instance);
 
 		var command = new StubBucketCommand();
@@ -32,11 +33,13 @@ public class BucketCounterTests
 	{
 		var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();
 		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
 
 		var sut = new BucketCounter(
 			"test1",
 			fakeSerialNumberGenerator,
 			fakeTgsRepository,
+			fakeBucketEventRepository,
 			NullLogger<BucketCounter>.Instance);
 
 		var externalId = Guid.NewGuid().ToString();
@@ -49,7 +52,7 @@ public class BucketCounterTests
 
 		_ = await command.GetCreatedIdAsync().WaitAsync(TimeSpan.FromSeconds(1D));
 
-		_ = fakeTgsRepository.Received(1)
+		_ = fakeBucketEventRepository.Received(1)
 			.AddPlayerBucketAsync(
 				Arg.Any<Guid>(),
 				Arg.Any<Guid>(),
@@ -62,21 +65,23 @@ public class BucketCounterTests
 	{
 		var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();
 		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
 
 		var sut = new BucketCounter(
 			"test1",
 			fakeSerialNumberGenerator,
 			fakeTgsRepository,
+			fakeBucketEventRepository,
 			NullLogger<BucketCounter>.Instance);
 
 		var externalId = Guid.NewGuid().ToString();
 		var command = new FillInBucketCommand(100M, FillType.Game, externalId);
 
-		var expected = new FillInBucketInfo(100M, FillType.Game, externalId, false);
+		var expected = new FillInBucketInfo("test1", 100M, FillType.Game, externalId, false);
 
 		_ = fakeTgsRepository.GetPlayerNotFullBucketsAsync(
 			Arg.Is("test1"),
-			 Arg.Any<CancellationToken>())
+			Arg.Any<CancellationToken>())
 			.Returns(new[] {
 				new BucketInfo(
 					Guid.NewGuid(),
@@ -93,7 +98,7 @@ public class BucketCounterTests
 
 		await command.WaitAsync().WaitAsync(TimeSpan.FromSeconds(1D));
 
-		_ = fakeTgsRepository.Received(1)
+		_ = fakeBucketEventRepository.Received(1)
 			.FillInBucketAsync(
 				Arg.Any<Guid>(),
 				Arg.Any<Guid>(),
@@ -106,11 +111,13 @@ public class BucketCounterTests
 	{
 		var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();
 		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
 
 		var sut = new BucketCounter(
 			"test1",
 			fakeSerialNumberGenerator,
 			fakeTgsRepository,
+			fakeBucketEventRepository,
 			NullLogger<BucketCounter>.Instance);
 
 		var externalId = Guid.NewGuid().ToString();
@@ -119,11 +126,11 @@ public class BucketCounterTests
 		var command3 = new FillInBucketCommand(10M, FillType.Game, externalId);
 		var command4 = new FillInBucketCommand(10M, FillType.Game, externalId);
 
-		var expected = new FillInBucketInfo(10M, FillType.Game, externalId, false);
+		var expected = new FillInBucketInfo("test1", 10M, FillType.Game, externalId, false);
 
 		_ = fakeTgsRepository.GetPlayerNotFullBucketsAsync(
 			Arg.Is("test1"),
-			 Arg.Any<CancellationToken>())
+			Arg.Any<CancellationToken>())
 			.Returns(new[] {
 				new BucketInfo(
 					Guid.NewGuid(),
@@ -146,13 +153,13 @@ public class BucketCounterTests
 		await command3.WaitAsync().WaitAsync(TimeSpan.FromSeconds(1D));
 		await command4.WaitAsync().WaitAsync(TimeSpan.FromSeconds(1D));
 
-		_ = fakeTgsRepository.Received(2)
+		_ = fakeBucketEventRepository.Received(2)
 			.FillInBucketAsync(
 				Arg.Any<Guid>(),
 				Arg.Any<Guid>(),
 				Arg.Is(expected),
 				Arg.Any<CancellationToken>());
-		_ = fakeTgsRepository.Received(1)
+		_ = fakeBucketEventRepository.Received(1)
 			.FillInBucketAsync(
 				Arg.Any<Guid>(),
 				Arg.Any<Guid>(),
@@ -165,11 +172,13 @@ public class BucketCounterTests
 	{
 		var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();
 		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
 
 		var sut = new BucketCounter(
 			"test1",
 			fakeSerialNumberGenerator,
 			fakeTgsRepository,
+			fakeBucketEventRepository,
 			NullLogger<BucketCounter>.Instance);
 
 		var externalId = Guid.NewGuid().ToString();
@@ -180,7 +189,7 @@ public class BucketCounterTests
 		var command4 = new FillInBucketCommand(10M, FillType.Game, externalId);
 
 		var createExpected = new BucketCreateInfo("test1", 30M, BucketType.Deposit, externalId);
-		var fillExpected = new FillInBucketInfo(10M, FillType.Game, externalId, false);
+		var fillExpected = new FillInBucketInfo("test1", 10M, FillType.Game, externalId, false);
 
 		await sut.PrepareAsync();
 		await sut.PushCommandAsync(createCommand);
@@ -195,19 +204,19 @@ public class BucketCounterTests
 		await command3.WaitAsync().WaitAsync(TimeSpan.FromSeconds(1D));
 		await command4.WaitAsync().WaitAsync(TimeSpan.FromSeconds(1D));
 
-		_ = fakeTgsRepository.Received(1)
+		_ = fakeBucketEventRepository.Received(1)
 			.AddPlayerBucketAsync(
 				Arg.Any<Guid>(),
 				Arg.Any<Guid>(),
 				Arg.Is(createExpected),
 				Arg.Any<CancellationToken>());
-		_ = fakeTgsRepository.Received(2)
+		_ = fakeBucketEventRepository.Received(2)
 			.FillInBucketAsync(
 				Arg.Any<Guid>(),
 				Arg.Any<Guid>(),
 				Arg.Is(fillExpected),
 				Arg.Any<CancellationToken>());
-		_ = fakeTgsRepository.Received(1)
+		_ = fakeBucketEventRepository.Received(1)
 			.FillInBucketAsync(
 				Arg.Any<Guid>(),
 				Arg.Any<Guid>(),
@@ -222,6 +231,7 @@ public class BucketCounterTests
 			"test1",
 			Substitute.For<ISerialNumberGenerator>(),
 			Substitute.For<ITgsRepository>(),
+			Substitute.For<IBucketEventRepository>(),
 			NullLogger<BucketCounter>.Instance);
 
 		var command = new StubBucketCommand();

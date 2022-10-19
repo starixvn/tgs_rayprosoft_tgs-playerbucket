@@ -2,6 +2,8 @@
 
 public interface IBucketStore
 {
+	string PlayerCode { get; }
+
 	ValueTask<Guid> CreateBucketAsync(decimal amount, BucketType type, string? externalId, CancellationToken cancellationToken = default);
 
 	ValueTask<BucketInfo?> GetNotFullBucketAsync(CancellationToken cancellationToken = default);

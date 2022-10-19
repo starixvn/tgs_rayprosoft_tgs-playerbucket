@@ -31,11 +31,13 @@ public class FillInBucketCommand : IBucketCommand
 
 			var fillInfo = bucketNotFillAmount < remainingAmount
 				? new FillInBucketInfo(
+					bucketStore.PlayerCode,
 					bucketNotFillAmount,
 					_type,
 					_externalId,
 					true)
 				: new FillInBucketInfo(
+					bucketStore.PlayerCode,
 					remainingAmount,
 					_type,
 					_externalId,
@@ -53,4 +55,7 @@ public class FillInBucketCommand : IBucketCommand
 	}
 
 	public Task WaitAsync() => _taskCompletionSource.Task;
+
+	public Task WaitAsync(TimeSpan timeout, CancellationToken cancellationToken = default)
+		=> _taskCompletionSource.Task.WaitAsync(timeout, cancellationToken);
 }

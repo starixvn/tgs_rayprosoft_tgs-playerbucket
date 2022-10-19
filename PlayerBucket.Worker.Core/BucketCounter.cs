@@ -8,9 +8,9 @@ namespace Tgs.Service.PlayerBuckets;
 
 internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 {
-	private readonly string _playerCode;
 	private readonly ISerialNumberGenerator _serialNumberGenerator;
 	private readonly ITgsRepository _tgsRepository;
+	private readonly IBucketEventRepository _bucketEventRepository;
 	private readonly ILogger<BucketCounter> _logger;
 	private readonly List<BucketInfo> _buckets = new();
 
@@ -28,18 +28,22 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 
 	public event EventHandler? Disposed;
 
+	public string PlayerCode { get; }
+
 	public BucketCounter(
 		string playerCode,
 		ISerialNumberGenerator serialNumberGenerator,
 		ITgsRepository tgsRepository,
+		IBucketEventRepository bucketEventRepository,
 		ILogger<BucketCounter> logger)
 	{
 		if (string.IsNullOrWhiteSpace(playerCode))
 			throw new ArgumentException($"'{nameof(playerCode)}' 不得為 Null 或空白字元。", nameof(playerCode));
 
-		_playerCode = playerCode;
+		PlayerCode = playerCode;
 		_serialNumberGenerator = serialNumberGenerator ?? throw new ArgumentNullException(nameof(serialNumberGenerator));
 		_tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
+		_bucketEventRepository = bucketEventRepository ?? throw new ArgumentNullException(nameof(bucketEventRepository));
 		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	}
 
@@ -85,11 +89,11 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 			.GenerateAsync(cancellationToken)
 			.ConfigureAwait(false);
 
-		await _tgsRepository.AddPlayerBucketAsync(
+		await _bucketEventRepository.AddPlayerBucketAsync(
 			createId,
 			bucketId,
 			new BucketCreateInfo(
-				_playerCode,
+				PlayerCode,
 				amount,
 				type,
 				externalId),
@@ -97,7 +101,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 
 		_buckets.Add(new BucketInfo(
 			bucketId,
-			_playerCode,
+			PlayerCode,
 			amount,
 			type,
 			0M,
@@ -137,7 +141,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 			.GenerateAsync(cancellationToken)
 			.ConfigureAwait(false);
 
-		await _tgsRepository.FillInBucketAsync(
+		await _bucketEventRepository.FillInBucketAsync(
 			newEventId,
 			bucket.Id,
 			fillInInfo,
@@ -184,7 +188,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 
 	private async ValueTask PrepareNotFullBucketsAsync(CancellationToken cancellationToken = default)
 	{
-		var allNotFullBuckets = _tgsRepository.GetPlayerNotFullBucketsAsync(_playerCode, cancellationToken);
+		var allNotFullBuckets = _tgsRepository.GetPlayerNotFullBucketsAsync(PlayerCode, cancellationToken);
 
 		await foreach (var bucket in allNotFullBuckets.WithCancellation(cancellationToken).ConfigureAwait(false))
 			_buckets.Add(bucket);
@@ -218,13 +222,18 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 	{
 		var bucketEvents = source.SnapshotId is null
 			? _tgsRepository.GetBucketAllEventsAsync(source.Id, cancellationToken)
-			: _tgsRepository.GetBucketAllEventsAsync(source.Id, source.SnapshotId.Value, cancellationToken);
+			: _tgsRepository
+				.GetBucketAllEventsAsync(source.Id, source.SnapshotId.Value, cancellationToken)
+				.Union(_bucketEventRepository.GetBucketAllEventsAsync(
+					source.Id,
+					source.SnapshotId.Value,
+					cancellationToken));
 
 		var snapshotId = Guid.Empty;
 		var usedAmount = 0M;
 		var snapshotBucket = source;
 
-		await foreach (var evt in bucketEvents
+		await foreach (var evt in bucketEvents.OrderBy(evt => evt.Id)
 			.WithCancellation(cancellationToken)
 			.ConfigureAwait(false))
 		{

@@ -1,6 +1,5 @@
 using System.Text.Json;
 using Json.Patch;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tgs.Service.PlayerBuckets;
 using Tgs.Service.PlayerBuckets.ApplicationServices;
@@ -44,10 +43,14 @@ public class BucketTests
 			false,
 			null);
 
+		_ = fakeBucketStore.PlayerCode
+			.Returns(bucket.PlayerCode);
+
 		_ = fakeBucketStore.GetNotFullBucketAsync()
 			.Returns(bucket);
 
 		var expectedFillInfo = new FillInBucketInfo(
+			bucket.PlayerCode,
 			100M,
 			FillType.Game,
 			externalId,
@@ -55,7 +58,7 @@ public class BucketTests
 
 		await sut.ExecuteAsync(fakeBucketStore);
 
-		await sut.WaitAsync().WaitAsync(TimeSpan.FromSeconds(1D));
+		await sut.WaitAsync(TimeSpan.FromSeconds(1D));
 
 		_ = fakeBucketStore.Received(1)
 			.FillInBucketAsync(
@@ -90,10 +93,14 @@ public class BucketTests
 
 		var returnBuckets = new Queue<BucketInfo>(new[] { firstBucket, secondBucket });
 
+		_ = fakeBucketStore.PlayerCode
+			.Returns("player1");
+
 		_ = fakeBucketStore.GetNotFullBucketAsync()
 			.Returns(_ => returnBuckets.Dequeue());
 
 		var expectedFillInfo = new FillInBucketInfo(
+			"player1",
 			40M,
 			FillType.Game,
 			externalId,
@@ -101,7 +108,7 @@ public class BucketTests
 
 		await sut.ExecuteAsync(fakeBucketStore);
 
-		await sut.WaitAsync().WaitAsync(TimeSpan.FromSeconds(1D));
+		await sut.WaitAsync(TimeSpan.FromSeconds(1D));
 
 		_ = fakeBucketStore.Received(1)
 			.FillInBucketAsync(
@@ -155,11 +162,11 @@ public class BucketTests
 				1000M,
 				FillType.Create,
 				null,
-				JsonDocument.Parse(new BucketCreateInfo(
+				new BucketCreateInfo(
 					"test1",
 					1000M,
 					BucketType.Deposit,
-					null).CreateJsonPatch(command.BucketId)),
+					null).CreateJsonPatchDocument(command.BucketId),
 				DateTime.UtcNow),
 			new BucketEvent(
 				Guid.NewGuid(),
@@ -183,15 +190,16 @@ public class BucketTests
 				-200M,
 				FillType.Game,
 				null,
-				JsonDocument.Parse(new FillInBucketInfo(
+				new FillInBucketInfo(
+					"test1",
 					200M,
 					FillType.Adjust,
 					null,
-					true).CreateJsonPatch()),
+					true).CreateJsonPatchDocument(),
 				DateTime.UtcNow)
 		};
 		_ = fakeTgsRepository.GetBucketAllEventsAsync(Arg.Is(command.BucketId))
-			.Returns(allEvents.ToAsyncEnumerable());
+				.Returns(allEvents.ToAsyncEnumerable());
 
 		var expected = new BucketInfo(
 			command.BucketId,
@@ -205,9 +213,9 @@ public class BucketTests
 		await sut.ExecuteAsync(command);
 
 		_ = fakeTgsRepository.Received(1)
-			.UpdatePlayerBucketAsync(
-				Arg.Is(expected),
-				450M);
+				.UpdatePlayerBucketAsync(
+					Arg.Is(expected),
+					450M);
 	}
 
 	[TestMethod]
@@ -225,8 +233,7 @@ public class BucketTests
 			false,
 			null);
 
-		var patchJson = sut.CreateJsonPatch(bucketId);
-		var patch = JsonSerializer.Deserialize<JsonPatch>(JsonDocument.Parse(patchJson));
+		var patch = sut.CreateJsonPatch(bucketId);
 
 		var actual = patch?.Apply<BucketInfo?>(null, PlayerBucketUtility.SerializerOptions);
 
@@ -236,10 +243,9 @@ public class BucketTests
 	[TestMethod]
 	public void FillInBucketInfo_產生JsonPatch字串()
 	{
-		var sut = new FillInBucketInfo(100M, FillType.Game, null, false);
+		var sut = new FillInBucketInfo("test1", 100M, FillType.Game, null, false);
 
-		var patchJson = sut.CreateJsonPatch();
-		var patch = JsonSerializer.Deserialize<JsonPatch>(JsonDocument.Parse(patchJson));
+		var patch = sut.CreateJsonPatch();
 
 		var expected = new { IsFull = false };
 
@@ -251,10 +257,9 @@ public class BucketTests
 	[TestMethod]
 	public void FillInBucketInfo_當SetFull為True時產生JsonPatch字串()
 	{
-		var sut = new FillInBucketInfo(100M, FillType.Game, null, true);
+		var sut = new FillInBucketInfo("test1", 100M, FillType.Game, null, true);
 
-		var patchJson = sut.CreateJsonPatch();
-		var patch = JsonSerializer.Deserialize<JsonPatch>(JsonDocument.Parse(patchJson));
+		var patch = sut.CreateJsonPatch();
 
 		var expected = new { IsFull = true };
 
