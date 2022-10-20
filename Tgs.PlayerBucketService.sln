@@ -27,9 +27,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tgs.PlayerBucketWorker", "T
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucket.Client", "PlayerBucket.Client\PlayerBucket.Client.csproj", "{3E550A6E-E1A2-4A9B-A782-A585460437C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tgs.PlayerBucketWorker.IntegrationTests", "Tgs.PlayerBucketWorker.IntegrationTests\Tgs.PlayerBucketWorker.IntegrationTests.csproj", "{A2CF7BBB-713D-4F29-97B4-993D162B6FA0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tgs.PlayerBucketWorker.IntegrationTests", "Tgs.PlayerBucketWorker.IntegrationTests\Tgs.PlayerBucketWorker.IntegrationTests.csproj", "{A2CF7BBB-713D-4F29-97B4-993D162B6FA0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerBucket.Repositories.UnitTests", "PlayerBucket.Repositories.UnitTests\PlayerBucket.Repositories.UnitTests.csproj", "{D1639FC7-F811-4BFD-BC8B-13398078C139}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucket.Repositories.UnitTests", "PlayerBucket.Repositories.UnitTests\PlayerBucket.Repositories.UnitTests.csproj", "{D1639FC7-F811-4BFD-BC8B-13398078C139}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

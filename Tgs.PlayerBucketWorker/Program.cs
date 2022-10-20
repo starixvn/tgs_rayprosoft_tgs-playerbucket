@@ -7,6 +7,7 @@ using OpenTelemetry.Exporter;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Tgs.MessageQueue.MongoDB.Configuration;
 using Tgs.PlayerBucket.Clients.DependencyInjection;
 using Tgs.PlayerBucketWorker;
 using Tgs.PlayerBucketWorker.MessageQueue;
@@ -34,6 +35,7 @@ builder.Logging
 
 builder.Services
 	.AddPlayerBucketWorker()
+	.AddEventBus()
 	.AddPlayerBucketRepositories((_, contextBuilder) => contextBuilder
 		.UseNpgsql("name=Tgs"))
 	.AddSingleton(sp => ActivatorUtilities.CreateInstance<RedisConnectionManager>(
@@ -56,7 +58,14 @@ builder.Services
 		.AddReplyHandler<FillInBucketHandler>($"tgs.bucket.worker.fill.{Environment.MachineName}")
 		.AddProcessor<CreateBucketDispatchProcessor>("tgs.bucket.create", "tgs.bucket.create")
 		.AddReplyHandler<FillInBucketDispatchHandler>("tgs.bucket.fill", "tgs.bucket.fill"))
-	.ClearAllExchanges()
+	.AddMongoMessageQueue(config => config
+		.DefineMessageQueue("PlayerBucket", sp => new MongoMessageQueueBuilderOptions
+		{
+			MessageQueue = MongoDB.Messaging.MessageQueue.Default,
+			ConnectionString = builder.Configuration.GetConnectionString("Mongo")
+		})
+		.DeclareQueue("bucket_event_requests"))
+	.AddMongoGlobPatternExchange("tgs.bucket.persistent", "PlayerBucket", "bucket_event_requests")
 	.AddNatsGlobPatternExchange("*");
 
 builder.Services

@@ -9,5 +9,8 @@ public static class ServiceCollectionExtensions
 		=> services
 			.RegisterAllServiceUtilityTypes(Assembly.GetExecutingAssembly(), ServiceLifetime.Transient)
 			.AddSerialNumberGenerator()
-			.AddSingleton<IBucketDispatcher, BucketDispatcher>();
+			.AddSingleton<IBucketDispatcher, BucketDispatcher>()
+			.AddSingleton<InProcessMessageQueue>()
+			.AddTransient<IEventSource>(sp => sp.GetRequiredService<InProcessMessageQueue>())
+			.AddTransient<IEventBus>(sp => sp.GetRequiredService<InProcessMessageQueue>());
 }

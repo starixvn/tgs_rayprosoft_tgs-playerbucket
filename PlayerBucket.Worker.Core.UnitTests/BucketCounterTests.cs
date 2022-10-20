@@ -16,6 +16,7 @@ public class BucketCounterTests
 			Substitute.For<ISerialNumberGenerator>(),
 			Substitute.For<ITgsRepository>(),
 			Substitute.For<IBucketEventRepository>(),
+			Substitute.For<IEventSource>(),
 			NullLogger<BucketCounter>.Instance);
 
 		var command = new StubBucketCommand();
@@ -40,6 +41,7 @@ public class BucketCounterTests
 			fakeSerialNumberGenerator,
 			fakeTgsRepository,
 			fakeBucketEventRepository,
+			Substitute.For<IEventSource>(),
 			NullLogger<BucketCounter>.Instance);
 
 		var externalId = Guid.NewGuid().ToString();
@@ -72,6 +74,7 @@ public class BucketCounterTests
 			fakeSerialNumberGenerator,
 			fakeTgsRepository,
 			fakeBucketEventRepository,
+			Substitute.For<IEventSource>(),
 			NullLogger<BucketCounter>.Instance);
 
 		var externalId = Guid.NewGuid().ToString();
@@ -118,6 +121,7 @@ public class BucketCounterTests
 			fakeSerialNumberGenerator,
 			fakeTgsRepository,
 			fakeBucketEventRepository,
+			Substitute.For<IEventSource>(),
 			NullLogger<BucketCounter>.Instance);
 
 		var externalId = Guid.NewGuid().ToString();
@@ -179,6 +183,7 @@ public class BucketCounterTests
 			fakeSerialNumberGenerator,
 			fakeTgsRepository,
 			fakeBucketEventRepository,
+			Substitute.For<IEventSource>(),
 			NullLogger<BucketCounter>.Instance);
 
 		var externalId = Guid.NewGuid().ToString();
@@ -232,6 +237,7 @@ public class BucketCounterTests
 			Substitute.For<ISerialNumberGenerator>(),
 			Substitute.For<ITgsRepository>(),
 			Substitute.For<IBucketEventRepository>(),
+			Substitute.For<IEventSource>(),
 			NullLogger<BucketCounter>.Instance);
 
 		var command = new StubBucketCommand();

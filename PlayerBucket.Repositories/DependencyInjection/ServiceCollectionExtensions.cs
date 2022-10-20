@@ -7,6 +7,10 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class ServiceCollectionExtensions
 {
+	public static IServiceCollection AddEventBus(this IServiceCollection services)
+		=> services
+			.AddHostedService<BucketChangedObserver>();
+
 	public static IServiceCollection AddPlayerBucketRepositories(
 		this IServiceCollection services,
 		Action<IServiceProvider, DbContextOptionsBuilder> dbContextConfigure)
@@ -18,7 +22,9 @@ public static class ServiceCollectionExtensions
 		this IServiceCollection services,
 		Func<IServiceProvider, StackExchange.Redis.IDatabase> resolveRedisDatabase)
 		=> services
-			.AddSingleton<IDistributedResourceManager>(sp => ActivatorUtilities.CreateInstance<RedisDistributedResourceManager>(
+			.AddSingleton(sp => ActivatorUtilities.CreateInstance<RedisDistributedResourceManager>(
 				sp,
-				resolveRedisDatabase(sp)));
+				resolveRedisDatabase(sp)))
+			.AddTransient<IDistributedResourceManager>(sp => sp.GetRequiredService<RedisDistributedResourceManager>())
+			.AddTransient<IBucketEventRepository>(sp => sp.GetRequiredService<RedisDistributedResourceManager>());
 }

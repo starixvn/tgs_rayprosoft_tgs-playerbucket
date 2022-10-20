@@ -6,9 +6,13 @@ public interface IBucketEventRepository
 
 	IAsyncEnumerable<BucketEvent> GetBucketAllEventsAsync(Guid bucketId, Guid snapshotId, CancellationToken cancellationToken = default);
 
+	IAsyncEnumerable<BucketEvent> GetBucketAllEventsAsync(Guid bucketId, CancellationToken cancellationToken = default);
+
 	ValueTask FillInBucketAsync(
 		Guid createId,
 		Guid bucketId,
 		FillInBucketInfo bucketInfo,
 		CancellationToken cancellationToken = default);
+
+	IAsyncEnumerable<Guid> GetPlayerCreatedBucketIdsAsync(string playerCode, CancellationToken cancellationToken = default);
 }

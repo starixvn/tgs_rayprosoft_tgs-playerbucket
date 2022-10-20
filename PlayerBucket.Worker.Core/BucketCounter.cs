@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Reactive.Linq;
+using System.Text.Json;
 using System.Threading.Channels;
 using Json.Patch;
 using Microsoft.Extensions.Logging;
@@ -11,6 +12,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 	private readonly ISerialNumberGenerator _serialNumberGenerator;
 	private readonly ITgsRepository _tgsRepository;
 	private readonly IBucketEventRepository _bucketEventRepository;
+	private readonly IEventSource _eventSource;
 	private readonly ILogger<BucketCounter> _logger;
 	private readonly List<BucketInfo> _buckets = new();
 
@@ -35,6 +37,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 		ISerialNumberGenerator serialNumberGenerator,
 		ITgsRepository tgsRepository,
 		IBucketEventRepository bucketEventRepository,
+		IEventSource eventSource,
 		ILogger<BucketCounter> logger)
 	{
 		if (string.IsNullOrWhiteSpace(playerCode))
@@ -44,6 +47,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 		_serialNumberGenerator = serialNumberGenerator ?? throw new ArgumentNullException(nameof(serialNumberGenerator));
 		_tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
 		_bucketEventRepository = bucketEventRepository ?? throw new ArgumentNullException(nameof(bucketEventRepository));
+		_eventSource = eventSource ?? throw new ArgumentNullException(nameof(eventSource));
 		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	}
 
@@ -108,6 +112,10 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 			false,
 			createId));
 
+		await _eventSource.PublishBucketChangedAsync(
+			new BucketChangedEvent(bucketId),
+			cancellationToken).ConfigureAwait(false);
+
 		return bucketId;
 	}
 
@@ -119,6 +127,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 		var bucket = _buckets[0];
 
 		var snapshotBucket = await MakeSnapshotAsync(
+			bucket.Id,
 			bucket,
 			cancellationToken).ConfigureAwait(false);
 
@@ -156,6 +165,10 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 			_ = _buckets.Remove(bucket);
 		else
 			_buckets[0] = newBucket;
+
+		await _eventSource.PublishBucketChangedAsync(
+			new BucketChangedEvent(bucket.Id),
+			cancellationToken).ConfigureAwait(false);
 	}
 
 	public ValueTask DisposeAsync()
@@ -188,9 +201,33 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 
 	private async ValueTask PrepareNotFullBucketsAsync(CancellationToken cancellationToken = default)
 	{
-		var allNotFullBuckets = _tgsRepository.GetPlayerNotFullBucketsAsync(PlayerCode, cancellationToken);
+		var databaeAllNotFullBuckets = await _tgsRepository
+			.GetPlayerNotFullBucketsAsync(PlayerCode, cancellationToken)
+			.ToArrayAsync(cancellationToken: cancellationToken)
+			.ConfigureAwait(false);
 
-		await foreach (var bucket in allNotFullBuckets.WithCancellation(cancellationToken).ConfigureAwait(false))
+		var tempAllBucketIds = await _bucketEventRepository
+			.GetPlayerCreatedBucketIdsAsync(PlayerCode, cancellationToken)
+			.ToArrayAsync(cancellationToken: cancellationToken)
+			.ConfigureAwait(false);
+
+		var notYetInDatabaseIds = from id in tempAllBucketIds
+								  join bucket in databaeAllNotFullBuckets
+									on id equals bucket.Id into g
+								  from bucket in g.DefaultIfEmpty()
+								  where bucket is null
+								  select id;
+
+		var tempBuckets = notYetInDatabaseIds.ToAsyncEnumerable()
+			.SelectMany(id => MakeSnapshotAsync(
+				id,
+				null,
+				cancellationToken).AsTask().ToAsyncEnumerable());
+
+		await foreach (var bucket in databaeAllNotFullBuckets.ToAsyncEnumerable().Union(tempBuckets)
+			.OrderBy(bucket => bucket.Id)
+			.WithCancellation(cancellationToken)
+			.ConfigureAwait(false))
 			_buckets.Add(bucket);
 	}
 
@@ -218,16 +255,24 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 	private ValueTask CountAsync(IBucketCommand command, CancellationToken cancellationToken = default)
 		=> command.ExecuteAsync(this, cancellationToken);
 
-	private async ValueTask<BucketInfo> MakeSnapshotAsync(BucketInfo source, CancellationToken cancellationToken = default)
+	private async ValueTask<BucketInfo> MakeSnapshotAsync(Guid bucketId, BucketInfo? source, CancellationToken cancellationToken = default)
 	{
-		var bucketEvents = source.SnapshotId is null
-			? _tgsRepository.GetBucketAllEventsAsync(source.Id, cancellationToken)
-			: _tgsRepository
+		var bucketEvents = source switch
+		{
+			_ when source is null => _bucketEventRepository.GetBucketAllEventsAsync(
+				bucketId,
+				cancellationToken),
+			_ when source is not null && source.SnapshotId is null => _tgsRepository.GetBucketAllEventsAsync(
+				bucketId,
+				cancellationToken),
+			_ when source is not null && source.SnapshotId.HasValue => _tgsRepository
 				.GetBucketAllEventsAsync(source.Id, source.SnapshotId.Value, cancellationToken)
 				.Union(_bucketEventRepository.GetBucketAllEventsAsync(
-					source.Id,
+					bucketId,
 					source.SnapshotId.Value,
-					cancellationToken));
+					cancellationToken)),
+			_ => throw new Exception($"Can't create snapshot, BucketId: {bucketId}")
+		};
 
 		var snapshotId = Guid.Empty;
 		var usedAmount = 0M;
@@ -248,7 +293,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 		return snapshotBucket! with
 		{
 			SnapshotId = snapshotId,
-			FillInAmount = source.FillInAmount + usedAmount
+			FillInAmount = (source?.FillInAmount ?? 0M) + usedAmount
 		};
 	}
 

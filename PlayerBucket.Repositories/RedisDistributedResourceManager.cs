@@ -73,16 +73,8 @@ internal class RedisDistributedResourceManager : IDistributedResourceManager, IB
 	}
 
 	public IAsyncEnumerable<BucketEvent> GetBucketAllEventsAsync(Guid bucketId, Guid snapshotId, CancellationToken cancellationToken = default)
-		=> _redisDatabase
-			.ListRangeAsync($"Tgs:Bucket:Events:{bucketId}")
-			.ToAsyncEnumerable()
-			.SelectMany(values => values.ToAsyncEnumerable())
-			.Select(value => (string)value!)
-			.Select(value => JsonSerializer.Deserialize<BucketEvent>(value, PlayerBucketUtility.SerializerOptions))
-			.Where(evt => evt is not null)
-			.Select(evt => evt!)
+		=> GetBucketAllEventsAsync(bucketId, cancellationToken)
 			.Where(evt => evt.Id.CompareTo(snapshotId) > 0)
-			.OrderBy(evt => evt.Id)
 			.ToArrayAsync(cancellationToken)
 			.AsTask()
 			.ToAsyncEnumerable()
@@ -112,4 +104,27 @@ internal class RedisDistributedResourceManager : IDistributedResourceManager, IB
 			bucketId.ToString(),
 			currentDate.ToUnixTimeMilliseconds()).ConfigureAwait(false);
 	}
+
+	public IAsyncEnumerable<Guid> GetPlayerCreatedBucketIdsAsync(string playerCode, CancellationToken cancellationToken = default)
+		=> _redisDatabase.SortedSetRangeByScoreAsync($"Tgs.Bucket:CreateBuckets:{playerCode}")
+			.ToAsyncEnumerable()
+			.SelectMany(values => values.ToAsyncEnumerable())
+			.Select(value => Guid.Parse((string)value!))
+			.ToArrayAsync(cancellationToken)
+			.AsTask()
+			.ToAsyncEnumerable()
+			.SelectMany(arr => arr.ToAsyncEnumerable());
+
+	public IAsyncEnumerable<BucketEvent> GetBucketAllEventsAsync(Guid bucketId, CancellationToken cancellationToken = default)
+		=> _redisDatabase
+			.ListRangeAsync($"Tgs:Bucket:Events:{bucketId}")
+			.ToAsyncEnumerable()
+			.SelectMany(values => values.ToAsyncEnumerable())
+			.Select(value => JsonSerializer.Deserialize<BucketEvent>((string)value!, PlayerBucketUtility.SerializerOptions))
+			.Where(evt => evt is not null)
+			.Select(evt => evt!)
+			.ToArrayAsync(cancellationToken)
+			.AsTask()
+			.ToAsyncEnumerable()
+			.SelectMany(arr => arr.ToAsyncEnumerable());
 }
