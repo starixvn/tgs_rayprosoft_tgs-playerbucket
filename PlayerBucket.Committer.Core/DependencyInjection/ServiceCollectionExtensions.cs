@@ -1,4 +1,6 @@
 ﻿using System.Reflection;
+using Tgs.PlayerBuckets.Committer;
+using Tgs.Service.PlayerBuckets;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -6,5 +8,9 @@ public static class ServiceCollectionExtensions
 {
 	public static IServiceCollection AddPlayerBucketCommitter(this IServiceCollection services)
 		=> services
-			.RegisterAllServiceUtilityTypes(Assembly.GetExecutingAssembly(), ServiceLifetime.Transient);
+			.RegisterAllServiceUtilityTypes(Assembly.GetExecutingAssembly(), ServiceLifetime.Transient)
+			.AddHostedService<BucketCommitterDispatcher>()
+			.AddSingleton<InProcessMessageQueue>()
+			.AddTransient<IEventBus>(sp => sp.GetRequiredService<InProcessMessageQueue>())
+			.AddTransient<IEventSource>(sp => sp.GetRequiredService<InProcessMessageQueue>());
 }

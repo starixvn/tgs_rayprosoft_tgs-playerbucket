@@ -233,6 +233,8 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 
 	private async Task ProcessCommandLoopAsync(CancellationToken cancellationToken = default)
 	{
+		await Task.Yield();
+
 		var reader = _channel.Reader;
 		while (await reader
 			.WaitToReadAsync(cancellationToken)

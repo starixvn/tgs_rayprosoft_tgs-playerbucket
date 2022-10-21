@@ -44,6 +44,10 @@ public class BucketDispatcherTests
 		_ = fakeServiceProvider.GetService<IBucketEventRepository>()
 			.Returns(fakeBucketEventRepository);
 
+		var fakeEventSource = Substitute.For<IEventSource>();
+		_ = fakeServiceProvider.GetService<IEventSource>()
+			.Returns(fakeEventSource);
+
 		_ = fakeServiceProvider.GetService<ILogger<BucketCounter>>()
 			.Returns(NullLogger<BucketCounter>.Instance);
 
@@ -82,6 +86,10 @@ public class BucketDispatcherTests
 		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
 		_ = fakeServiceProvider.GetService<IBucketEventRepository>()
 			.Returns(fakeBucketEventRepository);
+
+		var fakeEventSource = Substitute.For<IEventSource>();
+		_ = fakeServiceProvider.GetService<IEventSource>()
+			.Returns(fakeEventSource);
 
 		_ = fakeServiceProvider.GetService<ILogger<BucketCounter>>()
 			.Returns(NullLogger<BucketCounter>.Instance);

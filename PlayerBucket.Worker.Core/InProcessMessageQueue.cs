@@ -1,18 +1,16 @@
 ﻿using System.Reactive.Linq;
-using System.Reactive.Subjects;
+using System.Threading.Tasks.Dataflow;
 
 namespace Tgs.Service.PlayerBuckets;
 
 internal class InProcessMessageQueue : IEventBus, IEventSource
 {
-	private readonly Subject<BucketChangedEvent> _bucketChangedSubject = new();
+	private readonly BroadcastBlock<BucketChangedEvent> _broadcastBlock = new(null);
 
-	public IObservable<BucketChangedEvent> BucketChangedObservable => _bucketChangedSubject.AsObservable();
+	public IObservable<BucketChangedEvent> BucketChangedObservable => _broadcastBlock.AsObservable();
 
-	public ValueTask PublishBucketChangedAsync(BucketChangedEvent evt, CancellationToken cancellationToken = default)
+	public async ValueTask PublishBucketChangedAsync(BucketChangedEvent evt, CancellationToken cancellationToken = default)
 	{
-		_bucketChangedSubject.OnNext(evt);
-
-		return ValueTask.CompletedTask;
+		_ = await _broadcastBlock.SendAsync(evt).ConfigureAwait(false);
 	}
 }
