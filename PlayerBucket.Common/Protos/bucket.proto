@@ -9,6 +9,10 @@ message BidRequest {
 	string player_code = 1;
 }
 
+message CommitBidRequest {
+	phoenix.protobuf.GuidValue bucket_id = 1;
+}
+
 message BidResponse {
 	string token = 1;
 }
