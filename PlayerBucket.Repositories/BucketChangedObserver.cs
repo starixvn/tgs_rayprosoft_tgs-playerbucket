@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Microsoft.Extensions.Hosting;
@@ -38,16 +39,18 @@ internal class BucketChangedObserver : BackgroundService
 						{
 							await Task.Yield();
 
-							try
-							{
-								await PublishEventAsync(evt);
-							}
-							catch (Exception ex)
-							{
-								logger.LogError(ex, "Publish event occur error!");
-							}
+							var cts = new CancellationTokenSource();
+							cts.Cancel();
+
+							await PublishEventAsync(evt, cts.Token);
 						}))
-						.Concat())
+						.Concat()
+						.Catch((Exception ex) =>
+						{
+							logger.LogError(ex, "Publish event occur error!");
+
+							return Observable.Empty<Unit>();
+						}))
 					.Concat();
 			})
 			.Subscribe();

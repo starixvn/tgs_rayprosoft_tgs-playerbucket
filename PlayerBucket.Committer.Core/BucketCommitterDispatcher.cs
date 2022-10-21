@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Microsoft.Extensions.DependencyInjection;
@@ -64,12 +65,11 @@ internal class BucketCommitterDispatcher : BackgroundService
 
 								return evt;
 							})
-							.Select(evt => Observable.FromAsync(async () =>
-							{
-								await Task.Yield();
-
-								try
+							.Select(evt => Observable
+								.FromAsync(async () =>
 								{
+									await Task.Yield();
+
 									await using var scope = _serviceProvider.CreateAsyncScope();
 
 									var serviceCoordinator = scope.ServiceProvider.GetRequiredService<IServiceCoordinator>();
@@ -77,12 +77,13 @@ internal class BucketCommitterDispatcher : BackgroundService
 									var command = new ProcessBucketEventsCommand(evt.BucketId);
 
 									await serviceCoordinator.ExecuteAsync(command, stoppingToken).ConfigureAwait(false);
-								}
-								catch (Exception ex)
+								})
+								.Catch((Exception ex) =>
 								{
 									_logger.LogError(ex, "Process {evt.BucketId} event occur error!", evt.BucketId);
-								}
-							}))
+
+									return Observable.Empty<Unit>();
+								}))
 							.Concat())
 						.Concat())
 					.Merge();
