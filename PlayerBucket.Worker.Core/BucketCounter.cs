@@ -261,16 +261,18 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 	{
 		var bucketEvents = source switch
 		{
-			_ when source is null => _bucketEventRepository.GetBucketAllEventsAsync(
-				bucketId,
-				cancellationToken),
+			_ when source is null => _tgsRepository
+				.GetBucketAllEventsAsync(bucketId, cancellationToken)
+				.Union(_bucketEventRepository.GetBucketAllEventsAsync(
+					bucketId,
+					cancellationToken)),
 			_ when source is not null && source.SnapshotId is null => _tgsRepository.GetBucketAllEventsAsync(
 				bucketId,
 				cancellationToken),
 			_ when source is not null && source.SnapshotId.HasValue => _tgsRepository
 				.GetBucketAllEventsAsync(source.Id, source.SnapshotId.Value, cancellationToken)
 				.Union(_bucketEventRepository.GetBucketAllEventsAsync(
-					bucketId,
+					source.Id,
 					source.SnapshotId.Value,
 					cancellationToken)),
 			_ => throw new Exception($"Can't create snapshot, BucketId: {bucketId}")
