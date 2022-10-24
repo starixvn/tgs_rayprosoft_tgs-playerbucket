@@ -28,5 +28,9 @@ public class FillInBucketDispatchHandler : BucketRequestDispatcher, IMessageHand
 			subject,
 			data,
 			cancellationToken).ConfigureAwait(false);
+
+		await ExtendBidAsync(
+			request.PlayerCode,
+			cancellationToken).ConfigureAwait(false);
 	}
 }

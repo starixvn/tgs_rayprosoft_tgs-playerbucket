@@ -133,4 +133,14 @@ internal class RedisDistributedResourceManager : IDistributedResourceManager, IB
 			.AsTask()
 			.ToAsyncEnumerable()
 			.SelectMany(arr => arr.ToAsyncEnumerable());
+
+	public async ValueTask ExtendBidAsync(string playerCode, CancellationToken cancellationToken = default)
+	{
+		var redisKey = new RedisKey($"Tgs:Bucket:{playerCode}");
+
+		_ = await _redisDatabase.KeyExpireAsync(
+			redisKey,
+			TimeSpan.FromMinutes(10D),
+			CommandFlags.FireAndForget).ConfigureAwait(false);
+	}
 }

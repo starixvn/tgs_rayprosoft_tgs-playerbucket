@@ -90,7 +90,7 @@ public class RedisDistributedResourceManagerTests
 	}
 
 	[TestMethod]
-	public async Task DiscardBid_會刪除redis上的資料()
+	public async Task DiscardBid_會刪除redis上的資料以解鎖()
 	{
 		var fakeRedisDatabase = Substitute.For<IDatabase>();
 
@@ -102,6 +102,24 @@ public class RedisDistributedResourceManagerTests
 
 		_ = fakeRedisDatabase.Received(1)
 			.KeyDeleteAsync(Arg.Is(new RedisKey($"Tgs:Bucket:{playerCode}")));
+	}
+
+	[TestMethod]
+	public async Task ExtendBid_延長處理時間()
+	{
+		var fakeRedisDatabase = Substitute.For<IDatabase>();
+
+		var sut = new RedisDistributedResourceManager(fakeRedisDatabase);
+
+		var playerCode = "test1";
+
+		await sut.ExtendBidAsync(playerCode);
+
+		_ = fakeRedisDatabase.Received(1)
+			.KeyExpireAsync(
+				Arg.Is(new RedisKey($"Tgs:Bucket:{playerCode}")),
+				Arg.Is(TimeSpan.FromMinutes(10D)),
+				Arg.Is(CommandFlags.FireAndForget));
 	}
 
 	[TestMethod]

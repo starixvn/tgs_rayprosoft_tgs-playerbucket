@@ -7,4 +7,6 @@ public interface IDistributedResourceManager
 	ValueTask<string?> GetBidTokenAsync(Guid bucketId, CancellationToken cancellationToken = default);
 
 	ValueTask DiscardBidAsync(Guid bucketId, CancellationToken cancellationToken = default);
+
+	ValueTask ExtendBindAsync(Guid bucketId, CancellationToken cancellationToken = default);
 }

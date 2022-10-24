@@ -16,7 +16,10 @@ internal class BucketCommitterDispatcher : BackgroundService
 	private readonly IServiceProvider _serviceProvider;
 	private readonly ILogger<BucketCommitterDispatcher> _logger;
 
-	public BucketCommitterDispatcher(IEventBus eventBus, IServiceProvider serviceProvider, ILogger<BucketCommitterDispatcher> logger)
+	public BucketCommitterDispatcher(
+		IEventBus eventBus,
+		IServiceProvider serviceProvider,
+		ILogger<BucketCommitterDispatcher> logger)
 	{
 		_eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
 		_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
@@ -72,10 +75,12 @@ internal class BucketCommitterDispatcher : BackgroundService
 									await using var scope = _serviceProvider.CreateAsyncScope();
 
 									var serviceCoordinator = scope.ServiceProvider.GetRequiredService<IServiceCoordinator>();
+									var distributedResMgr = scope.ServiceProvider.GetRequiredService<IDistributedResourceManager>();
 
 									var command = new ProcessBucketEventsCommand(evt.BucketId, evt.PlayerCode);
 
 									await serviceCoordinator.ExecuteAsync(command, stoppingToken).ConfigureAwait(false);
+									await distributedResMgr.ExtendBindAsync(command.BucketId, stoppingToken).ConfigureAwait(false);
 								})
 								.Catch((Exception ex) =>
 								{
@@ -138,10 +143,12 @@ internal class BucketCommitterDispatcher : BackgroundService
 									await using var scope = _serviceProvider.CreateAsyncScope();
 
 									var serviceCoordinator = scope.ServiceProvider.GetRequiredService<IServiceCoordinator>();
+									var distributedResMgr = scope.ServiceProvider.GetRequiredService<IDistributedResourceManager>();
 
 									var command = new SnapshotPlayerBucketCommand(evt.BucketId, evt.PlayerCode);
 
 									await serviceCoordinator.ExecuteAsync(command, stoppingToken).ConfigureAwait(false);
+									await distributedResMgr.ExtendBindAsync(command.BucketId, stoppingToken).ConfigureAwait(false);
 								})
 								.Catch((Exception ex) =>
 								{

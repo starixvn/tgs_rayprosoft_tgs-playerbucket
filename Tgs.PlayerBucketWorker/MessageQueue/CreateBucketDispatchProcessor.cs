@@ -24,9 +24,15 @@ public class CreateBucketDispatchProcessor : BucketRequestDispatcher, IMessagePr
 
 		var subject = $"tgs.bucket.worker.create.{bidToken}";
 
-		return await MessageSender.RequestAsync(
+		var response = await MessageSender.RequestAsync(
 			subject,
 			data,
 			cancellationToken).ConfigureAwait(false);
+
+		await ExtendBidAsync(
+			request.PlayerCode,
+			cancellationToken).ConfigureAwait(false);
+
+		return response;
 	}
 }

@@ -41,6 +41,9 @@ public abstract class BucketRequestDispatcher
 					cancellationToken).ConfigureAwait(false),
 				cancellationToken);
 
+	protected ValueTask ExtendBidAsync(string playerCode, CancellationToken cancellationToken)
+		=> DistributedResourceManager.ExtendBidAsync(playerCode, cancellationToken);
+
 	private async ValueTask<string> InternalGetBidTokenAsync(string playerCode, CancellationToken cancellationToken)
 	{
 		var bidToken = await DistributedResourceManager
