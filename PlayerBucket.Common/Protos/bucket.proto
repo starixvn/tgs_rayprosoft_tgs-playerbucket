@@ -34,3 +34,8 @@ message FillInRequest {
 	string fill_type = 3;
 	string external_id = 4;
 }
+
+message SnapshotRequest {
+	phoenix.protobuf.GuidValue bucket_id = 1;
+	string player_code = 2;
+}

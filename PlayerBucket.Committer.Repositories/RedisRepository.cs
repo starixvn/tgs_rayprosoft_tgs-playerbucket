@@ -67,4 +67,11 @@ internal class RedisRepository : IBucketEventRepository, IDistributedResourceMan
 
 		_ = await _redisDatabase.KeyDeleteAsync(redisKey).ConfigureAwait(false);
 	}
+
+	public async ValueTask DeleteCreatedBucketAsync(string playerCode, Guid bucketId, CancellationToken cancellationToken = default)
+	{
+		var redisKey = new RedisKey($"Tgs.Bucket:CreateBuckets:{playerCode}");
+
+		_ = await _redisDatabase.HashDeleteAsync(redisKey, bucketId.ToString());
+	}
 }

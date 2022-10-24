@@ -23,4 +23,8 @@
     <ProjectReference Include="..\PlayerBucket.Common\PlayerBucket.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ApplicationServices\" />
+  </ItemGroup>
+
 </Project>

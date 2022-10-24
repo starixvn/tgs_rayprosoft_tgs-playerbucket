@@ -55,29 +55,6 @@ internal class TgsRepository : ITgsRepository
 				JsonDocument.Parse(evt.ChangeSets),
 				evt.CreatedOn));
 
-	public async ValueTask UpdatePlayerBucketAsync(BucketInfo bucketInfo, decimal usedAmount, CancellationToken cancellationToken = default)
-	{
-		var playerBucket = (await _dbContext.PlayerBuckets
-			.FindAsync(new object?[] { bucketInfo.Id }, cancellationToken: cancellationToken)
-			.ConfigureAwait(false))
-			?? (await _dbContext.PlayerBuckets.AddAsync(
-				new PlayerBucket
-				{
-					Id = bucketInfo.Id,
-					PlayerCode = bucketInfo.PlayerCode,
-					BucketType = (short)bucketInfo.Type,
-					BucketAmount = bucketInfo.Amount,
-					CreatedOn = DateTime.UtcNow
-				},
-				cancellationToken).ConfigureAwait(false)).Entity;
-
-		playerBucket.IsFull = bucketInfo.IsFull;
-		playerBucket.SnapshotId = bucketInfo.SnapshotId;
-		playerBucket.CurrentBucketAmount = usedAmount;
-
-		_ = await _dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-	}
-
 	public IAsyncEnumerable<BucketEvent> GetBucketAllEventsAsync(Guid bucketId, Guid snapshotId, CancellationToken cancellationToken = default)
 		=> _dbContext.PlayerBucketEventSources
 			.FromSqlInterpolated($@"

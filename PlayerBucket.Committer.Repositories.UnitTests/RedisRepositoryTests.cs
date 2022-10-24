@@ -135,4 +135,22 @@ public class RedisRepositoryTests
 				Arg.Is((long)length),
 				Arg.Is(CommandFlags.FireAndForget));
 	}
+
+	[TestMethod]
+	public async Task DeleteBucket_刪除已經快照完的Bucket暫存()
+	{
+		var fakeRedisDatabase = Substitute.For<IDatabase>();
+
+		var sut = new RedisRepository(fakeRedisDatabase);
+
+		var playerCode = "test1";
+		var bucketId = Guid.NewGuid();
+
+		await sut.DeleteCreatedBucketAsync(playerCode, bucketId);
+
+		_ = fakeRedisDatabase.Received(1)
+			.HashDeleteAsync(
+				Arg.Is(new RedisKey($"Tgs.Bucket:CreateBuckets:{playerCode}")),
+				Arg.Is(new RedisValue(bucketId.ToString())));
+	}
 }

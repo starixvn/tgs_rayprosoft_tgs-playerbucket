@@ -1,8 +1,6 @@
-using System.Text.Json;
 using Json.Patch;
 using NSubstitute;
 using Tgs.Service.PlayerBuckets;
-using Tgs.Service.PlayerBuckets.ApplicationServices;
 
 namespace PlayerBucket.Worker.Core.UnitTests;
 
@@ -144,78 +142,6 @@ public class BucketTests
 			.FillInBucketAsync(
 				Arg.Any<BucketInfo>(),
 				Arg.Any<FillInBucketInfo>());
-	}
-
-	[TestMethod]
-	public async Task 建立Bucket快照()
-	{
-		var fakeTgsRepository = Substitute.For<ITgsRepository>();
-
-		var sut = new SnapshotPlayerBucketCommandService(fakeTgsRepository);
-
-		var command = new SnapshotPlayerBucketCommand(Guid.NewGuid());
-
-		var allEvents = new[] {
-			new BucketEvent(
-				Guid.NewGuid(),
-				command.BucketId,
-				1000M,
-				FillType.Create,
-				null,
-				new BucketCreateInfo(
-					"test1",
-					1000M,
-					BucketType.Deposit,
-					null).CreateJsonPatchDocument(command.BucketId),
-				DateTime.UtcNow),
-			new BucketEvent(
-				Guid.NewGuid(),
-				command.BucketId,
-				-100M,
-				FillType.Game,
-				null,
-				JsonDocument.Parse("[]"),
-				DateTime.UtcNow),
-			new BucketEvent(
-				Guid.NewGuid(),
-				command.BucketId,
-				-150M,
-				FillType.Game,
-				null,
-				JsonDocument.Parse("[]"),
-				DateTime.UtcNow),
-			new BucketEvent(
-				Guid.NewGuid(),
-				command.BucketId,
-				-200M,
-				FillType.Game,
-				null,
-				new FillInBucketInfo(
-					"test1",
-					200M,
-					FillType.Adjust,
-					null,
-					true).CreateJsonPatchDocument(),
-				DateTime.UtcNow)
-		};
-		_ = fakeTgsRepository.GetBucketAllEventsAsync(Arg.Is(command.BucketId))
-				.Returns(allEvents.ToAsyncEnumerable());
-
-		var expected = new BucketInfo(
-			command.BucketId,
-			"test1",
-			1000M,
-			BucketType.Deposit,
-			0M,
-			true,
-			allEvents.Last().Id);
-
-		await sut.ExecuteAsync(command);
-
-		_ = fakeTgsRepository.Received(1)
-				.UpdatePlayerBucketAsync(
-					Arg.Is(expected),
-					450M);
 	}
 
 	[TestMethod]
