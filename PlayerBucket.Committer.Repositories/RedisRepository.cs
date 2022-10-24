@@ -1,9 +1,8 @@
 ﻿using System.Text.Json;
 using StackExchange.Redis;
-using Tgs.PlayerBuckets.Committer;
 using Tgs.Service.PlayerBuckets;
 
-namespace PlayerBucket.Committer.Repositories;
+namespace Tgs.PlayerBuckets.Committer.Repositories;
 
 internal class RedisRepository : IBucketEventRepository, IDistributedResourceManager
 {

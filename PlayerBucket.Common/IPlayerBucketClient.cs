@@ -1,4 +1,4 @@
-﻿namespace Tgs.PlayerBucket.Clients;
+﻿namespace Tgs.Service.PlayerBuckets;
 
 public interface IPlayerBucketClient
 {
@@ -14,5 +14,10 @@ public interface IPlayerBucketClient
 		decimal amount,
 		FillType type,
 		string? externalId,
+		CancellationToken cancellationToken = default);
+
+	ValueTask SnapshotBucketAsync(
+		string playerCode,
+		Guid bucketId,
 		CancellationToken cancellationToken = default);
 }

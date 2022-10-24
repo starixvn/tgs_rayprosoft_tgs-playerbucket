@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Tgs.PlayerBucket.Clients;
-using Tgs.PlayerBucketService.ViewModels;
 using Tgs.PlayerBucketWorker.ViewModels;
+using Tgs.Service.PlayerBuckets;
 
-namespace Tgs.PlayerBucketService.Controllers;
+namespace Tgs.PlayerBucketWorker.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]

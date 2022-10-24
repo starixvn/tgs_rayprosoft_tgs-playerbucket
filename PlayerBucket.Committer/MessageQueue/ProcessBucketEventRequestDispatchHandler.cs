@@ -1,6 +1,5 @@
 ﻿using MongoDB.Bson.Serialization;
 using Tgs.MessageQueue;
-using Tgs.PlayerBucketWorker.MessageQueue;
 using Tgs.Service.PlayerBuckets;
 
 namespace Tgs.PlayerBuckets.Committer.MessageQueue;

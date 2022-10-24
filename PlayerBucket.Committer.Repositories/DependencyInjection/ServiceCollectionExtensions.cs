@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PlayerBucket.Committer.Repositories;
 using Tgs.PlayerBuckets.Committer;
+using Tgs.PlayerBuckets.Committer.Repositories;
 using Tgs.PlayerBuckets.Committer.Repositories.Entities;
 
 namespace Microsoft.Extensions.DependencyInjection;

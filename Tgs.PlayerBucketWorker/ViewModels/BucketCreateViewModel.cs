@@ -1,6 +1,6 @@
-﻿using Tgs.PlayerBucket.Clients;
+﻿using Tgs.Service.PlayerBuckets;
 
-namespace Tgs.PlayerBucketService.ViewModels;
+namespace Tgs.PlayerBucketWorker.ViewModels;
 
 public class BucketCreateViewModel
 {

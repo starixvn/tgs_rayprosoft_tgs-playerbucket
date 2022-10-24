@@ -3,7 +3,6 @@ extern alias Server;
 
 using Google.Protobuf;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NATS.Client;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;

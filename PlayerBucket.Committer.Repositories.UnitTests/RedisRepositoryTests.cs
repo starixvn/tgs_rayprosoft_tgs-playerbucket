@@ -1,5 +1,6 @@
 ﻿using NSubstitute;
 using StackExchange.Redis;
+using Tgs.PlayerBuckets.Committer.Repositories;
 
 namespace PlayerBucket.Committer.Repositories.UnitTests;
 

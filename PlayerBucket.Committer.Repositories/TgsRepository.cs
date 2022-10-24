@@ -1,10 +1,9 @@
 ﻿using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
-using Tgs.PlayerBuckets.Committer;
 using Tgs.PlayerBuckets.Committer.Repositories.Entities;
 using Tgs.Service.PlayerBuckets;
 
-namespace PlayerBucket.Committer.Repositories;
+namespace Tgs.PlayerBuckets.Committer.Repositories;
 
 internal class TgsRepository : ITgsRepository
 {

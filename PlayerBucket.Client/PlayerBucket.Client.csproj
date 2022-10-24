@@ -21,11 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Protos\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Protobuf Include="..\PlayerBucket.Common\Protos\bucket.proto" Link="Protos\bucket.proto" GrpcServices="None" Access="Internal" />
+    <ProjectReference Include="..\PlayerBucket.Common\PlayerBucket.Common.csproj" />
   </ItemGroup>
 
 </Project>

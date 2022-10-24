@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
 using NSubstitute;
 using Tgs.PlayerBuckets.Committer;
+using Tgs.PlayerBuckets.Committer.ApplicationServices;
 using Tgs.Service.PlayerBuckets;
-using Tgs.Service.PlayerBuckets.ApplicationServices;
 
 namespace PlayerBucket.Committer.Core.UnitTests;
 

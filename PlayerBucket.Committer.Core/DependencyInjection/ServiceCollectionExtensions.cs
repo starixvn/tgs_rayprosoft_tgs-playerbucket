@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using Tgs.PlayerBuckets.Committer;
-using Tgs.Service.PlayerBuckets;
 
 namespace Microsoft.Extensions.DependencyInjection;
 

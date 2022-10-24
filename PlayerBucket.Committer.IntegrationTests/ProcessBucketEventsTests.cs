@@ -19,7 +19,8 @@ public class ProcessBucketEventsTests
 		await using var web = PlayerBucketCommitterTestHost.Instance
 			.WithWebHostBuilder(hostBuilder => hostBuilder
 				.ConfigureServices(services => services
-					.AddSingleton(fakeProcessBucketEventsCommandService)));
+					.AddSingleton(fakeProcessBucketEventsCommandService)
+					.AddFakeNatsMessageQueue()));
 
 		var sut = ActivatorUtilities.CreateInstance<ProcessBucketEventRequestHandler>(web.Services);
 

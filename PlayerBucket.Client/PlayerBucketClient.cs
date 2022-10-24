@@ -1,5 +1,6 @@
 ﻿using Google.Protobuf;
 using Tgs.MessageQueue;
+using Tgs.Service.PlayerBuckets;
 using Tgs.Services.PlayerBucket.Protos;
 
 namespace Tgs.PlayerBucket.Clients;
@@ -57,5 +58,16 @@ internal class PlayerBucketClient : IPlayerBucketClient
 			"tgs.bucket.fill",
 			request.ToByteArray(),
 			cancellationToken);
+	}
+
+	public ValueTask SnapshotBucketAsync(string playerCode, Guid bucketId, CancellationToken cancellationToken = default)
+	{
+		var request = new SnapshotRequest
+		{
+			BucketId = bucketId,
+			PlayerCode = playerCode
+		};
+
+		return _messageSender.PublishAsync("tgs.bucket.snapshot", request.ToByteArray(), cancellationToken);
 	}
 }

@@ -1,5 +1,4 @@
 ﻿using Tgs.MessageQueue;
-using Tgs.Service.PlayerBuckets;
 using Tgs.Services.PlayerBucket.Protos;
 
 namespace Tgs.PlayerBuckets.Committer.MessageQueue;

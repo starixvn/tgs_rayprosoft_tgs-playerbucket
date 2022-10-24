@@ -25,7 +25,7 @@ public class CreateBucketTests
 
 		var playerCode = "test1";
 		var amount = 100M;
-		var bucketType = Client::Tgs.PlayerBucket.Clients.BucketType.Deposit;
+		var bucketType = BucketType.Deposit;
 		var externalId = Guid.NewGuid().ToString();
 
 		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
@@ -78,7 +78,7 @@ public class CreateBucketTests
 
 		var playerCode = "test1";
 		var amount = 100M;
-		var fillType = Client::Tgs.PlayerBucket.Clients.FillType.Game;
+		var fillType = FillType.Game;
 		var externalId = Guid.NewGuid().ToString();
 
 		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
@@ -133,7 +133,7 @@ public class CreateBucketTests
 		var bucketId = await client.CreateBucketAsync(
 			playerCode,
 			amount,
-			Client::Tgs.PlayerBucket.Clients.BucketType.Deposit,
+			BucketType.Deposit,
 			externalId);
 		await client.FillInBucketAsync(playerCode, amount, fillType, externalId);
 

@@ -2,10 +2,9 @@
 using NATS.Client;
 using Polly;
 using Tgs.MessageQueue;
-using Tgs.PlayerBuckets.Committer;
 using Tgs.Services.PlayerBucket.Protos;
 
-namespace Tgs.PlayerBucketWorker.MessageQueue;
+namespace Tgs.PlayerBuckets.Committer.MessageQueue;
 
 public abstract class BucketRequestDispatcher
 {

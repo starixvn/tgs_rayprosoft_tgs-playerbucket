@@ -6,8 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Tgs.PlayerBuckets.Committer.ApplicationServices;
-using Tgs.Service.PlayerBuckets;
-using Tgs.Service.PlayerBuckets.ApplicationServices;
 using Tgs.ServiceUtility;
 
 namespace Tgs.PlayerBuckets.Committer;

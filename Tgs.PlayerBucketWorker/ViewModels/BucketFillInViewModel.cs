@@ -1,4 +1,4 @@
-﻿using Tgs.PlayerBucket.Clients;
+﻿using Tgs.Service.PlayerBuckets;
 
 namespace Tgs.PlayerBucketWorker.ViewModels;
 

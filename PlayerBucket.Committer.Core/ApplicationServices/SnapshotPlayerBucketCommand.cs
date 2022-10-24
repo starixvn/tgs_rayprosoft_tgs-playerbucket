@@ -1,2 +1,2 @@
-﻿namespace Tgs.Service.PlayerBuckets.ApplicationServices;
+﻿namespace Tgs.PlayerBuckets.Committer.ApplicationServices;
 public record SnapshotPlayerBucketCommand(Guid BucketId, string PlayerCode);

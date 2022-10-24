@@ -1,9 +1,9 @@
 ﻿using System.Text.Json;
 using Json.Patch;
-using Tgs.PlayerBuckets.Committer;
+using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
 
-namespace Tgs.Service.PlayerBuckets.ApplicationServices;
+namespace Tgs.PlayerBuckets.Committer.ApplicationServices;
 
 public class SnapshotPlayerBucketCommandService : ICommandService<SnapshotPlayerBucketCommand>
 {

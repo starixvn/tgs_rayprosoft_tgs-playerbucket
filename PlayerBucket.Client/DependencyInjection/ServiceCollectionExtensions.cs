@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Tgs.Service.PlayerBuckets;
 
 namespace Tgs.PlayerBucket.Clients.DependencyInjection;
 
