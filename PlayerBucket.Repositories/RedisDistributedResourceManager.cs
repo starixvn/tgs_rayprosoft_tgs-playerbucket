@@ -98,11 +98,6 @@ internal class RedisDistributedResourceManager : IDistributedResourceManager, IB
 		_ = await _redisDatabase.ListRightPushAsync(
 			$"Tgs:Bucket:Events:{bucketId}",
 			json).ConfigureAwait(false);
-
-		_ = await _redisDatabase.SortedSetAddAsync(
-			$"Tgs.Bucket:CreateBuckets:{bucketInfo.PlayerCode}",
-			bucketId.ToString(),
-			currentDate.ToUnixTimeMilliseconds()).ConfigureAwait(false);
 	}
 
 	public IAsyncEnumerable<Guid> GetPlayerCreatedBucketIdsAsync(string playerCode, CancellationToken cancellationToken = default)

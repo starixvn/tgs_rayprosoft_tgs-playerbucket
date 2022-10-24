@@ -3,15 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32922.545
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucket.Core", "PlayerBucket.Core\PlayerBucket.Core.csproj", "{B0B11F07-E483-4748-924E-DA7A8A29DA10}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{23C87BBD-BE70-44A7-927C-1172AD894BDA}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		nuget.config = nuget.config
 	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucket.Core.UnitTests", "PlayerBucket.Core.UnitTests\PlayerBucket.Core.UnitTests.csproj", "{8A263E20-0557-4539-BF5B-9F2ED662F38E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucket.Repositories", "PlayerBucket.Repositories\PlayerBucket.Repositories.csproj", "{B6E596B3-43E6-4C0A-B8D9-D6681C402C63}"
 EndProject
@@ -35,20 +31,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucket.Committer", "P
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucket.Committer.Repositories", "PlayerBucket.Committer.Repositories\PlayerBucket.Committer.Repositories.csproj", "{6ACDAB7E-0364-4248-AF73-FD2AB8BF4B2D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerBucket.Committer.Core.UnitTests", "PlayerBucket.Committer.Core.UnitTests\PlayerBucket.Committer.Core.UnitTests.csproj", "{9315BC77-6A00-45BA-BC15-1C645731DD20}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerBucket.Committer.IntegrationTests", "PlayerBucket.Committer.IntegrationTests\PlayerBucket.Committer.IntegrationTests.csproj", "{321D76B5-C07A-48FF-83AE-A24AA615C235}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerBucket.Committer.Repositories.UnitTests", "PlayerBucket.Committer.Repositories.UnitTests\PlayerBucket.Committer.Repositories.UnitTests.csproj", "{9067E56D-4B54-4BED-BA4F-4930CF597127}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B0B11F07-E483-4748-924E-DA7A8A29DA10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B0B11F07-E483-4748-924E-DA7A8A29DA10}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B0B11F07-E483-4748-924E-DA7A8A29DA10}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B0B11F07-E483-4748-924E-DA7A8A29DA10}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8A263E20-0557-4539-BF5B-9F2ED662F38E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8A263E20-0557-4539-BF5B-9F2ED662F38E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8A263E20-0557-4539-BF5B-9F2ED662F38E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8A263E20-0557-4539-BF5B-9F2ED662F38E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B6E596B3-43E6-4C0A-B8D9-D6681C402C63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B6E596B3-43E6-4C0A-B8D9-D6681C402C63}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B6E596B3-43E6-4C0A-B8D9-D6681C402C63}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -93,6 +87,18 @@ Global
 		{6ACDAB7E-0364-4248-AF73-FD2AB8BF4B2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6ACDAB7E-0364-4248-AF73-FD2AB8BF4B2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6ACDAB7E-0364-4248-AF73-FD2AB8BF4B2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9315BC77-6A00-45BA-BC15-1C645731DD20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9315BC77-6A00-45BA-BC15-1C645731DD20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9315BC77-6A00-45BA-BC15-1C645731DD20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9315BC77-6A00-45BA-BC15-1C645731DD20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{321D76B5-C07A-48FF-83AE-A24AA615C235}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{321D76B5-C07A-48FF-83AE-A24AA615C235}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{321D76B5-C07A-48FF-83AE-A24AA615C235}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{321D76B5-C07A-48FF-83AE-A24AA615C235}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9067E56D-4B54-4BED-BA4F-4930CF597127}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9067E56D-4B54-4BED-BA4F-4930CF597127}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9067E56D-4B54-4BED-BA4F-4930CF597127}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9067E56D-4B54-4BED-BA4F-4930CF597127}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,30 @@
+﻿using NSubstitute;
+using Tgs.PlayerBuckets.Committer;
+using Tgs.PlayerBuckets.Committer.ApplicationServices;
+using Tgs.Service.PlayerBuckets;
+
+namespace PlayerBucket.Committer.Core.UnitTests;
+
+[TestClass]
+public class BucketEventProcessTests
+{
+	[TestMethod]
+	public async Task ProcessBucketEvents_處理事件批次()
+	{
+		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
+
+		var sut = new ProcessBucketEventsCommandService(fakeTgsRepository, fakeBucketEventRepository);
+
+		var command = new ProcessBucketEventsCommand(Guid.NewGuid());
+
+		await sut.ExecuteAsync(command);
+
+		_ = fakeBucketEventRepository.Received(1)
+			.GetBucketAllEventsAsync(Arg.Is(command.BucketId));
+		_ = fakeTgsRepository.Received(1)
+			.InsertBucketEventsAsync(Arg.Any<IEnumerable<BucketEvent>>());
+		_ = fakeBucketEventRepository.Received(1)
+			.RemoveEventsAsync(Arg.Is(command.BucketId), Arg.Any<int>());
+	}
+}
