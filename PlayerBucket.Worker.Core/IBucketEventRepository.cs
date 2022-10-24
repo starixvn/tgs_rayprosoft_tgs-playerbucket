@@ -14,5 +14,5 @@ public interface IBucketEventRepository
 		FillInBucketInfo bucketInfo,
 		CancellationToken cancellationToken = default);
 
-	IAsyncEnumerable<Guid> GetPlayerCreatedBucketIdsAsync(string playerCode, CancellationToken cancellationToken = default);
+	IAsyncEnumerable<BucketInfo> GetPlayerCreatedBucketsAsync(string playerCode, CancellationToken cancellationToken = default);
 }

@@ -206,25 +206,19 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 			.ToArrayAsync(cancellationToken: cancellationToken)
 			.ConfigureAwait(false);
 
-		var tempAllBucketIds = await _bucketEventRepository
-			.GetPlayerCreatedBucketIdsAsync(PlayerCode, cancellationToken)
+		var tempAllBuckets = await _bucketEventRepository
+			.GetPlayerCreatedBucketsAsync(PlayerCode, cancellationToken)
 			.ToArrayAsync(cancellationToken: cancellationToken)
 			.ConfigureAwait(false);
 
-		var notYetInDatabaseIds = from id in tempAllBucketIds
-								  join bucket in databaeAllNotFullBuckets
-									on id equals bucket.Id into g
-								  from bucket in g.DefaultIfEmpty()
-								  where bucket is null
-								  select id;
+		var tempBuckets = from info in tempAllBuckets
+						  join bucket in databaeAllNotFullBuckets
+							on info.Id equals bucket.Id into g
+						  from bucket in g.DefaultIfEmpty()
+						  where bucket is null
+						  select info;
 
-		var tempBuckets = notYetInDatabaseIds.ToAsyncEnumerable()
-			.SelectMany(id => MakeSnapshotAsync(
-				id,
-				null,
-				cancellationToken).AsTask().ToAsyncEnumerable());
-
-		await foreach (var bucket in databaeAllNotFullBuckets.ToAsyncEnumerable().Union(tempBuckets)
+		await foreach (var bucket in databaeAllNotFullBuckets.Union(tempBuckets).ToAsyncEnumerable()
 			.OrderBy(bucket => bucket.Id)
 			.WithCancellation(cancellationToken)
 			.ConfigureAwait(false))

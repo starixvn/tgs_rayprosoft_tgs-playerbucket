@@ -127,10 +127,10 @@ public class RedisDistributedResourceManagerTests
 				Arg.Any<RedisValue>());
 
 		_ = fakeRedisDatabase.Received(1)
-			.SortedSetAddAsync(
+			.HashSetAsync(
 				Arg.Is(new RedisKey($"Tgs.Bucket:CreateBuckets:{createInfo.PlayerCode}")),
 				Arg.Is(new RedisValue(bucketId.ToString())),
-				Arg.Any<double>());
+				Arg.Any<RedisValue>());
 	}
 
 	[TestMethod]
@@ -186,5 +186,20 @@ public class RedisDistributedResourceManagerTests
 			.ListRightPushAsync(
 				Arg.Is(new RedisKey($"Tgs:Bucket:Events:{bucketId}")),
 				Arg.Any<RedisValue>());
+	}
+
+	[TestMethod]
+	public async Task GetPlayerCreatedBuckets_取得玩家建立尚未寫入db的Buckets()
+	{
+		var fakeRedisDatabase = Substitute.For<IDatabase>();
+
+		var sut = new RedisDistributedResourceManager(fakeRedisDatabase);
+
+		var playerCode = "test1";
+
+		_ = await sut.GetPlayerCreatedBucketsAsync(playerCode).ToArrayAsync();
+
+		_ = fakeRedisDatabase.Received(1)
+			.HashGetAllAsync(Arg.Is(new RedisKey($"Tgs.Bucket:CreateBuckets:{playerCode}")));
 	}
 }

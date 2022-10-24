@@ -60,16 +60,25 @@ internal class RedisDistributedResourceManager : IDistributedResourceManager, IB
 			bucket.CreateJsonPatchDocument(bucketId),
 			currentDate.UtcDateTime);
 
-		var json = JsonSerializer.Serialize(record, PlayerBucketUtility.SerializerOptions);
+		var bucketSnapshot = new BucketInfo(
+			bucketId,
+			bucket.PlayerCode,
+			bucket.Amount,
+			bucket.Type,
+			0M,
+			false,
+			createId);
 
 		_ = await _redisDatabase.ListRightPushAsync(
 			$"Tgs:Bucket:Events:{bucketId}",
-			json).ConfigureAwait(false);
+			JsonSerializer.Serialize(record, PlayerBucketUtility.SerializerOptions))
+			.ConfigureAwait(false);
 
-		_ = await _redisDatabase.SortedSetAddAsync(
+		_ = await _redisDatabase.HashSetAsync(
 			$"Tgs.Bucket:CreateBuckets:{bucket.PlayerCode}",
 			bucketId.ToString(),
-			currentDate.ToUnixTimeMilliseconds()).ConfigureAwait(false);
+			JsonSerializer.Serialize(bucketSnapshot, PlayerBucketUtility.SerializerOptions))
+			.ConfigureAwait(false);
 	}
 
 	public IAsyncEnumerable<BucketEvent> GetBucketAllEventsAsync(Guid bucketId, Guid snapshotId, CancellationToken cancellationToken = default)
@@ -100,16 +109,6 @@ internal class RedisDistributedResourceManager : IDistributedResourceManager, IB
 			json).ConfigureAwait(false);
 	}
 
-	public IAsyncEnumerable<Guid> GetPlayerCreatedBucketIdsAsync(string playerCode, CancellationToken cancellationToken = default)
-		=> _redisDatabase.SortedSetRangeByScoreAsync($"Tgs.Bucket:CreateBuckets:{playerCode}")
-			.ToAsyncEnumerable()
-			.SelectMany(values => values.ToAsyncEnumerable())
-			.Select(value => Guid.Parse((string)value!))
-			.ToArrayAsync(cancellationToken)
-			.AsTask()
-			.ToAsyncEnumerable()
-			.SelectMany(arr => arr.ToAsyncEnumerable());
-
 	public IAsyncEnumerable<BucketEvent> GetBucketAllEventsAsync(Guid bucketId, CancellationToken cancellationToken = default)
 		=> _redisDatabase
 			.ListRangeAsync($"Tgs:Bucket:Events:{bucketId}")
@@ -119,6 +118,18 @@ internal class RedisDistributedResourceManager : IDistributedResourceManager, IB
 			.Where(evt => evt is not null)
 			.Select(evt => evt!)
 			.ToArrayAsync(cancellationToken)
+			.AsTask()
+			.ToAsyncEnumerable()
+			.SelectMany(arr => arr.ToAsyncEnumerable());
+
+	public IAsyncEnumerable<BucketInfo> GetPlayerCreatedBucketsAsync(string playerCode, CancellationToken cancellationToken = default)
+		=> _redisDatabase.HashGetAllAsync($"Tgs.Bucket:CreateBuckets:{playerCode}")
+			.ToAsyncEnumerable()
+			.SelectMany(entries => entries.ToAsyncEnumerable())
+			.Select(entry => JsonSerializer.Deserialize<BucketInfo>((string)entry.Value!, PlayerBucketUtility.SerializerOptions))
+			.Where(info => info is not null)
+			.Select(info => info!)
+			.ToArrayAsync(cancellationToken: cancellationToken)
 			.AsTask()
 			.ToAsyncEnumerable()
 			.SelectMany(arr => arr.ToAsyncEnumerable());
