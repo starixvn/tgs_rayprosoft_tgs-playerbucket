@@ -58,7 +58,9 @@ builder.Services
 			options.Url = configuration.GetConnectionString("Nats");
 		})
 		.AddProcessor<BidProcessor>("tgs.bucket.commit.bid")
-		.AddHandler<ProcessBucketEventRequestHandler>($"tgs.bucket.commit.{Environment.MachineName}"))
+		.AddHandler<ProcessBucketEventRequestHandler>($"tgs.bucket.commit.batch.{Environment.MachineName}")
+		.AddHandler<SnapshotBucketHandler>($"tgs.bucket.commit.snapshot.{Environment.MachineName}")
+		.AddHandler<SnapshotBucketDispatchHandler>("tgs.bucket.snapshot", "tgs.bucket.snapshot"))
 	.AddNatsGlobPatternExchange("*");
 
 builder.Services

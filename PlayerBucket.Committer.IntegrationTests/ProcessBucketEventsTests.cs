@@ -23,11 +23,11 @@ public class ProcessBucketEventsTests
 
 		var sut = ActivatorUtilities.CreateInstance<ProcessBucketEventRequestHandler>(web.Services);
 
-		var request = new BucketChangedEvent(Guid.NewGuid());
+		var request = new BucketChangedEvent(Guid.NewGuid(), "test1");
 
 		var tcs = new TaskCompletionSource();
 
-		var expected = new ProcessBucketEventsCommand(request.BucketId);
+		var expected = new ProcessBucketEventsCommand(request.BucketId, request.PlayerCode);
 
 		fakeProcessBucketEventsCommandService
 			.When(fake => fake.ExecuteAsync(

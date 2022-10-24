@@ -1,2 +1,2 @@
 ﻿namespace Tgs.Service.PlayerBuckets;
-public record BucketChangedEvent(Guid BucketId);
+public record BucketChangedEvent(Guid BucketId, string PlayerCode);

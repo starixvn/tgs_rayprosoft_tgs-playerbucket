@@ -13,10 +13,14 @@ public class BucketEventProcessTests
 	{
 		var fakeTgsRepository = Substitute.For<ITgsRepository>();
 		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
+		var fakeEventSource = Substitute.For<IEventSource>();
 
-		var sut = new ProcessBucketEventsCommandService(fakeTgsRepository, fakeBucketEventRepository);
+		var sut = new ProcessBucketEventsCommandService(
+			fakeTgsRepository,
+			fakeBucketEventRepository,
+			fakeEventSource);
 
-		var command = new ProcessBucketEventsCommand(Guid.NewGuid());
+		var command = new ProcessBucketEventsCommand(Guid.NewGuid(), "test1");
 
 		await sut.ExecuteAsync(command);
 

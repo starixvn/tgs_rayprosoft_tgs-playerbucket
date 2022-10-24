@@ -23,7 +23,7 @@ public class ProcessBucketEventRequestDispatchHandler : BucketRequestDispatcher,
 			request.BucketId,
 			cancellationToken).ConfigureAwait(false);
 
-		var subject = $"tgs.bucket.commit.{bidToken}";
+		var subject = $"tgs.bucket.commit.batch.{bidToken}";
 
 		await MessageSender.PublishAsync(
 			subject,

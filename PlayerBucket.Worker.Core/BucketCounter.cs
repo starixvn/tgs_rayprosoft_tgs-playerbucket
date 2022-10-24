@@ -113,7 +113,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 			createId));
 
 		await _eventSource.PublishBucketChangedAsync(
-			new BucketChangedEvent(bucketId),
+			new BucketChangedEvent(bucketId, PlayerCode),
 			cancellationToken).ConfigureAwait(false);
 
 		return bucketId;
@@ -167,7 +167,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 			_buckets[0] = newBucket;
 
 		await _eventSource.PublishBucketChangedAsync(
-			new BucketChangedEvent(bucket.Id),
+			new BucketChangedEvent(bucket.Id, PlayerCode),
 			cancellationToken).ConfigureAwait(false);
 	}
 
