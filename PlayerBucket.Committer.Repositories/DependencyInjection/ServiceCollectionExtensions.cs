@@ -18,7 +18,9 @@ public static class ServiceCollectionExtensions
 		this IServiceCollection services,
 		Func<IServiceProvider, StackExchange.Redis.IDatabase> resolveRedisDatabase)
 		=> services
-			.AddTransient<IBucketEventRepository>(sp => ActivatorUtilities.CreateInstance<RedisRepository>(
+			.AddTransient(sp => ActivatorUtilities.CreateInstance<RedisRepository>(
 				sp,
-				resolveRedisDatabase(sp)));
+				resolveRedisDatabase(sp)))
+			.AddTransient<IBucketEventRepository>(sp => sp.GetRequiredService<RedisRepository>())
+			.AddTransient<IDistributedResourceManager>(sp => sp.GetRequiredService<RedisRepository>());
 }

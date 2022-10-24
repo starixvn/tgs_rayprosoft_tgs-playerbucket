@@ -49,7 +49,17 @@ builder.Services
 			ConnectionString = builder.Configuration.GetConnectionString("Mongo")
 		})
 		.DeclareQueue("bucket_event_requests")
-		.AddHandler<ProcessBucketEventRequestHandler>("bucket_event_requests", TimeSpan.FromSeconds(10D)));
+		.AddHandler<ProcessBucketEventRequestDispatchHandler>("bucket_event_requests", TimeSpan.FromSeconds(10D)))
+	.AddNatsMessageQueue(config => config
+		.ConfigQueueOptions((options, sp) =>
+		{
+			var configuration = sp.GetRequiredService<IConfiguration>();
+
+			options.Url = configuration.GetConnectionString("Nats");
+		})
+		.AddProcessor<BidProcessor>("tgs.bucket.commit.bid")
+		.AddHandler<ProcessBucketEventRequestHandler>($"tgs.bucket.commit.{Environment.MachineName}"))
+	.AddNatsGlobPatternExchange("*");
 
 builder.Services
 	.AddHealthChecks();
