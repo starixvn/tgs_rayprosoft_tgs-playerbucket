@@ -31,11 +31,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucket.Committer", "P
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucket.Committer.Repositories", "PlayerBucket.Committer.Repositories\PlayerBucket.Committer.Repositories.csproj", "{6ACDAB7E-0364-4248-AF73-FD2AB8BF4B2D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerBucket.Committer.Core.UnitTests", "PlayerBucket.Committer.Core.UnitTests\PlayerBucket.Committer.Core.UnitTests.csproj", "{9315BC77-6A00-45BA-BC15-1C645731DD20}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucket.Committer.Core.UnitTests", "PlayerBucket.Committer.Core.UnitTests\PlayerBucket.Committer.Core.UnitTests.csproj", "{9315BC77-6A00-45BA-BC15-1C645731DD20}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerBucket.Committer.IntegrationTests", "PlayerBucket.Committer.IntegrationTests\PlayerBucket.Committer.IntegrationTests.csproj", "{321D76B5-C07A-48FF-83AE-A24AA615C235}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucket.Committer.IntegrationTests", "PlayerBucket.Committer.IntegrationTests\PlayerBucket.Committer.IntegrationTests.csproj", "{321D76B5-C07A-48FF-83AE-A24AA615C235}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerBucket.Committer.Repositories.UnitTests", "PlayerBucket.Committer.Repositories.UnitTests\PlayerBucket.Committer.Repositories.UnitTests.csproj", "{9067E56D-4B54-4BED-BA4F-4930CF597127}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucket.Committer.Repositories.UnitTests", "PlayerBucket.Committer.Repositories.UnitTests\PlayerBucket.Committer.Repositories.UnitTests.csproj", "{9067E56D-4B54-4BED-BA4F-4930CF597127}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tgs.PlayerBucketWorker.Benchmark", "Tgs.PlayerBucketWorker.Benchmark\Tgs.PlayerBucketWorker.Benchmark.csproj", "{EE3F9ADE-A53D-4DEA-BC98-C0A7E5828576}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tgs.PlayerBucketWorker.StressTest", "Tgs.PlayerBucketWorker.StressTest\Tgs.PlayerBucketWorker.StressTest.csproj", "{9BCD2396-352F-4343-9F0E-8FB0472EB437}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -99,6 +103,14 @@ Global
 		{9067E56D-4B54-4BED-BA4F-4930CF597127}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9067E56D-4B54-4BED-BA4F-4930CF597127}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9067E56D-4B54-4BED-BA4F-4930CF597127}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE3F9ADE-A53D-4DEA-BC98-C0A7E5828576}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE3F9ADE-A53D-4DEA-BC98-C0A7E5828576}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE3F9ADE-A53D-4DEA-BC98-C0A7E5828576}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE3F9ADE-A53D-4DEA-BC98-C0A7E5828576}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BCD2396-352F-4343-9F0E-8FB0472EB437}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BCD2396-352F-4343-9F0E-8FB0472EB437}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BCD2396-352F-4343-9F0E-8FB0472EB437}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BCD2396-352F-4343-9F0E-8FB0472EB437}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

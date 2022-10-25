@@ -61,7 +61,7 @@ internal class BucketCommitterDispatcher : BackgroundService
 						.Select(evt => Observable
 							.FromAsync(async () =>
 							{
-								await Task.CompletedTask.ConfigureAwait(false);
+								await Task.Yield();
 
 								_ = flags.TryRemove(evt.BucketId, out _);
 
@@ -70,7 +70,7 @@ internal class BucketCommitterDispatcher : BackgroundService
 							.Select(evt => Observable
 								.FromAsync(async () =>
 								{
-									await Task.CompletedTask.ConfigureAwait(false);
+									await Task.Yield();
 
 									await using var scope = _serviceProvider.CreateAsyncScope();
 
@@ -129,7 +129,7 @@ internal class BucketCommitterDispatcher : BackgroundService
 						.Select(evt => Observable
 							.FromAsync(async () =>
 							{
-								await Task.CompletedTask.ConfigureAwait(false);
+								await Task.Yield();
 
 								_ = flags.TryRemove(evt.BucketId, out _);
 
@@ -138,7 +138,7 @@ internal class BucketCommitterDispatcher : BackgroundService
 							.Select(evt => Observable
 								.FromAsync(async () =>
 								{
-									await Task.CompletedTask.ConfigureAwait(false);
+									await Task.Yield();
 
 									await using var scope = _serviceProvider.CreateAsyncScope();
 

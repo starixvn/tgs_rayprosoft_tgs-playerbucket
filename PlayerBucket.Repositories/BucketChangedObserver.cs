@@ -29,7 +29,7 @@ internal class BucketChangedObserver : BackgroundService
 					.Select(evt => Observable
 						.FromAsync(async () =>
 						{
-							await Task.CompletedTask.ConfigureAwait(false);
+							await Task.Yield();
 
 							_ = flags.TryRemove(evt.BucketId, out _);
 
@@ -37,7 +37,7 @@ internal class BucketChangedObserver : BackgroundService
 						})
 						.Select(evt => Observable.FromAsync(async () =>
 						{
-							await Task.CompletedTask.ConfigureAwait(false);
+							await Task.Yield();
 
 							await PublishEventAsync(evt);
 						}))
