@@ -24,6 +24,8 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 
 	private readonly SemaphoreSlim _locker = new(1, 1);
 	private readonly CancellationTokenSource _cancellationTokenSource = new();
+	private int _expiry = 610;
+	private Timer? _timer;
 	private decimal _bucketAmount = 0M;
 	private Task? _backgroundTask;
 
@@ -75,6 +77,14 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 
 			await PrepareNotFullBucketsAsync(cts.Token).ConfigureAwait(false);
 
+			_timer = new Timer(_ =>
+			{
+				_ = Interlocked.Decrement(ref _expiry);
+
+				if (_expiry <= 0)
+					Dispose();
+			});
+
 			_backgroundTask = Task.Run(
 				() => ProcessCommandLoopAsync(cts.Token),
 				cts.Token);
@@ -83,6 +93,11 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 		{
 			_ = _locker.Release();
 		}
+	}
+
+	public void ExtendExpiry()
+	{
+		_ = Interlocked.Exchange(ref _expiry, 610);
 	}
 
 	async ValueTask<Guid> IBucketStore.CreateBucketAsync(decimal amount, BucketType type, string? externalId, CancellationToken cancellationToken)
@@ -204,6 +219,8 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 			if (disposing)
 			{
 				_cancellationTokenSource.Cancel();
+				_timer?.Dispose();
+				_timer = null;
 				Disposed?.Invoke(this, EventArgs.Empty);
 			}
 

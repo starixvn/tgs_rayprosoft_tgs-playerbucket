@@ -113,7 +113,7 @@ public class RedisDistributedResourceManagerTests
 
 		var playerCode = "test1";
 
-		await sut.ExtendBidAsync(playerCode);
+		_ = await sut.ExtendBidAsync(playerCode);
 
 		_ = fakeRedisDatabase.Received(1)
 			.KeyExpireAsync(

@@ -47,3 +47,7 @@ message GetBucketAmountRequest {
 message GetBucketAmountResponse {
 	phoenix.protobuf.DecimalValue amount = 1;
 }
+
+message ExtendExpiryRequest {
+	string player_code = 1;
+}

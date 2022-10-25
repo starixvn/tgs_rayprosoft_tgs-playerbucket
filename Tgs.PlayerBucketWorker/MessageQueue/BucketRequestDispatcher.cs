@@ -41,8 +41,24 @@ public abstract class BucketRequestDispatcher
 					cancellationToken).ConfigureAwait(false),
 				cancellationToken);
 
-	protected ValueTask ExtendBidAsync(string playerCode, CancellationToken cancellationToken)
-		=> DistributedResourceManager.ExtendBidAsync(playerCode, cancellationToken);
+	protected async ValueTask ExtendBidAsync(string playerCode, string token, CancellationToken cancellationToken)
+	{
+		var isSuccess = await DistributedResourceManager.ExtendBidAsync(
+			playerCode,
+			cancellationToken).ConfigureAwait(false);
+
+		if (isSuccess)
+		{
+			var extendRequest = new ExtendExpiryRequest
+			{
+				PlayerCode = playerCode
+			};
+			await MessageSender.PublishAsync(
+				$"tgs.bucket.worker.expiry.{token}",
+				extendRequest.ToByteArray(),
+				cancellationToken).ConfigureAwait(false);
+		}
+	}
 
 	private async ValueTask<string> InternalGetBidTokenAsync(string playerCode, CancellationToken cancellationToken)
 	{

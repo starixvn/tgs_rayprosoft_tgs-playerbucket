@@ -8,5 +8,5 @@ public interface IDistributedResourceManager
 
 	ValueTask DiscardBidAsync(string playerCode, CancellationToken cancellationToken = default);
 
-	ValueTask ExtendBidAsync(string playerCode, CancellationToken cancellationToken = default);
+	ValueTask<bool> ExtendBidAsync(string playerCode, CancellationToken cancellationToken = default);
 }

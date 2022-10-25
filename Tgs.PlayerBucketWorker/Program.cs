@@ -57,6 +57,7 @@ builder.Services
 		.AddProcessor<CreateBucketProcessor>($"tgs.bucket.worker.create.{Environment.MachineName}")
 		.AddReplyHandler<FillInBucketHandler>($"tgs.bucket.worker.fill.{Environment.MachineName}")
 		.AddProcessor<GetBucketAmountProcessor>($"tgs.bucket.worker.amount.{Environment.MachineName}")
+		.AddHandler<ExtendExpiryHandler>($"tgs.bucket.worker.expiry.{Environment.MachineName}")
 		.AddProcessor<CreateBucketDispatchProcessor>("tgs.bucket.create", "tgs.bucket.create")
 		.AddReplyHandler<FillInBucketDispatchHandler>("tgs.bucket.fill", "tgs.bucket.fill")
 		.AddProcessor<GetBucketAmountDispatchProcessor>("tgs.bucket.amount", "tgs.bucket.amount"))

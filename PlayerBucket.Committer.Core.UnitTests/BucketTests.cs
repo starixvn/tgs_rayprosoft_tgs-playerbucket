@@ -21,7 +21,7 @@ public class BucketTests
 
 		var allEvents = new[] {
 			new BucketEvent(
-				Guid.NewGuid(),
+				Guid.Parse("097c77de-8401-0000-0001-000080cd2019"),
 				command.BucketId,
 				1000M,
 				FillType.Create,
@@ -33,7 +33,7 @@ public class BucketTests
 					null).CreateJsonPatchDocument(command.BucketId),
 				DateTime.UtcNow),
 			new BucketEvent(
-				Guid.NewGuid(),
+				Guid.Parse("097c8e45-8401-0000-0001-000080cd2019"),
 				command.BucketId,
 				-100M,
 				FillType.Game,
@@ -41,7 +41,7 @@ public class BucketTests
 				JsonDocument.Parse("[]"),
 				DateTime.UtcNow),
 			new BucketEvent(
-				Guid.NewGuid(),
+				Guid.Parse("097cd6a5-8401-0000-0001-000080cd2019"),
 				command.BucketId,
 				-150M,
 				FillType.Game,
@@ -49,7 +49,7 @@ public class BucketTests
 				JsonDocument.Parse("[]"),
 				DateTime.UtcNow),
 			new BucketEvent(
-				Guid.NewGuid(),
+				Guid.Parse("097cd8ff-8401-0000-0001-000080cd2019"),
 				command.BucketId,
 				-200M,
 				FillType.Game,
@@ -99,7 +99,7 @@ public class BucketTests
 
 		var allEvents = new[] {
 			new BucketEvent(
-				Guid.NewGuid(),
+				Guid.Parse("097c77de-8401-0000-0001-000080cd2019"),
 				command.BucketId,
 				1000M,
 				FillType.Create,
@@ -111,7 +111,7 @@ public class BucketTests
 					null).CreateJsonPatchDocument(command.BucketId),
 				DateTime.UtcNow),
 			new BucketEvent(
-				Guid.NewGuid(),
+				Guid.Parse("097c8e45-8401-0000-0001-000080cd2019"),
 				command.BucketId,
 				-100M,
 				FillType.Game,
@@ -119,7 +119,7 @@ public class BucketTests
 				JsonDocument.Parse("[]"),
 				DateTime.UtcNow),
 			new BucketEvent(
-				Guid.NewGuid(),
+				Guid.Parse("097cd6a5-8401-0000-0001-000080cd2019"),
 				command.BucketId,
 				-150M,
 				FillType.Game,
@@ -127,7 +127,7 @@ public class BucketTests
 				JsonDocument.Parse("[]"),
 				DateTime.UtcNow),
 			new BucketEvent(
-				Guid.NewGuid(),
+				Guid.Parse("097cd8ff-8401-0000-0001-000080cd2019"),
 				command.BucketId,
 				-200M,
 				FillType.Game,
@@ -187,7 +187,7 @@ public class BucketTests
 
 		var allEvents = new[] {
 			new BucketEvent(
-				Guid.NewGuid(),
+				Guid.Parse("097c77de-8401-0000-0001-000080cd2019"),
 				command.BucketId,
 				1000M,
 				FillType.Create,
@@ -199,7 +199,7 @@ public class BucketTests
 					null).CreateJsonPatchDocument(command.BucketId),
 				DateTime.UtcNow),
 			new BucketEvent(
-				Guid.NewGuid(),
+				Guid.Parse("097c8e45-8401-0000-0001-000080cd2019"),
 				command.BucketId,
 				-100M,
 				FillType.Game,
@@ -207,7 +207,7 @@ public class BucketTests
 				JsonDocument.Parse("[]"),
 				DateTime.UtcNow),
 			new BucketEvent(
-				Guid.NewGuid(),
+				Guid.Parse("097cd6a5-8401-0000-0001-000080cd2019"),
 				command.BucketId,
 				-150M,
 				FillType.Game,
@@ -215,7 +215,7 @@ public class BucketTests
 				JsonDocument.Parse("[]"),
 				DateTime.UtcNow),
 			new BucketEvent(
-				Guid.NewGuid(),
+				Guid.Parse("097cd8ff-8401-0000-0001-000080cd2019"),
 				command.BucketId,
 				-200M,
 				FillType.Game,

@@ -38,6 +38,12 @@ internal class BucketDispatcher : IBucketDispatcher, IDisposable, IAsyncDisposab
 		await counter.PushCommandAsync(command, cts.Token).ConfigureAwait(false);
 	}
 
+	public void ExtendExpiry(string playerCode)
+	{
+		if (_counters.TryGetValue(playerCode, out var counter))
+			counter.ExtendExpiry();
+	}
+
 	public ValueTask DisposeAsync()
 	{
 		Dispose();

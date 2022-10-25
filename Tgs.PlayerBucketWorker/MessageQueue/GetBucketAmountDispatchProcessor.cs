@@ -30,6 +30,7 @@ public class GetBucketAmountDispatchProcessor : BucketRequestDispatcher, IMessag
 
 		await ExtendBidAsync(
 			request.PlayerCode,
+			bidToken,
 			cancellationToken).ConfigureAwait(false);
 
 		return response;

@@ -31,6 +31,7 @@ public class CreateBucketDispatchProcessor : BucketRequestDispatcher, IMessagePr
 
 		await ExtendBidAsync(
 			request.PlayerCode,
+			bidToken,
 			cancellationToken).ConfigureAwait(false);
 
 		return response;

@@ -31,6 +31,7 @@ public class FillInBucketDispatchHandler : BucketRequestDispatcher, IMessageHand
 
 		await ExtendBidAsync(
 			request.PlayerCode,
+			bidToken,
 			cancellationToken).ConfigureAwait(false);
 	}
 }
