@@ -11,6 +11,7 @@ using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Loggers;
 
 namespace Tgs.PlayerBucketWorker.Benchmark;
+
 public class BenchmarkConfig
 {
 	/// <summary>

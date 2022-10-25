@@ -1,4 +1,4 @@
-﻿namespace Tgs.Service.PlayerBuckets;
+﻿namespace Tgs.Service.PlayerBuckets.BucketCommands;
 
 public class ReadBucketAmountCommand : IBucketCommand
 {

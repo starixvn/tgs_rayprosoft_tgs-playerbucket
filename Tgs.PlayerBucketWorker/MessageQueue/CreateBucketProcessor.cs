@@ -1,6 +1,7 @@
 ﻿using Google.Protobuf;
 using Tgs.MessageQueue;
 using Tgs.Service.PlayerBuckets;
+using Tgs.Service.PlayerBuckets.BucketCommands;
 using Tgs.Services.PlayerBucket.Protos;
 
 namespace Tgs.PlayerBucketWorker.MessageQueue;

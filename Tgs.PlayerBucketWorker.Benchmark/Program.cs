@@ -2,6 +2,7 @@ using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Running;
 
 namespace Tgs.PlayerBucketWorker.Benchmark;
+
 public class Program
 {
 	public static void Main(string[] args)

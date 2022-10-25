@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Tgs.SerialNumberGenerator;
 using Tgs.Service.PlayerBuckets;
+using Tgs.Service.PlayerBuckets.BucketCommands;
 
 namespace PlayerBucket.Worker.Core.UnitTests;
 
