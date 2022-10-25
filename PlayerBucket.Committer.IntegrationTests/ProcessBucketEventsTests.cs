@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson;
 using NSubstitute;
+using Tgs.PlayerBuckets.Committer;
 using Tgs.PlayerBuckets.Committer.ApplicationServices;
 using Tgs.PlayerBuckets.Committer.MessageQueue;
 using Tgs.Service.PlayerBuckets;
@@ -15,12 +16,14 @@ public class ProcessBucketEventsTests
 	public async Task BucketCommitterDispatcher_處理Bucket的要求可以正確傳遞並處理()
 	{
 		var fakeProcessBucketEventsCommandService = Substitute.For<ICommandService<ProcessBucketEventsCommand>>();
+		var fakeDistributedResourceManager = Substitute.For<IDistributedResourceManager>();
 
 		await using var web = PlayerBucketCommitterTestHost.Instance
 			.WithWebHostBuilder(hostBuilder => hostBuilder
 				.ConfigureServices(services => services
 					.AddSingleton(fakeProcessBucketEventsCommandService)
-					.AddFakeNatsMessageQueue()));
+					.AddFakeNatsMessageQueue()
+					.AddSingleton(fakeDistributedResourceManager)));
 
 		var sut = ActivatorUtilities.CreateInstance<ProcessBucketEventRequestHandler>(web.Services);
 
