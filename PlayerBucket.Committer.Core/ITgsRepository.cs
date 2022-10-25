@@ -12,5 +12,5 @@ public interface ITgsRepository
 
 	ValueTask<BucketInfo?> GetCreatedBucketSnapshotAsync(Guid bucketId, CancellationToken cancellationToken = default);
 
-	ValueTask UpdatePlayerBucketAsync(BucketInfo bucketInfo, decimal usedAmount, CancellationToken cancellationToken = default);
+	ValueTask UpdatePlayerBucketAsync(BucketInfo bucketInfo, CancellationToken cancellationToken = default);
 }

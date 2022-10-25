@@ -70,7 +70,7 @@ public class BucketTests
 			command.PlayerCode,
 			1000M,
 			BucketType.Deposit,
-			0M,
+			450M,
 			true,
 			allEvents.Last().Id);
 
@@ -80,9 +80,175 @@ public class BucketTests
 			.GetCreatedBucketSnapshotAsync(Arg.Is(command.BucketId));
 		_ = fakeTgsRepository.Received(1)
 			.UpdatePlayerBucketAsync(
-				Arg.Is(expected),
-				Arg.Is(450M));
+				Arg.Is(expected));
 		_ = fakeBucketEventRepository.Received(1)
+			.DeleteCreatedBucketAsync(
+				Arg.Is(command.PlayerCode),
+				Arg.Is(command.BucketId));
+	}
+
+	[TestMethod]
+	public async Task 建立Bucket快照_已經有中途的快照()
+	{
+		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
+
+		var sut = new SnapshotPlayerBucketCommandService(fakeTgsRepository, fakeBucketEventRepository);
+
+		var command = new SnapshotPlayerBucketCommand(Guid.NewGuid(), "test1");
+
+		var allEvents = new[] {
+			new BucketEvent(
+				Guid.NewGuid(),
+				command.BucketId,
+				1000M,
+				FillType.Create,
+				null,
+				new BucketCreateInfo(
+					command.PlayerCode,
+					1000M,
+					BucketType.Deposit,
+					null).CreateJsonPatchDocument(command.BucketId),
+				DateTime.UtcNow),
+			new BucketEvent(
+				Guid.NewGuid(),
+				command.BucketId,
+				-100M,
+				FillType.Game,
+				null,
+				JsonDocument.Parse("[]"),
+				DateTime.UtcNow),
+			new BucketEvent(
+				Guid.NewGuid(),
+				command.BucketId,
+				-150M,
+				FillType.Game,
+				null,
+				JsonDocument.Parse("[]"),
+				DateTime.UtcNow),
+			new BucketEvent(
+				Guid.NewGuid(),
+				command.BucketId,
+				-200M,
+				FillType.Game,
+				null,
+				new FillInBucketInfo(
+					command.PlayerCode,
+					200M,
+					FillType.Adjust,
+					null,
+					true).CreateJsonPatchDocument(),
+				DateTime.UtcNow)
+		};
+		_ = fakeTgsRepository.GetBucketAllEventsAsync(
+			Arg.Is(command.BucketId),
+			Arg.Is(allEvents[0].Id))
+			.Returns(allEvents.Skip(1).ToAsyncEnumerable());
+
+		_ = fakeTgsRepository.GetCreatedBucketSnapshotAsync(Arg.Is(command.BucketId))
+			.Returns(new BucketInfo(
+				command.BucketId,
+				command.PlayerCode,
+				1000M,
+				BucketType.Deposit,
+				0M,
+				false,
+				allEvents[0].Id));
+
+		var expected = new BucketInfo(
+			command.BucketId,
+			command.PlayerCode,
+			1000M,
+			BucketType.Deposit,
+			450M,
+			true,
+			allEvents.Last().Id);
+
+		await sut.ExecuteAsync(command);
+
+		_ = fakeTgsRepository.Received(1)
+			.UpdatePlayerBucketAsync(
+				Arg.Is(expected));
+		_ = fakeBucketEventRepository.Received(1)
+			.DeleteCreatedBucketAsync(
+				Arg.Is(command.PlayerCode),
+				Arg.Is(command.BucketId));
+	}
+
+	[TestMethod]
+	public async Task 建立Bucket快照_沒有取得新的Events()
+	{
+		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
+
+		var sut = new SnapshotPlayerBucketCommandService(fakeTgsRepository, fakeBucketEventRepository);
+
+		var command = new SnapshotPlayerBucketCommand(Guid.NewGuid(), "test1");
+
+		var allEvents = new[] {
+			new BucketEvent(
+				Guid.NewGuid(),
+				command.BucketId,
+				1000M,
+				FillType.Create,
+				null,
+				new BucketCreateInfo(
+					command.PlayerCode,
+					1000M,
+					BucketType.Deposit,
+					null).CreateJsonPatchDocument(command.BucketId),
+				DateTime.UtcNow),
+			new BucketEvent(
+				Guid.NewGuid(),
+				command.BucketId,
+				-100M,
+				FillType.Game,
+				null,
+				JsonDocument.Parse("[]"),
+				DateTime.UtcNow),
+			new BucketEvent(
+				Guid.NewGuid(),
+				command.BucketId,
+				-150M,
+				FillType.Game,
+				null,
+				JsonDocument.Parse("[]"),
+				DateTime.UtcNow),
+			new BucketEvent(
+				Guid.NewGuid(),
+				command.BucketId,
+				-200M,
+				FillType.Game,
+				null,
+				new FillInBucketInfo(
+					command.PlayerCode,
+					200M,
+					FillType.Adjust,
+					null,
+					true).CreateJsonPatchDocument(),
+				DateTime.UtcNow)
+		};
+		_ = fakeTgsRepository.GetBucketAllEventsAsync(
+			Arg.Is(command.BucketId),
+			Arg.Is(allEvents[0].Id))
+			.Returns(Array.Empty<BucketEvent>().ToAsyncEnumerable());
+
+		_ = fakeTgsRepository.GetCreatedBucketSnapshotAsync(Arg.Is(command.BucketId))
+			.Returns(new BucketInfo(
+				command.BucketId,
+				command.PlayerCode,
+				1000M,
+				BucketType.Deposit,
+				250M,
+				false,
+				allEvents[2].Id));
+
+		await sut.ExecuteAsync(command);
+
+		_ = fakeTgsRepository.Received(0)
+			.UpdatePlayerBucketAsync(
+				Arg.Any<BucketInfo>());
+		_ = fakeBucketEventRepository.Received(0)
 			.DeleteCreatedBucketAsync(
 				Arg.Is(command.PlayerCode),
 				Arg.Is(command.BucketId));

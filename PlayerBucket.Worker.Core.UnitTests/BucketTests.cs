@@ -193,4 +193,21 @@ public class BucketTests
 
 		Assert.AreEqual(expected, actual);
 	}
+
+	[TestMethod]
+	public async Task ReadBucketAmountCommand_取得玩家的BucketAmount的值()
+	{
+		var sut = new ReadBucketAmountCommand();
+
+		var fakeBucketStore = Substitute.For<IBucketStore>();
+
+		_ = fakeBucketStore.GetBucketAmountAsync()
+			.Returns(100M);
+
+		await sut.ExecuteAsync(fakeBucketStore);
+
+		var actual = await sut.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
+
+		Assert.AreEqual(100M, actual);
+	}
 }

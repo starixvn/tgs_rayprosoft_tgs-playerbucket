@@ -34,8 +34,8 @@ public class SnapshotPlayerBucketCommandService : ICommandService<SnapshotPlayer
 				cancellationToken)
 		};
 
-		var snapshotId = Guid.Empty;
-		var usedAmount = 0M;
+		var snapshotId = existsBucketSnapshot?.SnapshotId ?? Guid.Empty;
+		var usedAmount = -existsBucketSnapshot?.FillInAmount ?? 0M;
 		var snapshotBucket = existsBucketSnapshot;
 
 		await foreach (var evt in allBucketEvents
@@ -50,16 +50,19 @@ public class SnapshotPlayerBucketCommandService : ICommandService<SnapshotPlayer
 				usedAmount += evt.ChangeAmount;
 		}
 
-		await _tgsRepository.UpdatePlayerBucketAsync(
-			snapshotBucket! with
-			{
-				SnapshotId = snapshotId
-			},
-			Math.Abs(usedAmount),
-			cancellationToken).ConfigureAwait(false);
-		await _bucketEventRepository.DeleteCreatedBucketAsync(
-			command.PlayerCode,
-			command.BucketId,
-			cancellationToken).ConfigureAwait(false);
+		if (snapshotId != Guid.Empty && snapshotId.CompareTo(existsBucketSnapshot?.SnapshotId ?? Guid.Empty) > 0)
+		{
+			await _tgsRepository.UpdatePlayerBucketAsync(
+				snapshotBucket! with
+				{
+					SnapshotId = snapshotId,
+					FillInAmount = Math.Abs(usedAmount)
+				},
+				cancellationToken).ConfigureAwait(false);
+			await _bucketEventRepository.DeleteCreatedBucketAsync(
+				command.PlayerCode,
+				command.BucketId,
+				cancellationToken).ConfigureAwait(false);
+		}
 	}
 }

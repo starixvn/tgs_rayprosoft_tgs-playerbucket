@@ -70,4 +70,21 @@ internal class PlayerBucketClient : IPlayerBucketClient
 
 		return _messageSender.PublishAsync("tgs.bucket.snapshot", request.ToByteArray(), cancellationToken);
 	}
+
+	public async ValueTask<decimal> GetBucketAmountAsync(string playerCode, CancellationToken cancellationToken = default)
+	{
+		var request = new GetBucketAmountRequest
+		{
+			PlayerCode = playerCode
+		};
+
+		var result = await _messageSender.RequestAsync(
+			"tgs.bucket.amount",
+			request.ToByteArray(),
+			cancellationToken).ConfigureAwait(false);
+
+		var response = GetBucketAmountResponse.Parser.ParseFrom(result.Span);
+
+		return response.Amount;
+	}
 }

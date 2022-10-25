@@ -39,3 +39,11 @@ message SnapshotRequest {
 	phoenix.protobuf.GuidValue bucket_id = 1;
 	string player_code = 2;
 }
+
+message GetBucketAmountRequest {
+	string player_code = 1;
+}
+
+message GetBucketAmountResponse {
+	phoenix.protobuf.DecimalValue amount = 1;
+}

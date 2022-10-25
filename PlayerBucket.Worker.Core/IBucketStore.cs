@@ -9,4 +9,6 @@ public interface IBucketStore
 	ValueTask<BucketInfo?> GetNotFullBucketAsync(CancellationToken cancellationToken = default);
 
 	ValueTask FillInBucketAsync(BucketInfo bucket, FillInBucketInfo fillInInfo, CancellationToken cancellationToken = default);
+
+	ValueTask<decimal> GetBucketAmountAsync(CancellationToken cancellationToken = default);
 }

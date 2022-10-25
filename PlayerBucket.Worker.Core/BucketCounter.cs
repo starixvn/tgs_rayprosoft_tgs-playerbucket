@@ -24,6 +24,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 
 	private readonly SemaphoreSlim _locker = new(1, 1);
 	private readonly CancellationTokenSource _cancellationTokenSource = new();
+	private decimal _bucketAmount = 0M;
 	private Task? _backgroundTask;
 
 	private bool _disposedValue;
@@ -112,6 +113,8 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 			false,
 			createId));
 
+		_bucketAmount += amount;
+
 		await _eventSource.PublishBucketChangedAsync(
 			new BucketChangedEvent(bucketId, PlayerCode),
 			cancellationToken).ConfigureAwait(false);
@@ -126,22 +129,25 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 
 		var bucket = _buckets[0];
 
-		var snapshotBucket = await MakeSnapshotAsync(
-			bucket.Id,
-			bucket,
-			cancellationToken).ConfigureAwait(false);
-
-		if (snapshotBucket.IsFull is true || snapshotBucket.FillInAmount >= snapshotBucket.Amount)
+		if (bucket.IsFull is true || bucket.FillInAmount >= bucket.Amount)
 		{
 			_buckets.RemoveAt(0);
+
+			if (_buckets.Count == 0)
+				return null;
+
+			var snapshotBucket = await MakeSnapshotAsync(
+				_buckets[0].Id,
+				_buckets[0],
+				cancellationToken).ConfigureAwait(false);
+
+			if (snapshotBucket.SnapshotId != _buckets[0].SnapshotId)
+				_buckets[0] = snapshotBucket;
 
 			return await ((IBucketStore)this).GetNotFullBucketAsync(cancellationToken).ConfigureAwait(false);
 		}
 
-		if (snapshotBucket.SnapshotId != bucket.SnapshotId)
-			_buckets[0] = snapshotBucket;
-
-		return snapshotBucket;
+		return _buckets[0];
 	}
 
 	async ValueTask IBucketStore.FillInBucketAsync(BucketInfo bucket, FillInBucketInfo fillInInfo, CancellationToken cancellationToken)
@@ -161,10 +167,9 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 			SnapshotId = newEventId
 		};
 
-		if (newBucket.IsFull)
-			_ = _buckets.Remove(bucket);
-		else
-			_buckets[0] = newBucket;
+		_buckets[0] = newBucket;
+
+		_bucketAmount -= fillInInfo.Amount;
 
 		await _eventSource.PublishBucketChangedAsync(
 			new BucketChangedEvent(bucket.Id, PlayerCode),
@@ -183,6 +188,13 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 		// 請勿變更此程式碼。請將清除程式碼放入 'Dispose(bool disposing)' 方法
 		Dispose(disposing: true);
 		GC.SuppressFinalize(this);
+	}
+
+	ValueTask<decimal> IBucketStore.GetBucketAmountAsync(CancellationToken cancellationToken)
+	{
+		cancellationToken.ThrowIfCancellationRequested();
+
+		return ValueTask.FromResult(_bucketAmount);
 	}
 
 	protected virtual void Dispose(bool disposing)
@@ -222,7 +234,26 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 			.OrderBy(bucket => bucket.Id)
 			.WithCancellation(cancellationToken)
 			.ConfigureAwait(false))
+		{
 			_buckets.Add(bucket);
+			_bucketAmount += bucket.Amount - bucket.FillInAmount;
+		}
+
+		await foreach (var tempBucket in tempBuckets.ToAsyncEnumerable())
+			await _eventSource.PublishBucketChangedAsync(
+				new BucketChangedEvent(tempBucket.Id, PlayerCode),
+				cancellationToken).ConfigureAwait(false);
+
+		if (_buckets.Count > 0)
+		{
+			var snapshotBucket = await MakeSnapshotAsync(
+				_buckets[0].Id,
+				_buckets[0],
+				cancellationToken).ConfigureAwait(false);
+
+			if (snapshotBucket.SnapshotId != _buckets[0].SnapshotId)
+				_buckets[0] = snapshotBucket;
+		}
 	}
 
 	private async Task ProcessCommandLoopAsync(CancellationToken cancellationToken = default)
@@ -272,7 +303,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 			_ => throw new Exception($"Can't create snapshot, BucketId: {bucketId}")
 		};
 
-		var snapshotId = Guid.Empty;
+		var snapshotId = source?.SnapshotId ?? Guid.Empty;
 		var usedAmount = 0M;
 		var snapshotBucket = source;
 

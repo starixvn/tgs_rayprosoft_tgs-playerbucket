@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tgs.SerialNumberGenerator;
 using Tgs.Service.PlayerBuckets;
@@ -249,5 +250,73 @@ public class BucketCounterTests
 		await command.WaitAsync().WaitAsync(TimeSpan.FromSeconds(1D));
 
 		Assert.IsTrue(command.IsExcuted);
+	}
+
+	[TestMethod]
+	public async Task BucketCounter_建立Bucket後_取得玩家的洗碼量()
+	{
+		var sut = new BucketCounter(
+			"test1",
+			Substitute.For<ISerialNumberGenerator>(),
+			Substitute.For<ITgsRepository>(),
+			Substitute.For<IBucketEventRepository>(),
+			Substitute.For<IEventSource>(),
+			NullLogger<BucketCounter>.Instance);
+
+		await sut.PrepareAsync();
+
+		var createCommand = new CreateBucketCommand(30M, BucketType.Deposit, Guid.NewGuid().ToString());
+
+		await sut.PushCommandAsync(createCommand);
+
+		var getCommand = new ReadBucketAmountCommand();
+
+		await sut.PushCommandAsync(getCommand);
+
+		var actual = await getCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
+
+		Assert.AreEqual(30M, actual);
+	}
+
+	[TestMethod]
+	public async Task BucketCounter_FillIn後_取得玩家洗碼量()
+	{
+		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+		var sut = new BucketCounter(
+			"test1",
+			Substitute.For<ISerialNumberGenerator>(),
+			fakeTgsRepository,
+			Substitute.For<IBucketEventRepository>(),
+			Substitute.For<IEventSource>(),
+			NullLogger<BucketCounter>.Instance);
+
+		_ = fakeTgsRepository.GetPlayerNotFullBucketsAsync(
+			Arg.Is("test1"),
+			Arg.Any<CancellationToken>())
+			.Returns(new[] {
+				new BucketInfo(
+					Guid.NewGuid(),
+					"test1",
+					30M,
+					BucketType.Deposit,
+					0M,
+					false,
+					null)
+			}.ToAsyncEnumerable());
+
+		await sut.PrepareAsync();
+
+		var fillCommand = new FillInBucketCommand(10M, FillType.Game, Guid.NewGuid().ToString());
+
+		await sut.PushCommandAsync(fillCommand);
+
+		var getCommand = new ReadBucketAmountCommand();
+
+		await sut.PushCommandAsync(getCommand);
+
+		var actual = await getCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
+
+		Assert.AreEqual(20M, actual);
 	}
 }

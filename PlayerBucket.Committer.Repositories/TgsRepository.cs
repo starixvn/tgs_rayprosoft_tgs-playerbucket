@@ -107,7 +107,7 @@ internal class TgsRepository : ITgsRepository
 				record.SnapshotId);
 	}
 
-	public async ValueTask UpdatePlayerBucketAsync(BucketInfo bucketInfo, decimal usedAmount, CancellationToken cancellationToken = default)
+	public async ValueTask UpdatePlayerBucketAsync(BucketInfo bucketInfo, CancellationToken cancellationToken = default)
 	{
 		var playerBucket = (await _dbContext.PlayerBuckets
 			.FindAsync(new object?[] { bucketInfo.Id }, cancellationToken: cancellationToken)
@@ -125,7 +125,7 @@ internal class TgsRepository : ITgsRepository
 
 		playerBucket.IsFull = bucketInfo.IsFull;
 		playerBucket.SnapshotId = bucketInfo.SnapshotId;
-		playerBucket.CurrentBucketAmount = usedAmount;
+		playerBucket.CurrentBucketAmount = bucketInfo.FillInAmount;
 
 		_ = await _dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 	}

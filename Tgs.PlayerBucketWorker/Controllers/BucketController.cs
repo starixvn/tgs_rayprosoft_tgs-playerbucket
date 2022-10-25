@@ -28,5 +28,18 @@ public class BucketController : ControllerBase
 			viewModel.Amount,
 			viewModel.FillType,
 			viewModel.ExternalId,
-			  HttpContext.RequestAborted);
+			HttpContext.RequestAborted);
+
+	[HttpGet(Name = "GetBucketAmount")]
+	public ValueTask<decimal> GetBucketAmountAsync(
+		[FromServices] IPlayerBucketClient playerBucketClient,
+		string playerCode)
+		=> playerBucketClient.GetBucketAmountAsync(playerCode, HttpContext.RequestAborted);
+
+	[HttpPut("snapshot/{playerCode}/{bucketId}", Name = "SnapshotBucket")]
+	public ValueTask SnapshotBucketAsync(
+		[FromServices] IPlayerBucketClient playerBucketClient,
+		string playerCode,
+		Guid bucketId)
+		=> playerBucketClient.SnapshotBucketAsync(playerCode, bucketId, HttpContext.RequestAborted);
 }
