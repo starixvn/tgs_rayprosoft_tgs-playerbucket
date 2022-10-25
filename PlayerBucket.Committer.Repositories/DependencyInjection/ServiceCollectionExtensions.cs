@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Tgs.PlayerBuckets.Committer;
 using Tgs.PlayerBuckets.Committer.Repositories;
-using Tgs.PlayerBuckets.Committer.Repositories.Entities;
+using Tgs.PlayerBuckets.DatabaseAccess;
+using Tgs.PlayerBuckets.DatabaseAccess.Entities;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -12,6 +13,7 @@ public static class ServiceCollectionExtensions
 		Action<IServiceProvider, DbContextOptionsBuilder> dbContextConfigure)
 		=> services
 			.AddDbContext<TgsContext>(dbContextConfigure)
+			.AddScoped<PlayerBucketDataAccess>()
 			.AddTransient<ITgsRepository, TgsRepository>();
 
 	public static IServiceCollection AddPlayerBucketCommitterRedisRepository(

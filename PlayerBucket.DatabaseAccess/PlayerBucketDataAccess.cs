@@ -50,4 +50,28 @@ internal class PlayerBucketDataAccess
 			.ToArrayAsync(cancellationToken)
 			.ToAsyncEnumerable()
 			.SelectMany(arr => arr.ToAsyncEnumerable());
+
+	public async ValueTask InsertBucketEventsAsync(IEnumerable<PlayerBucketEventSource> events, CancellationToken cancellationToken = default)
+		=> await _dbContext.PlayerBucketEventSources
+			.AddRangeAsync(events, cancellationToken)
+			.ConfigureAwait(false);
+
+	public ValueTask<PlayerBucket?> FindPlayerBucketAsync(Guid bucketId, CancellationToken cancellationToken = default)
+		=> _dbContext.PlayerBuckets
+			.FindAsync(new object?[] { bucketId }, cancellationToken: cancellationToken);
+
+	public async ValueTask<PlayerBucket> GetOrAddPlayerBucketAsync(Guid bucketId, CancellationToken cancellationToken = default)
+		=> (await FindPlayerBucketAsync(
+			bucketId,
+			cancellationToken: cancellationToken).ConfigureAwait(false))
+			?? (await _dbContext.PlayerBuckets.AddAsync(
+				new PlayerBucket
+				{
+					Id = bucketId,
+					CreatedOn = DateTime.UtcNow
+				},
+				cancellationToken).ConfigureAwait(false)).Entity;
+
+	public async ValueTask SaveChangesAsync(CancellationToken cancellationToken = default)
+		=> await _dbContext.SaveChangesAsync(cancellationToken);
 }

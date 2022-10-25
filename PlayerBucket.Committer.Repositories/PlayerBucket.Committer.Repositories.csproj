@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PlayerBucket.Committer.Core\PlayerBucket.Committer.Core.csproj" />
+    <ProjectReference Include="..\PlayerBucket.DatabaseAccess\PlayerBucket.DatabaseAccess.csproj" />
   </ItemGroup>
 
 </Project>
