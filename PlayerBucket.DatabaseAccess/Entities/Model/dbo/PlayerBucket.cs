@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Tgs.Service.PlayerBuckets.Repositories.Entities
+namespace Tgs.PlayerBuckets.DatabaseAccess.Entities
 {
     public partial class PlayerBucket
     {

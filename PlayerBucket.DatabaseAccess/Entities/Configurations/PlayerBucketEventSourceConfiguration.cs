@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
-using Tgs.Service.PlayerBuckets.Repositories.Entities;
+using Tgs.PlayerBuckets.DatabaseAccess.Entities;
 
 #nullable disable
 
-namespace Tgs.Service.PlayerBuckets.Repositories.Entities.Configurations
+namespace Tgs.PlayerBuckets.DatabaseAccess.Entities.Configurations
 {
     public partial class PlayerBucketEventSourceConfiguration : IEntityTypeConfiguration<PlayerBucketEventSource>
     {

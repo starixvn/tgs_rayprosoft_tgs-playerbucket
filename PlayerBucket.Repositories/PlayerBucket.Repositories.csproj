@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PlayerBucket.DatabaseAccess\PlayerBucket.DatabaseAccess.csproj" />
     <ProjectReference Include="..\PlayerBucket.Worker.Core\PlayerBucket.Worker.Core.csproj" />
   </ItemGroup>
 

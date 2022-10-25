@@ -6,12 +6,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Server::Tgs.PlayerBucketWorker.MessageQueue;
 using Tgs.MessageQueue;
+using Tgs.PlayerBuckets.DatabaseAccess.Entities;
 using Tgs.Service.PlayerBuckets;
-using Tgs.Service.PlayerBuckets.Repositories.Entities;
 
 namespace Tgs.PlayerBucketWorker.IntegrationTests;
 

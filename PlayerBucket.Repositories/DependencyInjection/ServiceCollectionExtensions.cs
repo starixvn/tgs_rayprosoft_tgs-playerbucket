@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Tgs.PlayerBuckets.DatabaseAccess;
+using Tgs.PlayerBuckets.DatabaseAccess.Entities;
 using Tgs.Service.PlayerBuckets;
 using Tgs.Service.PlayerBuckets.Repositories;
-using Tgs.Service.PlayerBuckets.Repositories.Entities;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -16,6 +17,7 @@ public static class ServiceCollectionExtensions
 		Action<IServiceProvider, DbContextOptionsBuilder> dbContextConfigure)
 		=> services
 			.AddDbContext<TgsContext>(dbContextConfigure)
+			.AddScoped<PlayerBucketDataAccess>()
 			.AddTransient<ITgsRepository, TgsRepository>();
 
 	public static IServiceCollection AddPlayerBucketDistributedResourceManager(

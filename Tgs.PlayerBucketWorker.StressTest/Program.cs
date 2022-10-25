@@ -65,7 +65,7 @@ var bucketScenario = ScenarioBuilder.CreateScenario("Bucket Test", fillInStep)
 			.Select(g => g.Select(t => t.id).ToArray());
 		foreach (var b in batchs)
 		{
-			await Task.WhenAll(b.Select(id => client.CreateBucketAsync(
+			_ = await Task.WhenAll(b.Select(id => client.CreateBucketAsync(
 				id,
 				10000M,
 				BucketType.Deposit,

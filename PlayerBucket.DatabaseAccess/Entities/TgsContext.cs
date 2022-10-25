@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System;
 using System.Collections.Generic;
-using Tgs.Service.PlayerBuckets.Repositories.Entities.Configurations;
+using Tgs.PlayerBuckets.DatabaseAccess.Entities.Configurations;
 #nullable enable
 
-namespace Tgs.Service.PlayerBuckets.Repositories.Entities
+namespace Tgs.PlayerBuckets.DatabaseAccess.Entities
 {
     public partial class TgsContext : DbContext
     {
@@ -17,7 +17,7 @@ namespace Tgs.Service.PlayerBuckets.Repositories.Entities
 
         public virtual DbSet<PlayerBucket> PlayerBuckets { get; set; } = null!;
         public virtual DbSet<PlayerBucketEventSource> PlayerBucketEventSources { get; set; } = null!;
-        public virtual DbSet<PlayerBucketHistory> PlayerBucketHistories { get; set; } = null!;
+        public virtual DbSet<PlayerBucketMigration> PlayerBucketMigrations { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,7 +26,7 @@ namespace Tgs.Service.PlayerBuckets.Repositories.Entities
 
             modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketEventSourceConfiguration());
-            modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketHistoryConfiguration());
+            modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketMigrationConfiguration());
             OnModelCreatingPartial(modelBuilder);
         }
 
