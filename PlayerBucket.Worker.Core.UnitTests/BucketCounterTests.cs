@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging.Abstractions;
+﻿using System.Text.Json;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tgs.SerialNumberGenerator;
@@ -318,5 +319,97 @@ public class BucketCounterTests
 		var actual = await getCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
 
 		Assert.AreEqual(20M, actual);
+	}
+
+	[TestMethod]
+	public async Task BucketCounter_Prepare後取得玩家洗碼量是一個概算值_當FillIn的時候會計算當下Bucket的實際值()
+	{
+		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
+
+		var sut = new BucketCounter(
+			"test1",
+			Substitute.For<ISerialNumberGenerator>(),
+			fakeTgsRepository,
+			fakeBucketEventRepository,
+			Substitute.For<IEventSource>(),
+			NullLogger<BucketCounter>.Instance);
+
+		var buckets = new[] {
+			new BucketInfo(
+				Guid.NewGuid(),
+				"test1",
+				10M,
+				BucketType.Deposit,
+				0M,
+				false,
+				null),
+			new BucketInfo(
+				Guid.NewGuid(),
+				"test1",
+				100M,
+				BucketType.Deposit,
+				0M,
+				false,
+				Guid.Parse("097c77de-8401-0000-0001-000080cd2019"))
+		};
+
+		_ = fakeTgsRepository.GetPlayerNotFullBucketsAsync(
+			Arg.Is("test1"),
+			Arg.Any<CancellationToken>())
+			.Returns(buckets.ToAsyncEnumerable());
+
+		_ = fakeBucketEventRepository.GetBucketAllEventsAsync(
+			Arg.Is(buckets[1].Id),
+			Arg.Any<Guid>(),
+			Arg.Any<CancellationToken>())
+			.Returns(new[] {
+				new BucketEvent(
+					Guid.Parse("097c8e45-8401-0000-0001-000080cd2019"),
+					buckets[1].Id,
+					-10M,
+					FillType.Game,
+					null,
+					JsonDocument.Parse("[]"),
+					DateTime.UtcNow),
+				new BucketEvent(
+					Guid.Parse("097cd6a5-8401-0000-0001-000080cd2019"),
+					buckets[1].Id,
+					-20M,
+					FillType.Game,
+					null,
+					JsonDocument.Parse("[]"),
+					DateTime.UtcNow)
+			}.ToAsyncEnumerable());
+
+		await sut.PrepareAsync();
+
+		var firstGetCommand = new ReadBucketAmountCommand();
+
+		await sut.PushCommandAsync(firstGetCommand);
+
+		var firstAmount = await firstGetCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
+
+		var fillCommand = new FillInBucketCommand(10M, FillType.Game, Guid.NewGuid().ToString());
+
+		await sut.PushCommandAsync(fillCommand);
+
+		var secondGetCommand = new ReadBucketAmountCommand();
+
+		await sut.PushCommandAsync(secondGetCommand);
+
+		var secondAmount = await secondGetCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
+
+		await sut.PushCommandAsync(new FillInBucketCommand(10M, FillType.Game, Guid.NewGuid().ToString()));
+
+		var getCommand = new ReadBucketAmountCommand();
+
+		await sut.PushCommandAsync(getCommand);
+
+		var actual = await getCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
+
+		Assert.AreEqual(110M, firstAmount);
+		Assert.AreEqual(100M, secondAmount);
+		Assert.AreEqual(60M, actual);
 	}
 }

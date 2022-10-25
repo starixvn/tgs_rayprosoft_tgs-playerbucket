@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Server::Tgs.PlayerBucketWorker.MessageQueue;
 using Tgs.MessageQueue;
@@ -143,5 +144,50 @@ public class CreateBucketTests
 				Arg.Is(bucketId),
 				Arg.Is(expected),
 				Arg.Any<CancellationToken>());
+	}
+
+	[TestMethod]
+	public async Task GetBucketAmountProcessor_查詢玩家洗碼量()
+	{
+		var fakeClientMessageSender = Substitute.For<IMessageSender>();
+		var client = new PlayerBucketClient(fakeClientMessageSender);
+
+		var playerCode = "test1";
+
+		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
+
+		await using var web = PlayerBucketWorkerTestHost.Instance
+			.WithWebHostBuilder(hostBuilder => hostBuilder
+				.ConfigureServices(services => services
+					.AddFakeNatsMessageQueue()
+					.Replace(ServiceDescriptor.Singleton(sp =>
+					{
+						var dbContextOptionsBuilder = new DbContextOptionsBuilder<TgsContext>();
+						_ = dbContextOptionsBuilder
+							.UseInMemoryDatabase(Guid.NewGuid().ToString())
+							.ConfigureWarnings(x => x.Ignore(
+								InMemoryEventId.TransactionIgnoredWarning));
+
+						return new TgsContext(dbContextOptionsBuilder.Options);
+					}))
+					.Replace(ServiceDescriptor.Singleton(fakeBucketEventRepository))));
+
+		_ = fakeClientMessageSender.RequestAsync(
+			Arg.Is("tgs.bucket.amount"),
+			Arg.Any<ReadOnlyMemory<byte>>())
+			.Returns(callInfo =>
+			{
+				var data = callInfo.Arg<ReadOnlyMemory<byte>>();
+
+				var processor = ActivatorUtilities.CreateInstance<GetBucketAmountProcessor>(web.Services);
+
+				return processor.HandleAsync(data);
+			});
+
+		var dbContext = web.Services.GetRequiredService<TgsContext>();
+
+		var actual = await client.GetBucketAmountAsync(playerCode).AsTask().WaitAsync(TimeSpan.FromSeconds(1D));
+
+		Assert.AreEqual(0M, actual);
 	}
 }

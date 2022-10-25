@@ -157,7 +157,10 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 				cancellationToken).ConfigureAwait(false);
 
 			if (snapshotBucket.SnapshotId != _buckets[0].SnapshotId)
+			{
+				_bucketAmount -= snapshotBucket.FillInAmount - _buckets[0].FillInAmount;
 				_buckets[0] = snapshotBucket;
+			}
 
 			return await ((IBucketStore)this).GetNotFullBucketAsync(cancellationToken).ConfigureAwait(false);
 		}
@@ -320,7 +323,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 			_ => throw new Exception($"Can't create snapshot, BucketId: {bucketId}")
 		};
 
-		var snapshotId = source?.SnapshotId ?? Guid.Empty;
+		var snapshotId = source?.SnapshotId;
 		var usedAmount = 0M;
 		var snapshotBucket = source;
 
