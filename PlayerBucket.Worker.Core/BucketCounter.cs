@@ -241,7 +241,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 			PlayerCode,
 			cancellationToken).ConfigureAwait(false);
 
-		if (!hasMigrate)
+		if (hasMigrate)
 			return;
 
 		if (_buckets.Count == 0)
