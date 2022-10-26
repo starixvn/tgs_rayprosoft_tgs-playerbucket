@@ -354,6 +354,11 @@ public class BucketCounterTests
 				Guid.Parse("097c77de-8401-0000-0001-000080cd2019"))
 		};
 
+		_ = fakeTgsRepository.GetHasMigrateAsync(
+			Arg.Is("test1"),
+			Arg.Any<CancellationToken>())
+			.Returns(true);
+
 		_ = fakeTgsRepository.GetPlayerNotFullBucketsAsync(
 			Arg.Is("test1"),
 			Arg.Any<CancellationToken>())

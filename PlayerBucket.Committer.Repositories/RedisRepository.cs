@@ -26,6 +26,19 @@ internal class RedisRepository : IBucketEventRepository, IDistributedResourceMan
 			.ToAsyncEnumerable()
 			.SelectMany(arr => arr.ToAsyncEnumerable());
 
+	public IAsyncEnumerable<BucketEvent> GetWaitingInsertEventsAsync(Guid bucketId, CancellationToken cancellationToken = default)
+			=> _redisDatabase
+			.ListRangeAsync($"Tgs:Bucket:Events:{bucketId}", 0, 10)
+			.ToAsyncEnumerable()
+			.SelectMany(values => values.ToAsyncEnumerable())
+			.Select(value => JsonSerializer.Deserialize<BucketEvent>((string)value!, PlayerBucketUtility.SerializerOptions))
+			.Where(evt => evt is not null)
+			.Select(evt => evt!)
+			.ToArrayAsync(cancellationToken)
+			.AsTask()
+			.ToAsyncEnumerable()
+			.SelectMany(arr => arr.ToAsyncEnumerable());
+
 	public async ValueTask RemoveEventsAsync(Guid bucketId, int count, CancellationToken cancellationToken = default)
 		=> _ = await _redisDatabase.ListLeftPopAsync(
 			$"Tgs:Bucket:Events:{bucketId}",
