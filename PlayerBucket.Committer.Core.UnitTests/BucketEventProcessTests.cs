@@ -37,7 +37,7 @@ public class BucketEventProcessTests
 			Array.Empty<BucketEvent>()
 		});
 
-		fakeBucketEventRepository.GetWaitingInsertEventsAsync(Arg.Is(command.BucketId))
+		_ = fakeBucketEventRepository.GetWaitingInsertEventsAsync(Arg.Is(command.BucketId))
 			.Returns(_ => eventBatchQueue.Dequeue().ToAsyncEnumerable());
 
 		await sut.ExecuteAsync(command);
