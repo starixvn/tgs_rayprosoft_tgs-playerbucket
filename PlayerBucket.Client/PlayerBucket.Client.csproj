@@ -5,6 +5,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>Tgs.PlayerBucket.Clients</RootNamespace>
+    <PackageId>Tgs.PlayerBucket.Client</PackageId>
+    <Title>Tgs.PlayerBucket.Client</Title>
+    <Version>0.0.1</Version>
+    <Authors>Raypro</Authors>
+    <PackageProjectUrl>https://gitlab.com/rayprosoft/tgs-playerbucket</PackageProjectUrl>
+    <RepositoryUrl>https://gitlab.com/rayprosoft/tgs-playerbucket.git</RepositoryUrl>
+    <PackageTags>Tgs PlayerBucket Bucket</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
