@@ -1,4 +1,5 @@
-﻿using NSubstitute;
+﻿using System.Text.Json;
+using NSubstitute;
 using Tgs.PlayerBuckets.Committer;
 using Tgs.PlayerBuckets.Committer.ApplicationServices;
 using Tgs.Service.PlayerBuckets;
@@ -22,10 +23,27 @@ public class BucketEventProcessTests
 
 		var command = new ProcessBucketEventsCommand(Guid.NewGuid(), "test1");
 
+		var eventBatchQueue = new Queue<BucketEvent[]>(new[] {
+			new[]{
+				new BucketEvent(
+					Guid.NewGuid(),
+					command.BucketId,
+					-10M,
+					FillType.Game,
+					Guid.NewGuid().ToString(),
+					JsonDocument.Parse("[]"),
+					DateTime.UtcNow)
+			},
+			Array.Empty<BucketEvent>()
+		});
+
+		fakeBucketEventRepository.GetWaitingInsertEventsAsync(Arg.Is(command.BucketId))
+			.Returns(_ => eventBatchQueue.Dequeue().ToAsyncEnumerable());
+
 		await sut.ExecuteAsync(command);
 
-		_ = fakeBucketEventRepository.Received(1)
-			.GetBucketAllEventsAsync(Arg.Is(command.BucketId));
+		_ = fakeBucketEventRepository.Received(2)
+			.GetWaitingInsertEventsAsync(Arg.Is(command.BucketId));
 		_ = fakeTgsRepository.Received(1)
 			.InsertBucketEventsAsync(Arg.Any<IEnumerable<BucketEvent>>());
 		_ = fakeBucketEventRepository.Received(1)
