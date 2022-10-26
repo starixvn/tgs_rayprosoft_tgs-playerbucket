@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tgs.SerialNumberGenerator;
 using Tgs.Service.PlayerBuckets;
@@ -416,5 +417,78 @@ public class BucketCounterTests
 		Assert.AreEqual(110M, firstAmountResult.Amount);
 		Assert.AreEqual(100M, secondAmountResult.Amount);
 		Assert.AreEqual(60M, actual.Amount);
+	}
+
+	[TestMethod]
+	public async Task BucketCounter_清除玩家Buckets()
+	{
+		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+		var sut = new BucketCounter(
+			"test1",
+			Substitute.For<ISerialNumberGenerator>(),
+			fakeTgsRepository,
+			Substitute.For<IBucketEventRepository>(),
+			Substitute.For<IEventSource>(),
+			NullLogger<BucketCounter>.Instance);
+
+		var buckets = new Queue<BucketInfo>(new[]
+		{
+			new BucketInfo(
+				Guid.Parse("0985a64a-8401-0000-0001-000080cd2019"),
+				"test1",
+				100M,
+				BucketType.Deposit,
+				10M,
+				false,
+				null),
+			new BucketInfo(
+				Guid.Parse("0987b455-8401-0000-0001-000080cd2019"),
+				"test1",
+				100M,
+				BucketType.Deposit,
+				30M,
+				false,
+				null),
+			new BucketInfo(
+				Guid.Parse("098bb7eb-8401-0000-0001-000080cd2019"),
+				"test1",
+				100M,
+				BucketType.Deposit,
+				40M,
+				false,
+				null)
+		});
+
+		_ = fakeTgsRepository.GetPlayerNotFullBucketsAsync(
+			Arg.Is("test1"),
+			Arg.Any<CancellationToken>())
+			.Returns(buckets.ToAsyncEnumerable());
+
+		_ = fakeTgsRepository.GetHasMigrateAsync(Arg.Is("test1"), Arg.Any<CancellationToken>())
+			.Returns(true);
+
+		var anchorId = Guid.Parse("0987b455-8401-0000-0001-000080cd2019");
+
+		await sut.PrepareAsync();
+
+		var firstGetCommand = new ReadBucketAmountCommand();
+
+		await sut.PushCommandAsync(firstGetCommand);
+
+		var initAmountResult = await firstGetCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
+
+		var cleanCommand = new CleanBucketsCommand(anchorId, Guid.NewGuid().ToString());
+
+		await sut.PushCommandAsync(cleanCommand);
+
+		var summaryGetCommand = new ReadBucketAmountCommand();
+
+		await sut.PushCommandAsync(summaryGetCommand);
+
+		var finalAmountResult = await summaryGetCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
+
+		Assert.AreEqual(220M, initAmountResult.Amount);
+		Assert.AreEqual(60M, finalAmountResult.Amount);
 	}
 }

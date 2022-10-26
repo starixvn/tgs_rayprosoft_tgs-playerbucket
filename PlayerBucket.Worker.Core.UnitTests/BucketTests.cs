@@ -214,4 +214,22 @@ public class BucketTests
 		Assert.AreEqual(100M, actual.Amount);
 		Assert.AreEqual(expectedAnchorId, actual.AnchorBucketId);
 	}
+
+	[TestMethod]
+	public async Task CleanBucketsCommand_清除玩家的Buckets()
+	{
+		var anchorBucketId = Guid.Parse("0985a64a-8401-0000-0001-000080cd2019");
+		var externalId = Guid.NewGuid().ToString();
+
+		var sut = new CleanBucketsCommand(anchorBucketId, externalId);
+
+		var fakeBucketStore = Substitute.For<IBucketStore>();
+
+		await sut.ExecuteAsync(fakeBucketStore);
+
+		_ = fakeBucketStore.Received(1)
+			.CleanUpBucketsAsync(
+				Arg.Is(anchorBucketId),
+				 Arg.Is(externalId));
+	}
 }

@@ -1,4 +1,5 @@
 ﻿using System.Reactive.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading.Channels;
 using Json.Patch;
@@ -196,6 +197,36 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 			cancellationToken).ConfigureAwait(false);
 	}
 
+	ValueTask<ReadBucketResult> IBucketStore.GetBucketAmountAsync(CancellationToken cancellationToken)
+	{
+		cancellationToken.ThrowIfCancellationRequested();
+
+		return ValueTask.FromResult(new ReadBucketResult(_bucketAmount, _buckets.LastOrDefault()?.Id));
+	}
+
+	async ValueTask IBucketStore.CleanUpBucketsAsync(Guid anchorBucketId, string? externalId, CancellationToken cancellationToken)
+	{
+		await foreach (var bucket in IterateNotFullBucketsAsync(cancellationToken))
+		{
+			if (bucket.Id.CompareTo(anchorBucketId) > 0)
+				break;
+
+			var fillAmount = bucket.Amount - bucket.FillInAmount;
+
+			var fillInfo = new FillInBucketInfo(
+				PlayerCode,
+				fillAmount,
+				FillType.CleanUp,
+				externalId,
+				true);
+
+			await ((IBucketStore)this).FillInBucketAsync(
+				bucket,
+				fillInfo,
+				cancellationToken).ConfigureAwait(false);
+		}
+	}
+
 	public ValueTask DisposeAsync()
 	{
 		Dispose();
@@ -209,16 +240,6 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 		Dispose(disposing: true);
 		GC.SuppressFinalize(this);
 	}
-
-	ValueTask<ReadBucketResult> IBucketStore.GetBucketAmountAsync(CancellationToken cancellationToken)
-	{
-		cancellationToken.ThrowIfCancellationRequested();
-
-		return ValueTask.FromResult(new ReadBucketResult(_bucketAmount, _buckets.LastOrDefault()?.Id));
-	}
-
-	public ValueTask CleanUpBucketsAsync(Guid eventId, CancellationToken cancellationToken = default) => throw new NotImplementedException();
-
 	protected virtual void Dispose(bool disposing)
 	{
 		if (!_disposedValue)
@@ -233,6 +254,15 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 
 			_disposedValue = true;
 		}
+	}
+
+	private async IAsyncEnumerable<BucketInfo> IterateNotFullBucketsAsync(
+		[EnumeratorCancellation] CancellationToken cancellationToken)
+	{
+		while (await ((IBucketStore)this)
+			.GetNotFullBucketAsync(cancellationToken)
+			.ConfigureAwait(false) is BucketInfo bucket)
+			yield return bucket;
 	}
 
 	private async ValueTask ProcessMigrateAsync(CancellationToken cancellationToken = default)

@@ -12,5 +12,5 @@ public interface IBucketStore
 
 	ValueTask<ReadBucketResult> GetBucketAmountAsync(CancellationToken cancellationToken = default);
 
-	ValueTask CleanUpBucketsAsync(Guid eventId, CancellationToken cancellationToken = default);
+	ValueTask CleanUpBucketsAsync(Guid anchorBucketId, string? externalId, CancellationToken cancellationToken = default);
 }

@@ -1,16 +1,16 @@
 ﻿namespace Tgs.Service.PlayerBuckets.BucketCommands;
 
-internal class CleanBucketsCommand : IBucketCommand
+public class CleanBucketsCommand : IBucketCommand
 {
-	private readonly Guid _eventId;
+	private readonly Guid _anchorBucketId;
+	private readonly string? _externalId;
 
-	public CleanBucketsCommand(Guid eventId)
+	public CleanBucketsCommand(Guid anchorBucketId, string? externalId)
 	{
-		_eventId = eventId;
+		_anchorBucketId = anchorBucketId;
+		_externalId = externalId;
 	}
 
 	public ValueTask ExecuteAsync(IBucketStore bucketStore, CancellationToken cancellationToken = default)
-	{
-		return bucketStore.CleanUpBucketsAsync(_eventId, cancellationToken);
-	}
+		=> bucketStore.CleanUpBucketsAsync(_anchorBucketId, _externalId, cancellationToken);
 }

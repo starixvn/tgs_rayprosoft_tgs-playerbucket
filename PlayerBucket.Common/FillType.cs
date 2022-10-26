@@ -7,5 +7,6 @@ public enum FillType
 	Deposit,
 	Bonus,
 	Adjust,
-	Create
+	Create,
+	CleanUp,
 }
