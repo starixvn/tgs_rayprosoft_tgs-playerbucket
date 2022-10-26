@@ -44,4 +44,24 @@ internal class TgsRepository : ITgsRepository
 				evt.ExternalId,
 				JsonDocument.Parse(evt.ChangeSets),
 				evt.CreatedOn));
+
+	public ValueTask<bool> GetHasMigrateAsync(string playerCode, CancellationToken cancellationToken = default)
+		=> _playerBucketDataAccess.GetHasMigrateAsync(playerCode, cancellationToken);
+
+	public ValueTask SetHasMigrateAsync(string playerCode, CancellationToken cancellationToken = default)
+		=> _playerBucketDataAccess.SetPlayerHasMigrateAsync(playerCode, cancellationToken);
+
+	public async ValueTask UpdateLegacyBucketFullAsync(Guid bucketId, CancellationToken cancellationToken = default)
+	{
+		var legacyBucket = await _playerBucketDataAccess.FindPlayerBucketAsync(
+			bucketId,
+			cancellationToken).ConfigureAwait(false);
+
+		if (legacyBucket is null)
+			return;
+
+		legacyBucket.IsFull = true;
+
+		await _playerBucketDataAccess.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+	}
 }

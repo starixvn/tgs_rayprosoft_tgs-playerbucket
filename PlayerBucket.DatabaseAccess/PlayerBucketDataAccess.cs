@@ -74,4 +74,21 @@ internal class PlayerBucketDataAccess
 
 	public async ValueTask SaveChangesAsync(CancellationToken cancellationToken = default)
 		=> await _dbContext.SaveChangesAsync(cancellationToken);
+
+	public async ValueTask<bool> GetHasMigrateAsync(string playerCode, CancellationToken cancellationToken = default)
+	{
+		var record = await _dbContext.PlayerBucketMigrations.FindAsync(
+			new object?[] { playerCode },
+			cancellationToken: cancellationToken).ConfigureAwait(false);
+
+		return record is not null;
+	}
+
+	public async ValueTask SetPlayerHasMigrateAsync(string playerCode, CancellationToken cancellationToken = default)
+		=> _ = await _dbContext.PlayerBucketMigrations.AddAsync(
+			new PlayerBucketMigration
+			{
+				PlayerCode = playerCode
+			},
+			cancellationToken).ConfigureAwait(false);
 }

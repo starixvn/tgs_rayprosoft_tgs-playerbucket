@@ -7,4 +7,5 @@ public enum BucketType : short
 	Promotion,
 	Adjustment,
 	Vip,
+	Migrate
 }

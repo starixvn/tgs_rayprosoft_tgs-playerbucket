@@ -4,6 +4,7 @@ using System.Threading.Channels;
 using Json.Patch;
 using Microsoft.Extensions.Logging;
 using Tgs.SerialNumberGenerator;
+using Tgs.Service.PlayerBuckets.BucketCommands;
 
 namespace Tgs.Service.PlayerBuckets;
 
@@ -13,7 +14,6 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 	private readonly ITgsRepository _tgsRepository;
 	private readonly IBucketEventRepository _bucketEventRepository;
 	private readonly IEventSource _eventSource;
-	private readonly ILogger<BucketCounter> _logger;
 	private readonly List<BucketInfo> _buckets = new();
 
 	private readonly Channel<IBucketCommand> _channel = Channel.CreateUnbounded<IBucketCommand>(
@@ -23,12 +23,12 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 		});
 
 	private readonly SemaphoreSlim _locker = new(1, 1);
+	private readonly ILogger<BucketCounter> _logger;
 	private readonly CancellationTokenSource _cancellationTokenSource = new();
-	private int _expiry = 610;
-	private Timer? _timer;
 	private decimal _bucketAmount = 0M;
 	private Task? _backgroundTask;
-
+	private int _expiry = 610;
+	private Timer? _timer;
 	private bool _disposedValue;
 
 	public event EventHandler? Disposed;
@@ -61,6 +61,11 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 				cancellationToken,
 				_cancellationTokenSource.Token).Token);
 
+	public void ExtendExpiry()
+	{
+		_ = Interlocked.Exchange(ref _expiry, 610);
+	}
+
 	public async ValueTask PrepareAsync(CancellationToken cancellationToken = default)
 	{
 		var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cancellationTokenSource.Token);
@@ -76,6 +81,8 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 				return;
 
 			await PrepareNotFullBucketsAsync(cts.Token).ConfigureAwait(false);
+
+			await ProcessMigrateAsync(cts.Token).ConfigureAwait(false);
 
 			_timer = new Timer(_ =>
 			{
@@ -93,11 +100,6 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 		{
 			_ = _locker.Release();
 		}
-	}
-
-	public void ExtendExpiry()
-	{
-		_ = Interlocked.Exchange(ref _expiry, 610);
 	}
 
 	async ValueTask<Guid> IBucketStore.CreateBucketAsync(decimal amount, BucketType type, string? externalId, CancellationToken cancellationToken)
@@ -215,6 +217,8 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 		return ValueTask.FromResult(_bucketAmount);
 	}
 
+	public ValueTask CleanUpBucketsAsync(Guid eventId, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+
 	protected virtual void Dispose(bool disposing)
 	{
 		if (!_disposedValue)
@@ -229,6 +233,58 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 
 			_disposedValue = true;
 		}
+	}
+
+	private async ValueTask ProcessMigrateAsync(CancellationToken cancellationToken = default)
+	{
+		var hasMigrate = await _tgsRepository.GetHasMigrateAsync(
+			PlayerCode,
+			cancellationToken).ConfigureAwait(false);
+
+		if (!hasMigrate)
+			return;
+
+		if (_buckets.Count == 0)
+		{
+			await _tgsRepository.SetHasMigrateAsync(
+				PlayerCode,
+				cancellationToken).ConfigureAwait(false);
+
+			return;
+		}
+
+		for (var i = 0; i < _buckets.Count; i++)
+		{
+			var snapshotBucket = await MakeSnapshotAsync(
+				_buckets[i].Id,
+				_buckets[i],
+				cancellationToken).ConfigureAwait(false);
+
+			if (snapshotBucket.SnapshotId != _buckets[i].SnapshotId)
+			{
+				_bucketAmount -= snapshotBucket.FillInAmount - _buckets[i].FillInAmount;
+				_buckets[i] = snapshotBucket;
+			}
+
+			await _tgsRepository.UpdateLegacyBucketFullAsync(
+				snapshotBucket.Id,
+				cancellationToken).ConfigureAwait(false);
+		}
+
+		var amount = _bucketAmount;
+
+		_bucketAmount = 0M;
+		_buckets.Clear();
+
+		var createCommand = new CreateBucketCommand(amount, BucketType.Migrate, null);
+
+		await PushCommandAsync(
+			createCommand,
+			cancellationToken).ConfigureAwait(false);
+
+		await _tgsRepository.SetHasMigrateAsync(
+			PlayerCode,
+			cancellationToken).ConfigureAwait(false);
 	}
 
 	private async ValueTask PrepareNotFullBucketsAsync(CancellationToken cancellationToken = default)
