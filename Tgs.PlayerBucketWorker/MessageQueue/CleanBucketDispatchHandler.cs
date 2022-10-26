@@ -9,7 +9,7 @@ public class CleanBucketDispatchHandler : BucketRequestDispatcher, IMessageHandl
 	public CleanBucketDispatchHandler(
 		IMessageSender messageSender,
 		IDistributedResourceManager distributedResourceManager,
-		ILogger logger) : base(messageSender, distributedResourceManager, logger)
+		ILogger<CleanBucketDispatchHandler> logger) : base(messageSender, distributedResourceManager, logger)
 	{
 	}
 

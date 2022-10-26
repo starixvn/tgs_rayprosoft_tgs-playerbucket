@@ -48,8 +48,14 @@ internal class TgsRepository : ITgsRepository
 	public ValueTask<bool> GetHasMigrateAsync(string playerCode, CancellationToken cancellationToken = default)
 		=> _playerBucketDataAccess.GetHasMigrateAsync(playerCode, cancellationToken);
 
-	public ValueTask SetHasMigrateAsync(string playerCode, CancellationToken cancellationToken = default)
-		=> _playerBucketDataAccess.SetPlayerHasMigrateAsync(playerCode, cancellationToken);
+	public async ValueTask SetHasMigrateAsync(string playerCode, CancellationToken cancellationToken = default)
+	{
+		await _playerBucketDataAccess.SetPlayerHasMigrateAsync(
+			playerCode,
+			cancellationToken).ConfigureAwait(false);
+
+		await _playerBucketDataAccess.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+	}
 
 	public async ValueTask UpdateLegacyBucketFullAsync(Guid bucketId, CancellationToken cancellationToken = default)
 	{
