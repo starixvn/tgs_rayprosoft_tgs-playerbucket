@@ -337,7 +337,7 @@ public class BucketCounterTests
 
 		var buckets = new[] {
 			new BucketInfo(
-				Guid.NewGuid(),
+				Guid.Parse("097cdb7f-8401-0000-0001-000080cd2019"),
 				"test1",
 				10M,
 				BucketType.Deposit,
@@ -345,7 +345,7 @@ public class BucketCounterTests
 				false,
 				null),
 			new BucketInfo(
-				Guid.NewGuid(),
+				Guid.Parse("098412ec-8401-0000-0001-000080cd2019"),
 				"test1",
 				100M,
 				BucketType.Deposit,
