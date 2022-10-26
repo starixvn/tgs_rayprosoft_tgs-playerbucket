@@ -52,3 +52,9 @@ message GetBucketAmountResponse {
 message ExtendExpiryRequest {
 	string player_code = 1;
 }
+
+message CleanBucketRequest {
+	string player_code = 1;
+	phoenix.protobuf.GuidValue anchor_bucket_id = 2;
+	string external_id = 3;
+}

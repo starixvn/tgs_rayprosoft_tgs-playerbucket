@@ -87,4 +87,23 @@ internal class PlayerBucketClient : IPlayerBucketClient
 
 		return new ReadBucketResult(response.Amount, (Guid?)response.AnchorBucketId);
 	}
+
+	public async ValueTask CleanBucketsAsync(
+		string playerCode,
+		Guid anchorBucketId,
+		string? externalId,
+		CancellationToken cancellationToken = default)
+	{
+		var request = new CleanBucketRequest
+		{
+			PlayerCode = playerCode,
+			AnchorBucketId = anchorBucketId,
+			ExternalId = externalId ?? string.Empty
+		};
+
+		await _messageSender.SendAsync(
+			"tgs.bucket.clean",
+			request.ToByteArray(),
+			cancellationToken).ConfigureAwait(false);
+	}
 }

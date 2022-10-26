@@ -31,7 +31,7 @@ public class BucketController : ControllerBase
 			HttpContext.RequestAborted);
 
 	[HttpGet(Name = "GetBucketAmount")]
-	public async ValueTask<decimal> GetBucketAmountAsync(
+	public async ValueTask<BucketSummaryViewModel> GetBucketAmountAsync(
 		[FromServices] IPlayerBucketClient playerBucketClient,
 		string playerCode)
 	{
@@ -39,7 +39,11 @@ public class BucketController : ControllerBase
 			playerCode,
 			HttpContext.RequestAborted).ConfigureAwait(false);
 
-		return result.Amount;
+		return new BucketSummaryViewModel
+		{
+			Amount = result.Amount,
+			AnchorId = result.AnchorBucketId
+		};
 	}
 
 	[HttpPut("snapshot/{playerCode}/{bucketId}", Name = "SnapshotBucket")]
@@ -48,4 +52,14 @@ public class BucketController : ControllerBase
 		string playerCode,
 		Guid bucketId)
 		=> playerBucketClient.SnapshotBucketAsync(playerCode, bucketId, HttpContext.RequestAborted);
+
+	[HttpDelete("clean", Name = "CleanBuckets")]
+	public ValueTask CleanBucketsAsync(
+		[FromServices] IPlayerBucketClient playerBucketClient,
+		BucketCleanViewModel viewModel)
+		=> playerBucketClient.CleanBucketsAsync(
+			viewModel.PlayerCode,
+			viewModel.AnchorId,
+			viewModel.ExternalId,
+			HttpContext.RequestAborted);
 }

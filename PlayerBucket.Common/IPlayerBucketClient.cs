@@ -22,4 +22,10 @@ public interface IPlayerBucketClient
 		CancellationToken cancellationToken = default);
 
 	ValueTask<ReadBucketResult> ReadBucketsAsync(string playerCode, CancellationToken cancellationToken = default);
+
+	ValueTask CleanBucketsAsync(
+		string playerCode,
+		Guid anchorBucketId,
+		string? externalId,
+		CancellationToken cancellationToken = default);
 }
