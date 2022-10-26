@@ -21,5 +21,5 @@ public interface IPlayerBucketClient
 		Guid bucketId,
 		CancellationToken cancellationToken = default);
 
-	ValueTask<decimal> GetBucketAmountAsync(string playerCode, CancellationToken cancellationToken = default);
+	ValueTask<ReadBucketResult> ReadBucketsAsync(string playerCode, CancellationToken cancellationToken = default);
 }

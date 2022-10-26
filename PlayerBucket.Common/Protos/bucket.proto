@@ -46,6 +46,7 @@ message GetBucketAmountRequest {
 
 message GetBucketAmountResponse {
 	phoenix.protobuf.DecimalValue amount = 1;
+	phoenix.protobuf.GuidValue anchor_bucket_id = 2;
 }
 
 message ExtendExpiryRequest {

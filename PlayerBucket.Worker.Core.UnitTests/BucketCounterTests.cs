@@ -276,7 +276,7 @@ public class BucketCounterTests
 
 		var actual = await getCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
 
-		Assert.AreEqual(30M, actual);
+		Assert.AreEqual(30M, actual.Amount);
 	}
 
 	[TestMethod]
@@ -318,7 +318,7 @@ public class BucketCounterTests
 
 		var actual = await getCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
 
-		Assert.AreEqual(20M, actual);
+		Assert.AreEqual(20M, actual.Amount);
 	}
 
 	[TestMethod]
@@ -393,7 +393,7 @@ public class BucketCounterTests
 
 		await sut.PushCommandAsync(firstGetCommand);
 
-		var firstAmount = await firstGetCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
+		var firstAmountResult = await firstGetCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
 
 		var fillCommand = new FillInBucketCommand(10M, FillType.Game, Guid.NewGuid().ToString());
 
@@ -403,7 +403,7 @@ public class BucketCounterTests
 
 		await sut.PushCommandAsync(secondGetCommand);
 
-		var secondAmount = await secondGetCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
+		var secondAmountResult = await secondGetCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
 
 		await sut.PushCommandAsync(new FillInBucketCommand(10M, FillType.Game, Guid.NewGuid().ToString()));
 
@@ -413,8 +413,8 @@ public class BucketCounterTests
 
 		var actual = await getCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
 
-		Assert.AreEqual(110M, firstAmount);
-		Assert.AreEqual(100M, secondAmount);
-		Assert.AreEqual(60M, actual);
+		Assert.AreEqual(110M, firstAmountResult.Amount);
+		Assert.AreEqual(100M, secondAmountResult.Amount);
+		Assert.AreEqual(60M, actual.Amount);
 	}
 }

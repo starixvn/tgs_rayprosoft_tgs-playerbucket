@@ -28,11 +28,12 @@ public class GetBucketAmountProcessor : IMessageProcessor
 			command,
 			cancellationToken).ConfigureAwait(false);
 
-		var amount = await command.GetAmountAsync().ConfigureAwait(false);
+		var result = await command.GetAmountAsync().ConfigureAwait(false);
 
 		var response = new GetBucketAmountResponse
 		{
-			Amount = amount
+			Amount = result.Amount,
+			AnchorBucketId = result.AnchorBucketId
 		};
 
 		return response.ToByteArray();

@@ -31,10 +31,16 @@ public class BucketController : ControllerBase
 			HttpContext.RequestAborted);
 
 	[HttpGet(Name = "GetBucketAmount")]
-	public ValueTask<decimal> GetBucketAmountAsync(
+	public async ValueTask<decimal> GetBucketAmountAsync(
 		[FromServices] IPlayerBucketClient playerBucketClient,
 		string playerCode)
-		=> playerBucketClient.GetBucketAmountAsync(playerCode, HttpContext.RequestAborted);
+	{
+		var result = await playerBucketClient.ReadBucketsAsync(
+			playerCode,
+			HttpContext.RequestAborted).ConfigureAwait(false);
+
+		return result.Amount;
+	}
 
 	[HttpPut("snapshot/{playerCode}/{bucketId}", Name = "SnapshotBucket")]
 	public ValueTask SnapshotBucketAsync(

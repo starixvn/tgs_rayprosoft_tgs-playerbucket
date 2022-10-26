@@ -10,7 +10,7 @@ public interface IBucketStore
 
 	ValueTask FillInBucketAsync(BucketInfo bucket, FillInBucketInfo fillInInfo, CancellationToken cancellationToken = default);
 
-	ValueTask<decimal> GetBucketAmountAsync(CancellationToken cancellationToken = default);
+	ValueTask<ReadBucketResult> GetBucketAmountAsync(CancellationToken cancellationToken = default);
 
 	ValueTask CleanUpBucketsAsync(Guid eventId, CancellationToken cancellationToken = default);
 }

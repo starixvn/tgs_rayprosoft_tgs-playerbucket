@@ -185,8 +185,8 @@ public class CreateBucketTests
 
 		var dbContext = web.Services.GetRequiredService<TgsContext>();
 
-		var actual = await client.GetBucketAmountAsync(playerCode).AsTask().WaitAsync(TimeSpan.FromSeconds(1D));
+		var actual = await client.ReadBucketsAsync(playerCode).AsTask().WaitAsync(TimeSpan.FromSeconds(1D));
 
-		Assert.AreEqual(0M, actual);
+		Assert.AreEqual(0M, actual.Amount);
 	}
 }

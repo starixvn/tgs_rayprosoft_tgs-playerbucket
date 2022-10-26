@@ -52,9 +52,9 @@ var queryStep = Step.Create("Get Bucket Amount", async context =>
 {
 	var playerCode = (context.Data.GetValueOrDefault("player") as string)!;
 
-	var amount = await client.GetBucketAmountAsync(playerCode).ConfigureAwait(false);
+	var result = await client.ReadBucketsAsync(playerCode).ConfigureAwait(false);
 
-	return amount == 10M ? Response.Ok(statusCode: 200) : Response.Fail();
+	return result.Amount == 10M ? Response.Ok(statusCode: 200) : Response.Fail();
 }, timeout: TimeSpan.FromSeconds(1D));
 
 var bucketScenario = ScenarioBuilder.CreateScenario("Bucket Test", fillInStep)

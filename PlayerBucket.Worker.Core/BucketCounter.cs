@@ -210,11 +210,11 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 		GC.SuppressFinalize(this);
 	}
 
-	ValueTask<decimal> IBucketStore.GetBucketAmountAsync(CancellationToken cancellationToken)
+	ValueTask<ReadBucketResult> IBucketStore.GetBucketAmountAsync(CancellationToken cancellationToken)
 	{
 		cancellationToken.ThrowIfCancellationRequested();
 
-		return ValueTask.FromResult(_bucketAmount);
+		return ValueTask.FromResult(new ReadBucketResult(_bucketAmount, _buckets.LastOrDefault()?.Id));
 	}
 
 	public ValueTask CleanUpBucketsAsync(Guid eventId, CancellationToken cancellationToken = default) => throw new NotImplementedException();

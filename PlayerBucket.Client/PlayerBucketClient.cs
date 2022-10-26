@@ -26,7 +26,7 @@ internal class PlayerBucketClient : IPlayerBucketClient
 			PlayerCode = playerCode,
 			Amount = amount,
 			BucketType = type.ToString(),
-			ExternalId = externalId
+			ExternalId = externalId ?? string.Empty
 		};
 
 		var result = await _messageSender.RequestAsync(
@@ -51,7 +51,7 @@ internal class PlayerBucketClient : IPlayerBucketClient
 			PlayerCode = playerCode,
 			Amount = amount,
 			FillType = type.ToString(),
-			ExternalId = externalId
+			ExternalId = externalId ?? string.Empty
 		};
 
 		return _messageSender.SendAsync(
@@ -71,7 +71,7 @@ internal class PlayerBucketClient : IPlayerBucketClient
 		return _messageSender.PublishAsync("tgs.bucket.snapshot", request.ToByteArray(), cancellationToken);
 	}
 
-	public async ValueTask<decimal> GetBucketAmountAsync(string playerCode, CancellationToken cancellationToken = default)
+	public async ValueTask<ReadBucketResult> ReadBucketsAsync(string playerCode, CancellationToken cancellationToken = default)
 	{
 		var request = new GetBucketAmountRequest
 		{
@@ -85,6 +85,6 @@ internal class PlayerBucketClient : IPlayerBucketClient
 
 		var response = GetBucketAmountResponse.Parser.ParseFrom(result.Span);
 
-		return response.Amount;
+		return new ReadBucketResult(response.Amount, (Guid?)response.AnchorBucketId);
 	}
 }

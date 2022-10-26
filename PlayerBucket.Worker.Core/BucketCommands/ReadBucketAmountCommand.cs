@@ -2,15 +2,15 @@
 
 public class ReadBucketAmountCommand : IBucketCommand
 {
-	private readonly TaskCompletionSource<decimal> _taskCompletionSource = new();
+	private readonly TaskCompletionSource<ReadBucketResult> _taskCompletionSource = new();
 
 	public async ValueTask ExecuteAsync(IBucketStore bucketStore, CancellationToken cancellationToken = default)
 	{
 		try
 		{
-			var amount = await bucketStore.GetBucketAmountAsync(cancellationToken).ConfigureAwait(false);
+			var result = await bucketStore.GetBucketAmountAsync(cancellationToken).ConfigureAwait(false);
 
-			_taskCompletionSource.SetResult(amount);
+			_taskCompletionSource.SetResult(result);
 		}
 		catch (Exception ex)
 		{
@@ -18,5 +18,5 @@ public class ReadBucketAmountCommand : IBucketCommand
 		}
 	}
 
-	public Task<decimal> GetAmountAsync() => _taskCompletionSource.Task;
+	public Task<ReadBucketResult> GetAmountAsync() => _taskCompletionSource.Task;
 }

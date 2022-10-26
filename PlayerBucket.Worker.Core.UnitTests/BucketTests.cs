@@ -202,13 +202,16 @@ public class BucketTests
 
 		var fakeBucketStore = Substitute.For<IBucketStore>();
 
+		var expectedAnchorId = Guid.NewGuid();
+
 		_ = fakeBucketStore.GetBucketAmountAsync()
-			.Returns(100M);
+			.Returns(new ReadBucketResult(100M, expectedAnchorId));
 
 		await sut.ExecuteAsync(fakeBucketStore);
 
 		var actual = await sut.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
 
-		Assert.AreEqual(100M, actual);
+		Assert.AreEqual(100M, actual.Amount);
+		Assert.AreEqual(expectedAnchorId, actual.AnchorBucketId);
 	}
 }
