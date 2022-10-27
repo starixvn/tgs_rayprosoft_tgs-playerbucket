@@ -270,7 +270,7 @@ deploy-committer-staging:
     name: committer-staging
   stage: deploy-staging
   needs:
-    - deploy-service-dev
+    - deploy-committer-dev
     - job: push-k8s-template
       artifacts: true
   only:
@@ -368,7 +368,7 @@ deploy-committer-prod:
     name: service-prod
   stage: deploy-prod
   needs:
-    - deploy-service-staging
+    - deploy-committer-staging
     - job: push-k8s-template
       artifacts: true
   only:
