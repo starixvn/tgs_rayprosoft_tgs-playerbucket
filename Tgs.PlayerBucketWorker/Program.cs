@@ -1,10 +1,9 @@
 using System.Text.Json.Serialization;
 using FluentdForward.OpenTelemetry.MessagePack;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Npgsql;
-using OpenTelemetry.Exporter;
 using OpenTelemetry.Instrumentation.AspNetCore;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Tgs.MessageQueue.MongoDB.Configuration;
@@ -13,6 +12,9 @@ using Tgs.PlayerBucketWorker;
 using Tgs.PlayerBucketWorker.MessageQueue;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration
+	.AddJsonFile("/config/appsettings.json", true);
 
 builder.Logging
 	.AddOpenTelemetry(options =>
@@ -91,19 +93,6 @@ builder.Services
 	.AddHealthChecks();
 
 builder.Services
-	.AddSingleton<IConfigureOptions<OtlpExporterOptions>>(
-		sp => new ConfigureNamedOptions<OtlpExporterOptions>(
-			Microsoft.Extensions.Options.Options.DefaultName,
-			exporterOptions =>
-			{
-				var config = sp.GetRequiredService<IConfiguration>();
-				var nodeIp = config.GetValue<string>("NODE_IP");
-
-				if (!string.IsNullOrWhiteSpace(nodeIp))
-					exporterOptions.Endpoint = new Uri($"http://{nodeIp}:4317");
-
-				config.GetSection("Opentelemetry:Tracing").Bind(exporterOptions);
-			}))
 	.AddOpenTelemetryTracing(
 		tracingBuilder => tracingBuilder
 			.SetResourceBuilder(ResourceBuilder.CreateDefault()
@@ -114,6 +103,12 @@ builder.Services
 			.AddAspNetCoreInstrumentation()
 			.AddEntityFrameworkCoreInstrumentation(options => options.SetDbStatementForText = true)
 			.AddProfileViewExporter()
+			.AddOtlpExporter())
+	.AddOpenTelemetryMetrics(meterBuiler => meterBuiler
+		.SetResourceBuilder(ResourceBuilder.CreateDefault()
+			.AddEnvironmentVariableDetector())
+			.AddRuntimeInstrumentation()
+			.AddAspNetCoreInstrumentation()
 			.AddOtlpExporter())
 	.AddProfileViewer()
 	.Configure<AspNetCoreInstrumentationOptions>(options => options.Filter =
