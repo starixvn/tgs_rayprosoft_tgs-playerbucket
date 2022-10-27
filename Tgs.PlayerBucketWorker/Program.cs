@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using FluentdForward.OpenTelemetry.MessagePack;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;

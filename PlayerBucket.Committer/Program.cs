@@ -1,4 +1,4 @@
-using FluentdForward.OpenTelemetry.MessagePack;
+﻿using FluentdForward.OpenTelemetry.MessagePack;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using OpenTelemetry.Instrumentation.AspNetCore;

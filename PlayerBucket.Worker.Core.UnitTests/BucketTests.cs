@@ -1,4 +1,4 @@
-using Json.Patch;
+ï»¿using Json.Patch;
 using NSubstitute;
 using Tgs.Service.PlayerBuckets;
 using Tgs.Service.PlayerBuckets.BucketCommands;
@@ -9,7 +9,7 @@ namespace PlayerBucket.Worker.Core.UnitTests;
 public class BucketTests
 {
 	[TestMethod]
-	public async Task CreateBucketCommand_«Ø¥ßBucket()
+	public async Task CreateBucketCommand_å»ºç«‹Bucket()
 	{
 		var externalId = Guid.NewGuid().ToString();
 		var sut = new CreateBucketCommand(100M, BucketType.Deposit, externalId);
@@ -26,7 +26,7 @@ public class BucketTests
 	}
 
 	[TestMethod]
-	public async Task FillInBucketCommand_¶ñ¥RBucket_·íBucketªº®e¶q¤j©óµ¥©ó¶ñ¥R®e¶q®É_¥u·|¶ñ¥R¤@¦¸()
+	public async Task FillInBucketCommand_å¡«å……Bucket_ç•¶Bucketçš„å®¹é‡å¤§æ–¼ç­‰æ–¼å¡«å……å®¹é‡æ™‚_åªæœƒå¡«å……ä¸€æ¬¡()
 	{
 		var externalId = Guid.NewGuid().ToString();
 		var sut = new FillInBucketCommand(100M, FillType.Game, externalId);
@@ -66,7 +66,7 @@ public class BucketTests
 	}
 
 	[TestMethod]
-	public async Task FillInBucketCommand_¶ñ¥RBucket_·íBucketªº®e¶q¤p©ó¶ñ¥R®e¶q®É_·|§ä¤U¤@­ÓBucket¶ñ¥R()
+	public async Task FillInBucketCommand_å¡«å……Bucket_ç•¶Bucketçš„å®¹é‡å°æ–¼å¡«å……å®¹é‡æ™‚_æœƒæ‰¾ä¸‹ä¸€å€‹Bucketå¡«å……()
 	{
 		var externalId = Guid.NewGuid().ToString();
 		var sut = new FillInBucketCommand(100M, FillType.Game, externalId);
@@ -125,7 +125,7 @@ public class BucketTests
 	}
 
 	[TestMethod]
-	public async Task FillInBucketCommand_¶ñ¥RBucket_¦pªG¨S¦³¥i¥H¶ñ¥RªºBucket_·|µ²§ô¶ñ¥R()
+	public async Task FillInBucketCommand_å¡«å……Bucket_å¦‚æœæ²’æœ‰å¯ä»¥å¡«å……çš„Bucket_æœƒçµæŸå¡«å……()
 	{
 		var externalId = Guid.NewGuid().ToString();
 		var sut = new FillInBucketCommand(100M, FillType.Game, externalId);
@@ -146,7 +146,7 @@ public class BucketTests
 	}
 
 	[TestMethod]
-	public void BucketCreateInfo_²£¥ÍJsonPatch¦r¦ê()
+	public void BucketCreateInfo_ç”¢ç”ŸJsonPatchå­—ä¸²()
 	{
 		var sut = new BucketCreateInfo("test1", 100M, BucketType.Deposit, null);
 
@@ -168,7 +168,7 @@ public class BucketTests
 	}
 
 	[TestMethod]
-	public void FillInBucketInfo_²£¥ÍJsonPatch¦r¦ê()
+	public void FillInBucketInfo_ç”¢ç”ŸJsonPatchå­—ä¸²()
 	{
 		var sut = new FillInBucketInfo("test1", 100M, FillType.Game, null, false);
 
@@ -182,7 +182,7 @@ public class BucketTests
 	}
 
 	[TestMethod]
-	public void FillInBucketInfo_·íSetFull¬°True®É²£¥ÍJsonPatch¦r¦ê()
+	public void FillInBucketInfo_ç•¶SetFullç‚ºTrueæ™‚ç”¢ç”ŸJsonPatchå­—ä¸²()
 	{
 		var sut = new FillInBucketInfo("test1", 100M, FillType.Game, null, true);
 
@@ -196,7 +196,7 @@ public class BucketTests
 	}
 
 	[TestMethod]
-	public async Task ReadBucketAmountCommand_¨ú±oª±®aªºBucketAmountªº­È()
+	public async Task ReadBucketAmountCommand_å–å¾—ç©å®¶çš„BucketAmountçš„å€¼()
 	{
 		var sut = new ReadBucketAmountCommand();
 
@@ -216,7 +216,7 @@ public class BucketTests
 	}
 
 	[TestMethod]
-	public async Task CleanBucketsCommand_²M°£ª±®aªºBuckets()
+	public async Task CleanBucketsCommand_æ¸…é™¤ç©å®¶çš„Buckets()
 	{
 		var anchorBucketId = Guid.Parse("0985a64a-8401-0000-0001-000080cd2019");
 		var externalId = Guid.NewGuid().ToString();
