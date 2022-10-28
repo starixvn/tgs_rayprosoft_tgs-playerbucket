@@ -60,7 +60,7 @@ push-nuget:
     untracked: true
     policy: pull
   script:
-    - dotnet pack -c $BuildConfiguration "PlayerBucket.Client/PlayerBucket.Client.csproj" --no-restore --no-build
+    - dotnet pack -c $BuildConfiguration "PlayerBucket.Client/PlayerBucket.Client.csproj" --no-restore
     - dotnet nuget push "PlayerBucket.Client/bin/$BuildConfiguration/*.nupkg" -s "raypro-baget" -k $NugetApiKey --skip-duplicate
   artifacts:
     name: Nuget
