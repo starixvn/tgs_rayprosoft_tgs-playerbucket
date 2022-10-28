@@ -110,13 +110,13 @@ spec:
           startupProbe:
             httpGet:
               path: /healthz
-              port: http
+              port: health
             periodSeconds: 2
             failureThreshold: 30
           livenessProbe:
             httpGet:
               path: /healthz
-              port: http
+              port: health
             periodSeconds: 5
           resources:
             requests:
