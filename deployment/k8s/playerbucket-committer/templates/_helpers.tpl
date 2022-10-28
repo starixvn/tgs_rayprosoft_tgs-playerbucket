@@ -48,6 +48,7 @@ Selector labels
 {{- define "playerbucket-committer.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "playerbucket-committer.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+tgs.kind: playerbucket
 {{- end }}
 
 {{/*

@@ -85,8 +85,6 @@ spec:
         - name: monitor
           image: otel/opentelemetry-collector:0.62.1
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command:
-            - --config=/etc/otel-collector-config.yaml
           env:
             - name: NODE_IP
               valueFrom:
@@ -103,7 +101,7 @@ spec:
               containerPort: 4317
               protocol: TCP
           volumeMounts:
-            - mountPath: /etc/otel-collector-config.yaml
+            - mountPath: /etc/otel/config.yaml
               name: appsettings
               readOnly: true
               subPath: otel-collector-config.yaml
