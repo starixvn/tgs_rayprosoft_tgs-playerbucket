@@ -36,13 +36,12 @@ data:
 
     service:
       extensions: [health_check]
-    
-    pipelines:
-      traces: 
-        receivers: [otlp]
-        processors:
-          - batch
-        exporters: [otlp]
-      metrics:
-        receivers: [otlp]
-        exporters: [prometheus]
+      pipelines:
+        traces: 
+          receivers: [otlp]
+          processors:
+            - batch
+          exporters: [otlp]
+        metrics:
+          receivers: [otlp]
+          exporters: [prometheus]
