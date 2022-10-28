@@ -85,6 +85,8 @@ spec:
         - name: monitor
           image: otel/opentelemetry-collector:0.62.1
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - --config=/etc/otel/config.yaml
           env:
             - name: NODE_IP
               valueFrom:
