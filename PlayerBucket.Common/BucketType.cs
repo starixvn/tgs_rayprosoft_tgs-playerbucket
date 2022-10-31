@@ -4,8 +4,9 @@ public enum BucketType : short
 {
 	None = 0,
 	Deposit = 1,
-	Promotion,
-	Adjustment,
-	Vip,
-	Migrate
+	Promotion = 2,
+	Adjustment = 3,
+	Vip = 4,
+	AllAgent = 5,
+	Migrate,
 }

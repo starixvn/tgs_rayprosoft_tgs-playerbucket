@@ -1,34 +1,36 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <RootNamespace>Tgs.PlayerBucket.Clients</RootNamespace>
-    <PackageId>Tgs.PlayerBucket.Client</PackageId>
-    <Title>Tgs.PlayerBucket.Client</Title>
-    <Version>0.0.2</Version>
-    <Authors>Raypro</Authors>
-    <PackageProjectUrl>https://gitlab.com/rayprosoft/tgs-playerbucket</PackageProjectUrl>
-    <RepositoryUrl>https://gitlab.com/rayprosoft/tgs-playerbucket.git</RepositoryUrl>
-    <PackageTags>Tgs PlayerBucket Bucket</PackageTags>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<RootNamespace>Tgs.PlayerBucket.Clients</RootNamespace>
+		<PackageId>Tgs.PlayerBucket.Client</PackageId>
+		<Title>Tgs.PlayerBucket.Client</Title>
+		<Version>0.0.3</Version>
+		<Authors>Raypro</Authors>
+		<PackageProjectUrl>https://gitlab.com/rayprosoft/tgs-playerbucket</PackageProjectUrl>
+		<RepositoryUrl>https://gitlab.com/rayprosoft/tgs-playerbucket.git</RepositoryUrl>
+		<PackageTags>Tgs PlayerBucket Bucket</PackageTags>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="JsonPatch.Net" Version="2.0.4" />
-    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.3.48">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="PhoenixToolkits.NuGet.BuildTools" Version="0.0.2" />
-    <PackageReference Include="PhoenixToolkits.Protobuf.ExtendTypes" Version="0.0.6" />
-    <PackageReference Include="Tgs.MessageQueue" Version="2.1.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="JsonPatch.Net" Version="2.0.4" />
+		<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.3.48">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="PhoenixToolkits.Protobuf.ExtendTypes" Version="0.0.6" />
+		<PackageReference Include="Tgs.MessageQueue" Version="2.1.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\PlayerBucket.Common\PlayerBucket.Common.csproj">
-      <PrivateAssets>all</PrivateAssets>
-    </ProjectReference>
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\PlayerBucket.Common\PlayerBucket.Common.csproj">
+			<PrivateAssets>all</PrivateAssets>
+		</ProjectReference>
+		<PackageReference Include="PhoenixToolkits.NuGet.BuildTools" Version="0.0.2">
+			<PrivateAssets>All</PrivateAssets>
+		</PackageReference>
+	</ItemGroup>
 
 </Project>
