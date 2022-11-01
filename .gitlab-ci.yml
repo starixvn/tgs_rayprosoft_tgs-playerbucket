@@ -338,6 +338,7 @@ deploy-worker-prod:
         --name-template tgs \
         -f - 
       {
+        "replicaCount": 3,
         "nodeSelector": $node_selector,
         "tolerations": [$dedicated],
         "resources": $resources,
@@ -351,6 +352,7 @@ deploy-worker-prod:
         -f - \
         | kubectl -n $namespace apply -f -
       {
+        "replicaCount": 3,
         "nodeSelector": $node_selector,
         "tolerations": [$dedicated],
         "resources": $resources,
@@ -387,6 +389,7 @@ deploy-committer-prod:
         --name-template tgs \
         -f - 
       {
+        "replicaCount": 2,
         "nodeSelector": $node_selector,
         "tolerations": [$dedicated],
         "resources": $resources,
@@ -400,6 +403,7 @@ deploy-committer-prod:
         -f - \
         | kubectl -n $namespace apply -f -
       {
+        "replicaCount": 2,
         "nodeSelector": $node_selector,
         "tolerations": [$dedicated],
         "resources": $resources,
