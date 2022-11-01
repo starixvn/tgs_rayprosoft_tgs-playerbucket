@@ -22,7 +22,7 @@ public class Benchmarks
 				.AddPlayerBucketClient()
 				.AddMessageQueue()
 				.AddNatsMessageQueue(config => config
-					.ConfigQueueOptions((options, _) => options.Url = "nats://localhost:4222"))
+					.ConfigQueueOptions((options, _) => options.Url = "nats://localhost:5222"))
 				.AddNatsGlobPatternExchange("*"))
 			.Build();
 

@@ -12,7 +12,7 @@ var builder = Host.CreateDefaultBuilder(args)
 	.AddPlayerBucketClient()
 	.AddMessageQueue()
 	.AddNatsMessageQueue(config => config
-		.ConfigQueueOptions((options, _) => options.Url = "nats://localhost:4222"))
+		.ConfigQueueOptions((options, _) => options.Url = "nats://localhost:5222"))
 	.AddNatsGlobPatternExchange("*"));
 
 var app = builder.Build();
@@ -69,11 +69,14 @@ var bucketScenario = ScenarioBuilder.CreateScenario("Bucket Test", fillInStep)
 				id,
 				10000M,
 				BucketType.Deposit,
-				Guid.NewGuid().ToString()).AsTask()).ToArray());
+				Guid.NewGuid().ToString()).AsTask()).ToArray()).WaitAsync(TimeSpan.FromMinutes(1D));
 		}
 	})
 	.WithoutWarmUp()
 	.WithLoadSimulations(
-		Simulation.InjectPerSec(5000, TimeSpan.FromSeconds(10)));
+		Simulation.InjectPerSec(100, TimeSpan.FromSeconds(10)),
+		Simulation.InjectPerSec(500, TimeSpan.FromSeconds(10)),
+		Simulation.InjectPerSec(1000, TimeSpan.FromSeconds(10)),
+		Simulation.InjectPerSec(2000, TimeSpan.FromSeconds(10)));
 
 NBomberRunner.RegisterScenarios(bucketScenario).Run();

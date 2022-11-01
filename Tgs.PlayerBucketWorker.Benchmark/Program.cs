@@ -15,6 +15,6 @@ public class Program
 			return;
 		}
 		// Else, use BenchmarkRunner
-		_ = BenchmarkRunner.Run<Benchmarks>(BenchmarkConfig.Get().WithOptions(ConfigOptions.DisableOptimizationsValidator));
+		_ = BenchmarkRunner.Run<Benchmarks>(BenchmarkConfig.Get());
 	}
 }

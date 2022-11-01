@@ -31,7 +31,8 @@ public class BenchmarkConfig
 			.AddLogger(ConsoleLogger.Default)
 			.AddExporter(CsvExporter.Default)
 			.AddExporter(HtmlExporter.Default)
-			.AddAnalyser(GetAnalysers().ToArray());
+			.AddAnalyser(GetAnalysers().ToArray())
+			.WithOptions(ConfigOptions.DisableOptimizationsValidator);
 	}
 
 	/// <summary>
