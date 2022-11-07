@@ -91,7 +91,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 
 				if (_expiry <= 0)
 					Dispose();
-			});
+			}, null, 0, 1000);
 
 			_backgroundTask = Task.Run(
 				() => ProcessCommandLoopAsync(cts.Token),

@@ -51,7 +51,7 @@ internal class BucketCommitterDispatcher : BackgroundService
 											_ = Interlocked.Decrement(ref waitSeconds);
 											if (waitSeconds <= 0)
 												trigger.SetResult();
-										}),
+										}, null, 0, 1000),
 									tm => Observable.FromAsync(() => trigger.Task)));
 						})
 					.Select(g => g
@@ -119,7 +119,7 @@ internal class BucketCommitterDispatcher : BackgroundService
 											_ = Interlocked.Decrement(ref waitSeconds);
 											if (waitSeconds <= 0)
 												trigger.SetResult();
-										}),
+										}, null, 0, 1000),
 									tm => Observable.FromAsync(() => trigger.Task)));
 						})
 					.Select(g => g

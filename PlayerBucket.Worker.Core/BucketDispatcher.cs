@@ -29,7 +29,11 @@ internal class BucketDispatcher : IBucketDispatcher, IDisposable, IAsyncDisposab
 					scope.ServiceProvider,
 					key);
 
-				newCounter.Disposed += (_, _) => scope.Dispose();
+				newCounter.Disposed += (_, _) =>
+				{
+					_counters.TryRemove(newCounter.PlayerCode, out _);
+					scope.Dispose();
+				};
 
 				return newCounter;
 			});
