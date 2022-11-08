@@ -23,36 +23,39 @@ public class CreateBucketDispatchProcessor : BucketRequestDispatcher, IMessagePr
 	{
 		var request = CreateBucketRequest.Parser.ParseFrom(data.Span);
 
-		var bidToken = await GetBidTokenAsync(
-			request.PlayerCode,
-			cancellationToken).ConfigureAwait(false);
+		return await Policy
+		   .Handle<NATSNoRespondersException>()
+		   .RetryAsync(
+				1,
+				async (ex, count) =>
+				{
+					await DistributedResourceManager.DiscardBidAsync(
+						request.PlayerCode,
+						cancellationToken).ConfigureAwait(false);
 
-		var subject = $"tgs.bucket.worker.create.{bidToken}";
+					_logger.LogWarning(ex, "NoReponders error retry {count}", count);
+				})
+		   .ExecuteAsync(
+			   async ct =>
+			   {
+				   var bidToken = await GetBidTokenAsync(
+					   request.PlayerCode,
+					   cancellationToken).ConfigureAwait(false);
 
-		var response = await Policy
-			.Handle<NATSNoRespondersException>()
-			.RetryAsync(
-				 1,
-				 async (ex, count) =>
-				 {
-					 await DistributedResourceManager.DiscardBidAsync(
-						 request.PlayerCode,
-						 cancellationToken).ConfigureAwait(false);
+				   var subject = $"tgs.bucket.worker.create.{bidToken}";
 
-					 _logger.LogWarning(ex, "NoReponders error retry {count}", count);
-				 })
-			.ExecuteAsync(
-				async ct => await MessageSender.RequestAsync(
-					subject,
-					data,
-					cancellationToken).ConfigureAwait(false),
-				cancellationToken).ConfigureAwait(false);
+				   var response = await MessageSender.RequestAsync(
+					   subject,
+					   data,
+					   cancellationToken).ConfigureAwait(false);
 
-		await ExtendBidAsync(
-			request.PlayerCode,
-			bidToken,
-			cancellationToken).ConfigureAwait(false);
+				   await ExtendBidAsync(
+					   request.PlayerCode,
+					   bidToken,
+					   cancellationToken).ConfigureAwait(false);
 
-		return response;
+				   return response;
+			   },
+			   cancellationToken).ConfigureAwait(false);
 	}
 }

@@ -22,13 +22,7 @@ public class GetBucketAmountDispatchProcessor : BucketRequestDispatcher, IMessag
 	{
 		var request = GetBucketAmountRequest.Parser.ParseFrom(data.Span);
 
-		var bidToken = await GetBidTokenAsync(
-			request.PlayerCode,
-			cancellationToken).ConfigureAwait(false);
-
-		var subject = $"tgs.bucket.worker.amount.{bidToken}";
-
-		var response = await Policy
+		return await Policy
 			.Handle<NATSNoRespondersException>()
 			.RetryAsync(
 				 1,
@@ -41,17 +35,26 @@ public class GetBucketAmountDispatchProcessor : BucketRequestDispatcher, IMessag
 					 _logger.LogWarning(ex, "NoReponders error retry {count}", count);
 				 })
 			.ExecuteAsync(
-				async ct => await MessageSender.RequestAsync(
-					subject,
-					data,
-					cancellationToken).ConfigureAwait(false),
+				async ct =>
+				{
+					var bidToken = await GetBidTokenAsync(
+						request.PlayerCode,
+						cancellationToken).ConfigureAwait(false);
+
+					var subject = $"tgs.bucket.worker.amount.{bidToken}";
+
+					var response = await MessageSender.RequestAsync(
+						subject,
+						data,
+						cancellationToken).ConfigureAwait(false);
+
+					await ExtendBidAsync(
+						request.PlayerCode,
+						bidToken,
+						cancellationToken).ConfigureAwait(false);
+
+					return response;
+				},
 				cancellationToken).ConfigureAwait(false);
-
-		await ExtendBidAsync(
-			request.PlayerCode,
-			bidToken,
-			cancellationToken).ConfigureAwait(false);
-
-		return response;
 	}
 }

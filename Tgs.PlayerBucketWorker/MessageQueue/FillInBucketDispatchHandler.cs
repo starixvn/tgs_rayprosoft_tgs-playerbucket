@@ -23,12 +23,6 @@ public class FillInBucketDispatchHandler : BucketRequestDispatcher, IMessageHand
 	{
 		var request = FillInRequest.Parser.ParseFrom(data.Span);
 
-		var bidToken = await GetBidTokenAsync(
-			request.PlayerCode,
-			cancellationToken).ConfigureAwait(false);
-
-		var subject = $"tgs.bucket.worker.fill.{bidToken}";
-
 		await Policy
 			.Handle<NATSNoRespondersException>()
 			.RetryAsync(
@@ -42,15 +36,24 @@ public class FillInBucketDispatchHandler : BucketRequestDispatcher, IMessageHand
 					 _logger.LogWarning(ex, "NoReponders error retry {count}", count);
 				 })
 			.ExecuteAsync(
-				async ct => await MessageSender.SendAsync(
-					subject,
-					data,
-					cancellationToken).ConfigureAwait(false),
-				cancellationToken).ConfigureAwait(false);
+				async ct =>
+				{
+					var bidToken = await GetBidTokenAsync(
+						request.PlayerCode,
+						cancellationToken).ConfigureAwait(false);
 
-		await ExtendBidAsync(
-			request.PlayerCode,
-			bidToken,
-			cancellationToken).ConfigureAwait(false);
+					var subject = $"tgs.bucket.worker.fill.{bidToken}";
+
+					await MessageSender.SendAsync(
+						subject,
+						data,
+						cancellationToken).ConfigureAwait(false);
+
+					await ExtendBidAsync(
+						request.PlayerCode,
+						bidToken,
+						cancellationToken).ConfigureAwait(false);
+				},
+				cancellationToken).ConfigureAwait(false);
 	}
 }
