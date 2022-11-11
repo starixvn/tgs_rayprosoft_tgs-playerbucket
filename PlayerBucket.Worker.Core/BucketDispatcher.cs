@@ -31,7 +31,7 @@ internal class BucketDispatcher : IBucketDispatcher, IDisposable, IAsyncDisposab
 
 				newCounter.Disposed += (_, _) =>
 				{
-					_counters.TryRemove(newCounter.PlayerCode, out _);
+					_ = _counters.TryRemove(newCounter.PlayerCode, out _);
 					scope.Dispose();
 				};
 
