@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tgs.SerialNumberGenerator;
 using Tgs.Service.PlayerBuckets;
@@ -489,5 +490,195 @@ public class BucketCounterTests
 
 		Assert.AreEqual(220M, initAmountResult.Amount);
 		Assert.AreEqual(60M, finalAmountResult.Amount);
+	}
+
+	[TestMethod]
+	public async Task 啟始Bucket後如果取得的Bucket快照不是最新的_清除Bucket後_應該還是要得到清空後的值()
+	{
+		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+		var sut = new BucketCounter(
+			"test1",
+			Substitute.For<ISerialNumberGenerator>(),
+			fakeTgsRepository,
+			Substitute.For<IBucketEventRepository>(),
+			Substitute.For<IEventSource>(),
+			NullLogger<BucketCounter>.Instance);
+
+		var buckets = new Queue<BucketInfo>(new[]
+		{
+			new BucketInfo(
+				Guid.Parse("567f6112-8401-0000-0002-0000a3bf33ef"),
+				"test1",
+				100M,
+				BucketType.Deposit,
+				0M,
+				false,
+				Guid.Parse("567f6112-8401-0000-0001-0000a3bf33ef")),
+			new BucketInfo(
+				Guid.Parse("567f70ad-8401-0000-0002-0000a3bf33ef"),
+				"test1",
+				200M,
+				BucketType.Deposit,
+				0M,
+				false,
+				Guid.Parse("567f70ad-8401-0000-0001-0000a3bf33ef"))
+		});
+
+		_ = fakeTgsRepository.GetPlayerNotFullBucketsAsync(
+			Arg.Is("test1"),
+			Arg.Any<CancellationToken>())
+			.Returns(buckets.ToAsyncEnumerable());
+
+		fakeTgsRepository.GetBucketAllEventsAsync(
+			Arg.Is(Guid.Parse("567f6112-8401-0000-0002-0000a3bf33ef")),
+			Arg.Is(Guid.Parse("567f6112-8401-0000-0001-0000a3bf33ef")),
+			Arg.Any<CancellationToken>())
+			.Returns(new[] {
+				new BucketEvent(
+					Guid.Parse("5688d313-8401-0000-0001-0000a3bf33ef"),
+					Guid.Parse("567f6112-8401-0000-0002-0000a3bf33ef"),
+					-100M,
+					FillType.CleanUp,
+					null,
+					JsonDocument.Parse("[{\"op\": \"replace\", \"path\": \"/isFull\", \"value\": true}]"),
+					DateTime.UtcNow)
+			}.ToAsyncEnumerable());
+
+		fakeTgsRepository.GetBucketAllEventsAsync(
+			Arg.Is(Guid.Parse("567f70ad-8401-0000-0002-0000a3bf33ef")),
+			Arg.Is(Guid.Parse("567f70ad-8401-0000-0001-0000a3bf33ef")),
+			Arg.Any<CancellationToken>())
+			.Returns(new[] {
+				new BucketEvent(
+					Guid.Parse("5688d318-8401-0000-0001-0000a3bf33ef"),
+					Guid.Parse("567f70ad-8401-0000-0002-0000a3bf33ef"),
+					-200M,
+					FillType.CleanUp,
+					null,
+					JsonDocument.Parse("[{\"op\": \"replace\", \"path\": \"/isFull\", \"value\": true}]"),
+					DateTime.UtcNow)
+			}.ToAsyncEnumerable());
+
+
+		_ = fakeTgsRepository.GetHasMigrateAsync(Arg.Is("test1"), Arg.Any<CancellationToken>())
+			.Returns(true);
+
+		var anchorId = Guid.Parse("567f70ad-8401-0000-0002-0000a3bf33ef");
+
+		await sut.PrepareAsync();
+
+		var firstGetCommand = new ReadBucketAmountCommand();
+
+		await sut.PushCommandAsync(firstGetCommand);
+
+		var initAmountResult = await firstGetCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
+
+		var cleanCommand = new CleanBucketsCommand(anchorId, Guid.NewGuid().ToString());
+
+		await sut.PushCommandAsync(cleanCommand);
+
+		var summaryGetCommand = new ReadBucketAmountCommand();
+
+		await sut.PushCommandAsync(summaryGetCommand);
+
+		var finalAmountResult = await summaryGetCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
+
+		Assert.AreEqual(200M, initAmountResult.Amount);
+		Assert.AreEqual(0M, finalAmountResult.Amount);
+	}
+
+	[TestMethod]
+	public async Task 啟始Bucket後如果取得的Bucket快照不是最新的_但是已經填滿_FillIn後_會取得清空的值()
+	{
+		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+		var sut = new BucketCounter(
+			"test1",
+			Substitute.For<ISerialNumberGenerator>(),
+			fakeTgsRepository,
+			Substitute.For<IBucketEventRepository>(),
+			Substitute.For<IEventSource>(),
+			NullLogger<BucketCounter>.Instance);
+
+		var buckets = new Queue<BucketInfo>(new[]
+		{
+			new BucketInfo(
+				Guid.Parse("567f6112-8401-0000-0002-0000a3bf33ef"),
+				"test1",
+				100M,
+				BucketType.Deposit,
+				0M,
+				false,
+				Guid.Parse("567f6112-8401-0000-0001-0000a3bf33ef")),
+			new BucketInfo(
+				Guid.Parse("567f70ad-8401-0000-0002-0000a3bf33ef"),
+				"test1",
+				200M,
+				BucketType.Deposit,
+				0M,
+				false,
+				Guid.Parse("567f70ad-8401-0000-0001-0000a3bf33ef"))
+		});
+
+		_ = fakeTgsRepository.GetPlayerNotFullBucketsAsync(
+			Arg.Is("test1"),
+			Arg.Any<CancellationToken>())
+			.Returns(buckets.ToAsyncEnumerable());
+
+		_ = fakeTgsRepository.GetBucketAllEventsAsync(
+			Arg.Is(Guid.Parse("567f6112-8401-0000-0002-0000a3bf33ef")),
+			Arg.Is(Guid.Parse("567f6112-8401-0000-0001-0000a3bf33ef")),
+			Arg.Any<CancellationToken>())
+			.Returns(new[] {
+				new BucketEvent(
+					Guid.Parse("5688d313-8401-0000-0001-0000a3bf33ef"),
+					Guid.Parse("567f6112-8401-0000-0002-0000a3bf33ef"),
+					-100M,
+					FillType.CleanUp,
+					null,
+					JsonDocument.Parse("[{\"op\": \"replace\", \"path\": \"/isFull\", \"value\": true}]"),
+					DateTime.UtcNow)
+			}.ToAsyncEnumerable());
+
+		_ = fakeTgsRepository.GetBucketAllEventsAsync(
+			Arg.Is(Guid.Parse("567f70ad-8401-0000-0002-0000a3bf33ef")),
+			Arg.Is(Guid.Parse("567f70ad-8401-0000-0001-0000a3bf33ef")),
+			Arg.Any<CancellationToken>())
+			.Returns(new[] {
+				new BucketEvent(
+					Guid.Parse("5688d318-8401-0000-0001-0000a3bf33ef"),
+					Guid.Parse("567f70ad-8401-0000-0002-0000a3bf33ef"),
+					-200M,
+					FillType.CleanUp,
+					null,
+					JsonDocument.Parse("[{\"op\": \"replace\", \"path\": \"/isFull\", \"value\": true}]"),
+					DateTime.UtcNow)
+			}.ToAsyncEnumerable());
+
+
+		_ = fakeTgsRepository.GetHasMigrateAsync(Arg.Is("test1"), Arg.Any<CancellationToken>())
+			.Returns(true);
+
+		await sut.PrepareAsync();
+
+		var firstGetCommand = new ReadBucketAmountCommand();
+
+		await sut.PushCommandAsync(firstGetCommand);
+
+		var initAmountResult = await firstGetCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
+
+		var fillInCommand = new FillInBucketCommand(10M, FillType.Game, null);
+
+		await sut.PushCommandAsync(fillInCommand);
+
+		var summaryGetCommand = new ReadBucketAmountCommand();
+
+		await sut.PushCommandAsync(summaryGetCommand);
+
+		var finalAmountResult = await summaryGetCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
+
+		Assert.AreEqual(200M, initAmountResult.Amount);
+		Assert.AreEqual(0M, finalAmountResult.Amount);
 	}
 }

@@ -149,6 +149,10 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 
 		if (bucket.IsFull is true || bucket.FillInAmount >= bucket.Amount)
 		{
+			await _eventSource.PublishBucketChangedAsync(
+				new BucketChangedEvent(bucket.Id, PlayerCode),
+				cancellationToken).ConfigureAwait(false);
+
 			_buckets.RemoveAt(0);
 
 			if (_buckets.Count == 0)
@@ -359,7 +363,10 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 				cancellationToken).ConfigureAwait(false);
 
 			if (snapshotBucket.SnapshotId != _buckets[0].SnapshotId)
+			{
+				_bucketAmount -= snapshotBucket.FillInAmount - _buckets[0].FillInAmount;
 				_buckets[0] = snapshotBucket;
+			}
 		}
 	}
 
