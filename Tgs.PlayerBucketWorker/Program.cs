@@ -23,9 +23,9 @@ builder.Logging
 		options.ParseStateValues = true;
 		_ = options.AddFluentdForwardExporter(fluentOptions =>
 		{
-			var nodeIp = builder.Configuration.GetValue<string>("NODE_IP");
+			var nodeIp = builder.Configuration.GetValue<string>("NODE_IP")!;
 			fluentOptions.Host = nodeIp;
-			fluentOptions.Tag = builder.Configuration.GetValue<string>("OTEL_SERVICE_NAME");
+			fluentOptions.Tag = builder.Configuration.GetValue<string>("OTEL_SERVICE_NAME")!;
 			fluentOptions.UseMessagePack(LogRecordFormatterResolver.GetResolverInstanceWithExtendInfo(
 				"MachineInfo",
 				() => new
@@ -42,7 +42,7 @@ builder.Services
 		.UseNpgsql("name=Tgs"))
 	.AddSingleton(sp => ActivatorUtilities.CreateInstance<RedisConnectionManager>(
 		sp,
-		builder.Configuration.GetConnectionString("Redis")))
+		builder.Configuration.GetConnectionString("Redis")!))
 	.AddPlayerBucketDistributedResourceManager(sp => sp.GetRequiredService<RedisConnectionManager>().Database)
 	.AddPlayerBucketClient();
 
@@ -53,7 +53,7 @@ builder.Services
 		{
 			var configuration = sp.GetRequiredService<IConfiguration>();
 
-			options.Url = configuration.GetConnectionString("Nats");
+			options.Url = configuration.GetConnectionString("Nats")!;
 		})
 		.AddProcessor<BidProcessor>("tgs.bucket.bid")
 		.AddProcessor<CreateBucketProcessor>($"tgs.bucket.worker.create.{Environment.MachineName}")
@@ -69,7 +69,7 @@ builder.Services
 		.DefineMessageQueue("PlayerBucket", sp => new MongoMessageQueueBuilderOptions
 		{
 			MessageQueue = MongoDB.Messaging.MessageQueue.Default,
-			ConnectionString = builder.Configuration.GetConnectionString("Mongo")
+			ConnectionString = builder.Configuration.GetConnectionString("Mongo")!
 		})
 		.DeclareQueue("bucket_event_requests"))
 	.AddMongoGlobPatternExchange("tgs.bucket.persistent", "PlayerBucket", "bucket_event_requests")
