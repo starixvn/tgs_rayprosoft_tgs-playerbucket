@@ -4,7 +4,8 @@
     namespace: dev
     kube_config:
   before_script:
-    - eval 'export kubePath=(echo \$"$kube_config")'
+    - kubePath=(eval 'echo \$"$kube_config"')
+    - kubePath=(eval 'echo "$kubePath"')
     - export KUBECONFIG=$kubePath
   script:
     - export resources=$(kubectl get cm resources-setting -o jsonpath={.data.$TgsSettingKey})
