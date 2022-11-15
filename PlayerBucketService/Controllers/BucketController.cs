@@ -27,4 +27,23 @@ public class BucketController : ControllerBase
 				CreatedOn = info.CreatedOn
 			});
 	}
+
+	[HttpGet("history/{bucketId}")]
+	public IAsyncEnumerable<PlayerBucketEventViewModel> GetBucketHistoriesAsync(
+		[FromServices] IQueryService<GetPlayerBucketHistoriesQuery, BucketEvent> queryService,
+		Guid bucketId)
+	{
+		var query = new GetPlayerBucketHistoriesQuery(bucketId);
+
+		return queryService.QueryAsync(query, HttpContext.RequestAborted)
+			.Select(evt => new PlayerBucketEventViewModel
+			{
+				Id = evt.Id,
+				BucketId = evt.BucketId,
+				ChangeAmount = evt.ChangeAmount,
+				Type = evt.Type,
+				CreatedOn = evt.CreatedOn,
+				ExternalId = evt.ExternalId
+			});
+	}
 }

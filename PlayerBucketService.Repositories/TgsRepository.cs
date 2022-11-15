@@ -1,4 +1,5 @@
-﻿using Tgs.PlayerBuckets.DatabaseAccess;
+﻿using System.Text.Json;
+using Tgs.PlayerBuckets.DatabaseAccess;
 
 namespace Tgs.Service.PlayerBuckets.Repositories;
 
@@ -43,4 +44,15 @@ internal class TgsRepository : ITgsRepository
 		return notFullBuckets.Concat(fullBuckets)
 			.OrderByDescending(info => info.CreatedOn);
 	}
+
+	public IAsyncEnumerable<BucketEvent> QueryPlayerBucketHistoriesAsync(Guid bucketId, CancellationToken cancellationToken = default)
+		=> _playerBucketDataAccess.GetBucketAllEventsAsync(bucketId, cancellationToken)
+			.Select(row => new BucketEvent(
+				row.Id,
+				row.BucketId,
+				row.ChangeAmount,
+				Enum.Parse<FillType>(row.FillType),
+				row.ExternalId,
+				JsonDocument.Parse(row.ChangeSets),
+				row.CreatedOn));
 }

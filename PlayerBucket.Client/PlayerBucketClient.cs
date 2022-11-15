@@ -122,4 +122,15 @@ internal class PlayerBucketClient : IPlayerBucketClient
 			.Select(info => info!)
 			.ToEnumerable()
 			.ToAsyncEnumerable();
+
+	public IAsyncEnumerable<BucketEvent> GetBucketEventsAsync(Guid bucketId, CancellationToken cancellationToken = default)
+		=> _httpClient.GetAsync($"api/bucket/history/{bucketId}", cancellationToken)
+			.ToAsyncEnumerable()
+			.Do(response => response.EnsureSuccessStatusCode())
+			.SelectMany(response => response.Content
+				.ReadFromJsonAsync<IEnumerable<BucketEvent>>(PlayerBucketUtility.SerializerOptions, cancellationToken)
+				.ToAsyncEnumerable()
+				.SelectMany(arr => arr!.ToAsyncEnumerable()))
+			.ToEnumerable()
+			.ToAsyncEnumerable();
 }

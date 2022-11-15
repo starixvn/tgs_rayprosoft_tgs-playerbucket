@@ -6,6 +6,7 @@ using Tgs.MessageQueue;
 using Tgs.PlayerBucket.Clients;
 using Tgs.PlayerBuckets.DatabaseAccess.Entities;
 using Tgs.Service.PlayerBuckets;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace PlayerBucketService.IntegrationTests;
@@ -75,5 +76,61 @@ public class PlayerBucketApiTests
 		// Assert
 		Assert.NotNull(actual);
 		Assert.Equal(2, actual.Length);
+	}
+
+	[Fact]
+	public async Task 查詢Bucket的歷程()
+	{
+		/// Arrange
+		await using var web = PlayerBucketServiceTestHost.Instance
+			.WithWebHostBuilder(hostBuilder => hostBuilder
+				.ConfigureLogging(logging => logging.AddXUnit(TestOutputHelper)));
+
+		var fakeClientMessageSender = Substitute.For<IMessageSender>();
+		var httpClient = web.CreateClient();
+		var sut = new PlayerBucketClient(httpClient, fakeClientMessageSender);
+
+		var bucketId = Guid.NewGuid();
+
+		var dbContext = web.Services.GetRequiredService<TgsContext>();
+
+		await dbContext.PlayerBucketEventSources.AddRangeAsync(
+			new PlayerBucketEventSource
+			{
+				Id = Guid.Parse("097c77de-8401-0000-0001-000080cd2019"),
+				BucketId = bucketId,
+				ChangeAmount = 100M,
+				ChangeSets = "[]",
+				FillType = nameof(FillType.Deposit),
+				CreatedOn = DateTime.UtcNow
+			},
+			new PlayerBucketEventSource
+			{
+				Id = Guid.Parse("097c8e45-8401-0000-0001-000080cd2019"),
+				BucketId = bucketId,
+				ChangeAmount = -10M,
+				ChangeSets = "[]",
+				FillType = nameof(FillType.Game),
+				CreatedOn = DateTime.UtcNow
+			},
+			new PlayerBucketEventSource
+			{
+				Id = Guid.Parse("097cd6a5-8401-0000-0001-000080cd2019"),
+				BucketId = bucketId,
+				ChangeAmount = -10M,
+				ChangeSets = "[]",
+				FillType = nameof(FillType.Game),
+				CreatedOn = DateTime.UtcNow
+			});
+		;
+
+		_ = await dbContext.SaveChangesAsync();
+
+		// Act
+		var actual = await sut.GetBucketEventsAsync(bucketId).ToArrayAsync();
+
+		// Assert
+		Assert.NotNull(actual);
+		Assert.Equal(3, actual.Length);
 	}
 }
