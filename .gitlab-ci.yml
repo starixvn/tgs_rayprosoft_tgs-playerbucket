@@ -133,7 +133,7 @@ deploy-service-dev:
     namespace: dev
     TgsSettingKey: $TgsWorkerSettingKey
     HelmTemplateFolderName: $HelmTemplateWorkerFolderName
-    kube_config: '"$KubeConfig_Raypro_dev"'
+    kube_config: KubeConfig_Raypro_dev
   environment:
     name: worker-service
   stage: deploy-dev
