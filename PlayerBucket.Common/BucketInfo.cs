@@ -7,4 +7,5 @@ public record BucketInfo(
 	BucketType Type,
 	decimal FillInAmount,
 	bool IsFull,
+	DateTime CreatedOn,
 	Guid? SnapshotId);

@@ -63,7 +63,7 @@ public class BucketTests
 				DateTime.UtcNow)
 		};
 		_ = fakeTgsRepository.GetBucketAllEventsAsync(Arg.Is(command.BucketId))
-				.Returns(allEvents.ToAsyncEnumerable());
+			.Returns(allEvents.ToAsyncEnumerable());
 
 		var expected = new BucketInfo(
 			command.BucketId,
@@ -72,6 +72,7 @@ public class BucketTests
 			BucketType.Deposit,
 			450M,
 			true,
+			DateTime.MinValue,
 			allEvents.Last().Id);
 
 		await sut.ExecuteAsync(command);
@@ -97,6 +98,7 @@ public class BucketTests
 
 		var command = new SnapshotPlayerBucketCommand(Guid.NewGuid(), "test1");
 
+		var createdOn = DateTime.UtcNow;
 		var allEvents = new[] {
 			new BucketEvent(
 				Guid.Parse("097c77de-8401-0000-0001-000080cd2019"),
@@ -109,7 +111,7 @@ public class BucketTests
 					1000M,
 					BucketType.Deposit,
 					null).CreateJsonPatchDocument(command.BucketId),
-				DateTime.UtcNow),
+				createdOn),
 			new BucketEvent(
 				Guid.Parse("097c8e45-8401-0000-0001-000080cd2019"),
 				command.BucketId,
@@ -117,7 +119,7 @@ public class BucketTests
 				FillType.Game,
 				null,
 				JsonDocument.Parse("[]"),
-				DateTime.UtcNow),
+				createdOn),
 			new BucketEvent(
 				Guid.Parse("097cd6a5-8401-0000-0001-000080cd2019"),
 				command.BucketId,
@@ -125,7 +127,7 @@ public class BucketTests
 				FillType.Game,
 				null,
 				JsonDocument.Parse("[]"),
-				DateTime.UtcNow),
+				createdOn),
 			new BucketEvent(
 				Guid.Parse("097cd8ff-8401-0000-0001-000080cd2019"),
 				command.BucketId,
@@ -138,7 +140,7 @@ public class BucketTests
 					FillType.Adjust,
 					null,
 					true).CreateJsonPatchDocument(),
-				DateTime.UtcNow)
+				createdOn)
 		};
 		_ = fakeTgsRepository.GetBucketAllEventsAsync(
 			Arg.Is(command.BucketId),
@@ -153,6 +155,7 @@ public class BucketTests
 				BucketType.Deposit,
 				0M,
 				false,
+				createdOn,
 				allEvents[0].Id));
 
 		var expected = new BucketInfo(
@@ -162,6 +165,7 @@ public class BucketTests
 			BucketType.Deposit,
 			450M,
 			true,
+			createdOn,
 			allEvents.Last().Id);
 
 		await sut.ExecuteAsync(command);
@@ -241,6 +245,7 @@ public class BucketTests
 				BucketType.Deposit,
 				250M,
 				false,
+				DateTime.Now,
 				allEvents[2].Id));
 
 		await sut.ExecuteAsync(command);

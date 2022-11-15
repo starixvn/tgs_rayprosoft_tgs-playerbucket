@@ -1,11 +1,14 @@
 ﻿extern alias Client;
 extern alias Server;
 
+using System.Diagnostics;
 using Client::Tgs.PlayerBucket.Clients;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Server::Tgs.PlayerBucketWorker.MessageQueue;
 using Tgs.MessageQueue;
@@ -21,7 +24,7 @@ public class CreateBucketTests
 	public async Task CreateBucketProcessor_建立一個Bucket()
 	{
 		var fakeClientMessageSender = Substitute.For<IMessageSender>();
-		var client = new PlayerBucketClient(fakeClientMessageSender);
+		var client = new PlayerBucketClient(new HttpClient(), fakeClientMessageSender);
 
 		var playerCode = "test1";
 		var amount = 100M;
@@ -32,6 +35,7 @@ public class CreateBucketTests
 
 		await using var web = PlayerBucketWorkerTestHost.Instance
 			.WithWebHostBuilder(hostBuilder => hostBuilder
+				.ConfigureLogging(logging => logging.AddSimpleConsole())
 				.ConfigureServices(services => services
 					.AddFakeNatsMessageQueue()
 					.Replace(ServiceDescriptor.Singleton(sp =>
@@ -74,7 +78,7 @@ public class CreateBucketTests
 	public async Task FillInBucketHandler_填充一個Bucket()
 	{
 		var fakeClientMessageSender = Substitute.For<IMessageSender>();
-		var client = new PlayerBucketClient(fakeClientMessageSender);
+		var client = new PlayerBucketClient(new HttpClient(), fakeClientMessageSender);
 
 		var playerCode = "test1";
 		var amount = 100M;
@@ -149,7 +153,7 @@ public class CreateBucketTests
 	public async Task GetBucketAmountProcessor_查詢玩家洗碼量()
 	{
 		var fakeClientMessageSender = Substitute.For<IMessageSender>();
-		var client = new PlayerBucketClient(fakeClientMessageSender);
+		var client = new PlayerBucketClient(new HttpClient(), fakeClientMessageSender);
 
 		var playerCode = "test1";
 

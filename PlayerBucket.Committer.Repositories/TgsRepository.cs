@@ -69,6 +69,7 @@ internal class TgsRepository : ITgsRepository
 				(BucketType)record.BucketType,
 				record.CurrentBucketAmount,
 				record.IsFull,
+				DateTime.Now,
 				record.SnapshotId);
 	}
 

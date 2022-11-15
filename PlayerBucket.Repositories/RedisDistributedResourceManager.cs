@@ -67,6 +67,7 @@ internal class RedisDistributedResourceManager : IDistributedResourceManager, IB
 			bucket.Type,
 			0M,
 			false,
+			DateTime.Now,
 			createId);
 
 		_ = await _redisDatabase.ListRightPushAsync(

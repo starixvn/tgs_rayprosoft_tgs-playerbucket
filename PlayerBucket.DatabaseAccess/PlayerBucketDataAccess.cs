@@ -13,12 +13,22 @@ internal class PlayerBucketDataAccess
 	}
 
 	public IAsyncEnumerable<PlayerBucket> GetPlayerNotFullBucketsAsync(string playerCode, CancellationToken cancellationToken = default)
-		=> _dbContext.PlayerBuckets
+		=> _dbContext.PlayerBuckets.AsQueryable()
 			.Where(pb => pb.PlayerCode == playerCode
 				&& pb.IsFull == false)
-			.ToArrayAsync(cancellationToken: cancellationToken)
 			.ToAsyncEnumerable()
-			.SelectMany(arr => arr.ToAsyncEnumerable());
+			.Do(_ => cancellationToken.ThrowIfCancellationRequested());
+
+	public IAsyncEnumerable<PlayerBucket> GetPlayerFullBucketsAsync(
+		string playerCode,
+		DateTime queryAfterDate,
+		CancellationToken cancellationToken = default)
+		=> _dbContext.PlayerBuckets.AsQueryable()
+			.Where(pb => pb.PlayerCode == playerCode
+				&& pb.IsFull == true
+				&& pb.CreatedOn >= queryAfterDate.ToUniversalTime())
+			.ToAsyncEnumerable()
+			.Do(_ => cancellationToken.ThrowIfCancellationRequested());
 
 	public IAsyncEnumerable<PlayerBucketEventSource> GetBucketAllEventsAsync(Guid bucketId, CancellationToken cancellationToken = default)
 		=> _dbContext.PlayerBucketEventSources

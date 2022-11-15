@@ -1,4 +1,5 @@
-﻿using Google.Protobuf;
+﻿using System.Net.Http.Json;
+using Google.Protobuf;
 using Tgs.MessageQueue;
 using Tgs.Service.PlayerBuckets;
 using Tgs.Services.PlayerBucket.Protos;
@@ -7,10 +8,12 @@ namespace Tgs.PlayerBucket.Clients;
 
 internal class PlayerBucketClient : IPlayerBucketClient
 {
+	private readonly HttpClient _httpClient;
 	private readonly IMessageSender _messageSender;
 
-	public PlayerBucketClient(IMessageSender messageSender)
+	public PlayerBucketClient(HttpClient httpClient, IMessageSender messageSender)
 	{
+		_httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 		_messageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
 	}
 
@@ -106,4 +109,17 @@ internal class PlayerBucketClient : IPlayerBucketClient
 			request.ToByteArray(),
 			cancellationToken).ConfigureAwait(false);
 	}
+
+	public IAsyncEnumerable<BucketInfo> GetBucketsByPlayerCodeAsync(string playerCode, CancellationToken cancellationToken = default)
+		=> _httpClient.GetAsync($"/api/bucket/{playerCode}", cancellationToken)
+			.ToAsyncEnumerable()
+			.Do(response => response.EnsureSuccessStatusCode())
+			.SelectMany(response => response.Content
+				.ReadFromJsonAsync<IEnumerable<BucketInfo>>(PlayerBucketUtility.SerializerOptions, cancellationToken)
+				.ToAsyncEnumerable()
+				.SelectMany(arr => arr!.ToAsyncEnumerable()))
+			.Where(info => info is not null)
+			.Select(info => info!)
+			.ToEnumerable()
+			.ToAsyncEnumerable();
 }

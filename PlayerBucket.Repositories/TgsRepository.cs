@@ -21,6 +21,7 @@ internal class TgsRepository : ITgsRepository
 				(BucketType)pb.BucketType,
 				pb.CurrentBucketAmount,
 				pb.IsFull,
+				DateTime.Now,
 				pb.SnapshotId));
 
 	public IAsyncEnumerable<BucketEvent> GetBucketAllEventsAsync(Guid bucketId, CancellationToken cancellationToken = default)

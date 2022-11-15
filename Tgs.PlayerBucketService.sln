@@ -41,7 +41,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tgs.PlayerBucketWorker.Benc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tgs.PlayerBucketWorker.StressTest", "Tgs.PlayerBucketWorker.StressTest\Tgs.PlayerBucketWorker.StressTest.csproj", "{9BCD2396-352F-4343-9F0E-8FB0472EB437}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerBucket.DatabaseAccess", "PlayerBucket.DatabaseAccess\PlayerBucket.DatabaseAccess.csproj", "{BBEF27AA-07E7-4A08-991D-8E4C70A6710B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucket.DatabaseAccess", "PlayerBucket.DatabaseAccess\PlayerBucket.DatabaseAccess.csproj", "{BBEF27AA-07E7-4A08-991D-8E4C70A6710B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucketService", "PlayerBucketService\PlayerBucketService.csproj", "{C953F216-9B24-44B6-87CE-76C1D83A62D2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucketService.Core", "PlayerBucketService.Core\PlayerBucketService.Core.csproj", "{930B93AE-BAD3-4D59-9F05-13FDDB72AE40}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucketService.Core.UnitTests", "PlayerBucketService.Core.UnitTests\PlayerBucketService.Core.UnitTests.csproj", "{24744ACF-CB76-46BE-903D-DDA8B0101B9A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucketService.IntegrationTests", "PlayerBucketService.IntegrationTests\PlayerBucketService.IntegrationTests.csproj", "{239D8079-0711-48E8-B7D6-4202323CD7DE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucketService.Repositories", "PlayerBucketService.Repositories\PlayerBucketService.Repositories.csproj", "{C49C777E-F633-47C6-B862-5975138D13B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -117,6 +127,26 @@ Global
 		{BBEF27AA-07E7-4A08-991D-8E4C70A6710B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BBEF27AA-07E7-4A08-991D-8E4C70A6710B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BBEF27AA-07E7-4A08-991D-8E4C70A6710B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C953F216-9B24-44B6-87CE-76C1D83A62D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C953F216-9B24-44B6-87CE-76C1D83A62D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C953F216-9B24-44B6-87CE-76C1D83A62D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C953F216-9B24-44B6-87CE-76C1D83A62D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{930B93AE-BAD3-4D59-9F05-13FDDB72AE40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{930B93AE-BAD3-4D59-9F05-13FDDB72AE40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{930B93AE-BAD3-4D59-9F05-13FDDB72AE40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{930B93AE-BAD3-4D59-9F05-13FDDB72AE40}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24744ACF-CB76-46BE-903D-DDA8B0101B9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24744ACF-CB76-46BE-903D-DDA8B0101B9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24744ACF-CB76-46BE-903D-DDA8B0101B9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24744ACF-CB76-46BE-903D-DDA8B0101B9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{239D8079-0711-48E8-B7D6-4202323CD7DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{239D8079-0711-48E8-B7D6-4202323CD7DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{239D8079-0711-48E8-B7D6-4202323CD7DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{239D8079-0711-48E8-B7D6-4202323CD7DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C49C777E-F633-47C6-B862-5975138D13B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C49C777E-F633-47C6-B862-5975138D13B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C49C777E-F633-47C6-B862-5975138D13B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C49C777E-F633-47C6-B862-5975138D13B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

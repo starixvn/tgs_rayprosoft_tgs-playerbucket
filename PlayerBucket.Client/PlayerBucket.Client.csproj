@@ -16,11 +16,13 @@
 
 	<ItemGroup>
 		<PackageReference Include="JsonPatch.Net" Version="2.0.4" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.4.27">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="PhoenixToolkits.Protobuf.ExtendTypes" Version="0.0.6" />
+		<PackageReference Include="System.Interactive.Async" Version="6.0.1" />
 		<PackageReference Include="Tgs.MessageQueue" Version="2.1.0" />
 	</ItemGroup>
 

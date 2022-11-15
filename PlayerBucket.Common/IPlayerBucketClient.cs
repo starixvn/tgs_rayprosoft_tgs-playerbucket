@@ -28,4 +28,6 @@ public interface IPlayerBucketClient
 		Guid anchorBucketId,
 		string? externalId,
 		CancellationToken cancellationToken = default);
+
+	IAsyncEnumerable<BucketInfo> GetBucketsByPlayerCodeAsync(string playerCode, CancellationToken cancellationToken = default);
 }

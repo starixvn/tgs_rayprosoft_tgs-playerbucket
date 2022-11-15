@@ -40,6 +40,7 @@ public class BucketTests
 			BucketType.Deposit,
 			0M,
 			false,
+			DateTime.Now,
 			null);
 
 		_ = fakeBucketStore.PlayerCode
@@ -80,6 +81,7 @@ public class BucketTests
 			BucketType.Deposit,
 			0M,
 			false,
+			DateTime.Now,
 			null);
 		var secondBucket = new BucketInfo(
 			Guid.NewGuid(),
@@ -88,6 +90,7 @@ public class BucketTests
 			BucketType.Deposit,
 			0M,
 			false,
+			DateTime.Now,
 			null);
 
 		var returnBuckets = new Queue<BucketInfo>(new[] { firstBucket, secondBucket });
@@ -158,6 +161,7 @@ public class BucketTests
 			sut.Type,
 			0M,
 			false,
+			DateTime.MinValue,
 			null);
 
 		var patch = sut.CreateJsonPatch(bucketId);

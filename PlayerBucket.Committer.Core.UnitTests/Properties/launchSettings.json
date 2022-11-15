@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "PlayerBucket.Committer.Core.UnitTests": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:53264;http://localhost:53265"
+    }
+  }
+}

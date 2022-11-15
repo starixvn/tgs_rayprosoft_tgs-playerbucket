@@ -19,7 +19,9 @@ public class Benchmarks
 	{
 		_host = Host.CreateDefaultBuilder()
 			.ConfigureServices(services => services
-				.AddPlayerBucketClient()
+				.AddPlayerBucketClient(httpClientBuilder => httpClientBuilder
+					.ConfigureHttpClient(http => http.BaseAddress =
+						new Uri("https://localhost:7246")))
 				.AddMessageQueue()
 				.AddNatsMessageQueue(config => config
 					.ConfigQueueOptions((options, _) => options.Url = "nats://localhost:5222"))

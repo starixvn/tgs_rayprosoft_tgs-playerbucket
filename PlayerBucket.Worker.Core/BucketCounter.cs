@@ -129,6 +129,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 			type,
 			0M,
 			false,
+			DateTime.Now,
 			createId));
 
 		_bucketAmount += amount;

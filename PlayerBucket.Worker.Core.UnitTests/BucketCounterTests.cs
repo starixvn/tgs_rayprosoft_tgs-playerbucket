@@ -96,6 +96,7 @@ public class BucketCounterTests
 					BucketType.Deposit,
 					0M,
 					false,
+					DateTime.Now,
 					null)
 			}.ToAsyncEnumerable());
 
@@ -146,6 +147,7 @@ public class BucketCounterTests
 					BucketType.Deposit,
 					0M,
 					false,
+					DateTime.Now,
 					null)
 			}.ToAsyncEnumerable());
 
@@ -304,6 +306,7 @@ public class BucketCounterTests
 					BucketType.Deposit,
 					0M,
 					false,
+					DateTime.Now,
 					null)
 			}.ToAsyncEnumerable());
 
@@ -344,6 +347,7 @@ public class BucketCounterTests
 				BucketType.Deposit,
 				0M,
 				false,
+				DateTime.Now,
 				null),
 			new BucketInfo(
 				Guid.Parse("098412ec-8401-0000-0001-000080cd2019"),
@@ -352,6 +356,7 @@ public class BucketCounterTests
 				BucketType.Deposit,
 				0M,
 				false,
+				DateTime.Now,
 				Guid.Parse("097c77de-8401-0000-0001-000080cd2019"))
 		};
 
@@ -441,6 +446,7 @@ public class BucketCounterTests
 				BucketType.Deposit,
 				10M,
 				false,
+				DateTime.Now,
 				null),
 			new BucketInfo(
 				Guid.Parse("0987b455-8401-0000-0001-000080cd2019"),
@@ -449,6 +455,7 @@ public class BucketCounterTests
 				BucketType.Deposit,
 				30M,
 				false,
+				DateTime.Now,
 				null),
 			new BucketInfo(
 				Guid.Parse("098bb7eb-8401-0000-0001-000080cd2019"),
@@ -457,6 +464,7 @@ public class BucketCounterTests
 				BucketType.Deposit,
 				40M,
 				false,
+				DateTime.Now,
 				null)
 		});
 
@@ -514,6 +522,7 @@ public class BucketCounterTests
 				BucketType.Deposit,
 				0M,
 				false,
+				DateTime.Now,
 				Guid.Parse("567f6112-8401-0000-0001-0000a3bf33ef")),
 			new BucketInfo(
 				Guid.Parse("567f70ad-8401-0000-0002-0000a3bf33ef"),
@@ -522,6 +531,7 @@ public class BucketCounterTests
 				BucketType.Deposit,
 				0M,
 				false,
+				DateTime.Now,
 				Guid.Parse("567f70ad-8401-0000-0001-0000a3bf33ef"))
 		});
 
@@ -530,7 +540,7 @@ public class BucketCounterTests
 			Arg.Any<CancellationToken>())
 			.Returns(buckets.ToAsyncEnumerable());
 
-		fakeTgsRepository.GetBucketAllEventsAsync(
+		_ = fakeTgsRepository.GetBucketAllEventsAsync(
 			Arg.Is(Guid.Parse("567f6112-8401-0000-0002-0000a3bf33ef")),
 			Arg.Is(Guid.Parse("567f6112-8401-0000-0001-0000a3bf33ef")),
 			Arg.Any<CancellationToken>())
@@ -545,7 +555,7 @@ public class BucketCounterTests
 					DateTime.UtcNow)
 			}.ToAsyncEnumerable());
 
-		fakeTgsRepository.GetBucketAllEventsAsync(
+		_ = fakeTgsRepository.GetBucketAllEventsAsync(
 			Arg.Is(Guid.Parse("567f70ad-8401-0000-0002-0000a3bf33ef")),
 			Arg.Is(Guid.Parse("567f70ad-8401-0000-0001-0000a3bf33ef")),
 			Arg.Any<CancellationToken>())
@@ -559,7 +569,6 @@ public class BucketCounterTests
 					JsonDocument.Parse("[{\"op\": \"replace\", \"path\": \"/isFull\", \"value\": true}]"),
 					DateTime.UtcNow)
 			}.ToAsyncEnumerable());
-
 
 		_ = fakeTgsRepository.GetHasMigrateAsync(Arg.Is("test1"), Arg.Any<CancellationToken>())
 			.Returns(true);
@@ -610,6 +619,7 @@ public class BucketCounterTests
 				BucketType.Deposit,
 				0M,
 				false,
+				DateTime.Now,
 				Guid.Parse("567f6112-8401-0000-0001-0000a3bf33ef")),
 			new BucketInfo(
 				Guid.Parse("567f70ad-8401-0000-0002-0000a3bf33ef"),
@@ -618,6 +628,7 @@ public class BucketCounterTests
 				BucketType.Deposit,
 				0M,
 				false,
+				DateTime.Now,
 				Guid.Parse("567f70ad-8401-0000-0001-0000a3bf33ef"))
 		});
 
@@ -655,7 +666,6 @@ public class BucketCounterTests
 					JsonDocument.Parse("[{\"op\": \"replace\", \"path\": \"/isFull\", \"value\": true}]"),
 					DateTime.UtcNow)
 			}.ToAsyncEnumerable());
-
 
 		_ = fakeTgsRepository.GetHasMigrateAsync(Arg.Is("test1"), Arg.Any<CancellationToken>())
 			.Returns(true);
