@@ -5,6 +5,7 @@
     kube_config:
   before_script:
     - kubePath=(eval 'echo \$"$kube_config"')
+    - eval 'echo "$kubePath"'
     - kubePath=(eval 'echo "$kubePath"')
     - export KUBECONFIG=$kubePath
   script:
