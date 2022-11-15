@@ -1,4 +1,4 @@
-.deploy-template: &deploy
+.deploy-template:
   variables:
     GIT_STRATEGY: none
     namespace: dev

@@ -128,7 +128,7 @@ push-k8s-template:
       - artifacts/**/*
 
 deploy-service-dev:
-  <<: *deploy
+  extends: .deploy-template
   variables:
     namespace: dev
     TgsSettingKey: $TgsWorkerSettingKey
@@ -146,7 +146,7 @@ deploy-service-dev:
     - main
 
 deploy-worker-dev:
-  <<: *deploy
+  extends: .deploy-template
   variables:
     namespace: dev
     TgsSettingKey: $TgsWorkerSettingKey
@@ -164,7 +164,7 @@ deploy-worker-dev:
     - main
 
 deploy-committer-dev:
-  <<: *deploy
+  extends: .deploy-template
   variables:
     namespace: dev
     TgsSettingKey: $TgsCommitterSettingKey
@@ -182,7 +182,7 @@ deploy-committer-dev:
     - main
 
 deploy-service-staging:
-  <<: *deploy
+  extends: .deploy-template
   variables:
     namespace: staging
     TgsSettingKey: $TgsWorkerSettingKey
@@ -200,7 +200,7 @@ deploy-service-staging:
   when: manual
 
 deploy-worker-staging:
-  <<: *deploy
+  extends: .deploy-template
   variables:
     namespace: staging
     TgsSettingKey: $TgsWorkerSettingKey
@@ -218,7 +218,7 @@ deploy-worker-staging:
   when: manual
 
 deploy-committer-staging:
-  <<: *deploy
+  extends: .deploy-template
   variables:
     namespace: staging
     TgsSettingKey: $TgsCommitterSettingKey
@@ -236,7 +236,7 @@ deploy-committer-staging:
   when: manual
 
 deploy-service-prod:
-  <<: *deploy
+  extends: .deploy-template
   variables:
     namespace: prod
     TgsSettingKey: $TgsWorkerSettingKey
@@ -254,7 +254,7 @@ deploy-service-prod:
   when: manual
 
 deploy-worker-prod:
-  <<: *deploy
+  extends: .deploy-template
   variables:
     namespace: prod
     TgsSettingKey: $TgsWorkerSettingKey
@@ -272,7 +272,7 @@ deploy-worker-prod:
   when: manual
 
 deploy-committer-prod:
-  <<: *deploy
+  extends: .deploy-template
   variables:
     namespace: prod
     TgsSettingKey: $TgsCommitterSettingKey
