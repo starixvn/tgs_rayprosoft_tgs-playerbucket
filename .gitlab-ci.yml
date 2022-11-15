@@ -108,7 +108,7 @@ push-k8s-template:
         .image.repository = strenv(ServiceImageName) |
         .image.tag = strenv(Tag)
       ' artifacts/k8s/$HelmTemplateServiceFolderName/values.yaml
-    - cp -R deployment/k8s/$HelmTemplateServiceFolderName artifacts/k8s/
+    - cp -R deployment/k8s/$HelmTemplateWorkerFolderName artifacts/k8s/
     - |
       yq -i e '
         .image.repository = strenv(WorkerImageName) |

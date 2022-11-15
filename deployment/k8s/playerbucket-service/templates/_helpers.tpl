@@ -48,6 +48,7 @@ Selector labels
 {{- define "playerbucket-service.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "playerbucket-service.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+tgs.kind: playerbucket
 {{- end }}
 
 {{/*
