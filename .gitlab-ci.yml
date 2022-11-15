@@ -133,7 +133,7 @@ deploy-service-dev:
     namespace: dev
     TgsSettingKey: $TgsWorkerSettingKey
     HelmTemplateFolderName: $HelmTemplateWorkerFolderName
-    kube_config: $KubeConfig_Raypro_dev
+    kube_config: '"$KubeConfig_Raypro_dev"'
   environment:
     name: worker-service
   stage: deploy-dev
@@ -151,7 +151,7 @@ deploy-worker-dev:
     namespace: dev
     TgsSettingKey: $TgsWorkerSettingKey
     HelmTemplateFolderName: $HelmTemplateWorkerFolderName
-    kube_config: $KubeConfig_Raypro_dev
+    kube_config: '"$KubeConfig_Raypro_dev"'
   environment:
     name: worker-dev
   stage: deploy-dev
@@ -169,7 +169,7 @@ deploy-committer-dev:
     namespace: dev
     TgsSettingKey: $TgsCommitterSettingKey
     HelmTemplateFolderName: $HelmTemplateCommitterFolderName
-    kube_config: $KubeConfig_Raypro_dev
+    kube_config: '"$KubeConfig_Raypro_dev"'
   environment:
     name: committer-dev
   stage: deploy-dev
@@ -187,7 +187,7 @@ deploy-service-staging:
     namespace: staging
     TgsSettingKey: $TgsWorkerSettingKey
     HelmTemplateFolderName: $HelmTemplateWorkerFolderName
-    kube_config: $KubeConfig_Raypro_staging
+    kube_config: '"$KubeConfig_Raypro_staging"'
   environment:
     name: service-staging
   stage: deploy-staging
@@ -205,7 +205,7 @@ deploy-worker-staging:
     namespace: staging
     TgsSettingKey: $TgsWorkerSettingKey
     HelmTemplateFolderName: $HelmTemplateWorkerFolderName
-    kube_config: $KubeConfig_Raypro_staging
+    kube_config: '"$KubeConfig_Raypro_staging"'
   environment:
     name: worker-staging
   stage: deploy-staging
@@ -223,7 +223,7 @@ deploy-committer-staging:
     namespace: staging
     TgsSettingKey: $TgsCommitterSettingKey
     HelmTemplateFolderName: $HelmTemplateCommitterFolderName
-    kube_config: $KubeConfig_Raypro_staging
+    kube_config: '"$KubeConfig_Raypro_staging"'
   environment:
     name: committer-staging
   stage: deploy-staging
@@ -241,7 +241,7 @@ deploy-service-prod:
     namespace: prod
     TgsSettingKey: $TgsWorkerSettingKey
     HelmTemplateFolderName: $HelmTemplateWorkerFolderName
-    kube_config: $KubeConfig_Raypro_prod
+    kube_config: '"$KubeConfig_Raypro_prod"'
   environment:
     name: service-prod
   stage: deploy-prod
@@ -259,7 +259,7 @@ deploy-worker-prod:
     namespace: prod
     TgsSettingKey: $TgsWorkerSettingKey
     HelmTemplateFolderName: $HelmTemplateWorkerFolderName
-    kube_config: $KubeConfig_Raypro_prod
+    kube_config: '"$KubeConfig_Raypro_prod"'
   environment:
     name: worker-prod
   stage: deploy-prod
@@ -277,7 +277,7 @@ deploy-committer-prod:
     namespace: prod
     TgsSettingKey: $TgsCommitterSettingKey
     HelmTemplateFolderName: $HelmTemplateCommitterFolderName
-    kube_config: $KubeConfig_Raypro_prod
+    kube_config: '"$KubeConfig_Raypro_prod"'
   environment:
     name: service-prod
   stage: deploy-prod
