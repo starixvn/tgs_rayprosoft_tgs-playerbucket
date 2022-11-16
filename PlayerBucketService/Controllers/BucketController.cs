@@ -24,7 +24,8 @@ public class BucketController : ControllerBase
 				Amount = info.Amount,
 				BucketType = info.Type,
 				FillInAmount = info.FillInAmount,
-				CreatedOn = info.CreatedOn
+				CreatedOn = info.CreatedOn,
+				PlayerCode = info.PlayerCode
 			});
 	}
 

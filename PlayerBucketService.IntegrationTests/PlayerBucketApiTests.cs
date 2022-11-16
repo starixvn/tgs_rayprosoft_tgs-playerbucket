@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using System.Text.Json;
+using ExpectedObjects;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -6,7 +8,6 @@ using Tgs.MessageQueue;
 using Tgs.PlayerBucket.Clients;
 using Tgs.PlayerBuckets.DatabaseAccess.Entities;
 using Tgs.Service.PlayerBuckets;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace PlayerBucketService.IntegrationTests;
@@ -81,7 +82,7 @@ public class PlayerBucketApiTests
 	[Fact]
 	public async Task 查詢Bucket的歷程()
 	{
-		/// Arrange
+		// Arrange
 		await using var web = PlayerBucketServiceTestHost.Instance
 			.WithWebHostBuilder(hostBuilder => hostBuilder
 				.ConfigureLogging(logging => logging.AddXUnit(TestOutputHelper)));
@@ -132,5 +133,108 @@ public class PlayerBucketApiTests
 		// Assert
 		Assert.NotNull(actual);
 		Assert.Equal(3, actual.Length);
+	}
+
+	[Fact]
+	public async Task 查詢玩家Buckets_比對資料()
+	{
+		// Arrange
+		await using var web = PlayerBucketServiceTestHost.Instance
+			.WithWebHostBuilder(hostBuilder => hostBuilder
+				.ConfigureLogging(logging => logging.AddXUnit(TestOutputHelper)));
+
+		var fakeClientMessageSender = Substitute.For<IMessageSender>();
+		var httpClient = web.CreateClient();
+		var sut = new PlayerBucketClient(httpClient, fakeClientMessageSender);
+
+		var playerCode = "test1";
+
+		var dbContext = web.Services.GetRequiredService<TgsContext>();
+
+		var bucketId = Guid.NewGuid();
+		var createdOn = DateTime.UtcNow.AddDays(-35D);
+
+		await dbContext.PlayerBuckets.AddRangeAsync(
+			new PlayerBucket
+			{
+				Id = bucketId,
+				BucketAmount = 100M,
+				BucketType = (short)BucketType.Deposit,
+				CurrentBucketAmount = 0M,
+				IsFull = false,
+				CreatedOn = createdOn,
+				PlayerCode = playerCode
+			});
+
+		_ = await dbContext.SaveChangesAsync();
+
+		var expected = new BucketInfo(
+			bucketId,
+			playerCode,
+			100M,
+			BucketType.Deposit,
+			0M,
+			false,
+			createdOn,
+			null);
+
+		// Act
+		var actual = await sut.GetBucketsByPlayerCodeAsync(playerCode).ToArrayAsync();
+
+		// Assert
+		Assert.NotNull(actual);
+		Assert.Equal(expected, actual.FirstOrDefault());
+	}
+
+	[Fact]
+	public async Task 查詢Bucket的歷程_比對資料()
+	{
+		// Arrange
+		await using var web = PlayerBucketServiceTestHost.Instance
+			.WithWebHostBuilder(hostBuilder => hostBuilder
+				.ConfigureLogging(logging => logging.AddXUnit(TestOutputHelper)));
+
+		var fakeClientMessageSender = Substitute.For<IMessageSender>();
+		var httpClient = web.CreateClient();
+		var sut = new PlayerBucketClient(httpClient, fakeClientMessageSender);
+
+		var dbContext = web.Services.GetRequiredService<TgsContext>();
+
+		var bucketId = Guid.NewGuid();
+		var eventId = Guid.Parse("097c77de-8401-0000-0001-000080cd2019");
+		var createdOn = DateTime.UtcNow;
+
+		await dbContext.PlayerBucketEventSources.AddRangeAsync(
+			new PlayerBucketEventSource
+			{
+				Id = Guid.Parse("097c77de-8401-0000-0001-000080cd2019"),
+				BucketId = bucketId,
+				ChangeAmount = 100M,
+				ChangeSets = "[]",
+				FillType = nameof(FillType.Deposit),
+				CreatedOn = createdOn
+			});
+
+		_ = await dbContext.SaveChangesAsync();
+
+		var expected = new BucketEvent(
+			eventId,
+			bucketId,
+			100M,
+			FillType.Deposit,
+			null,
+			JsonDocument.Parse("[]"),
+			createdOn);
+
+		// Act
+		var actual = await sut.GetBucketEventsAsync(bucketId).ToArrayAsync();
+
+		// Assert
+		Assert.NotNull(actual);
+		expected.ToExpectedObject(context =>
+		{
+			_ = context.IgnoreEqualsOverride();
+			_ = context.Ignore(evt => evt.ChangeSets);
+		}).ShouldMatch(actual.FirstOrDefault());
 	}
 }
