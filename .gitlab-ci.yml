@@ -131,8 +131,8 @@ deploy-service-dev:
   extends: .deploy-template
   variables:
     namespace: dev
-    TgsSettingKey: $TgsWorkerSettingKey
-    HelmTemplateFolderName: $HelmTemplateWorkerFolderName
+    TgsSettingKey: $TgsServiceSettingKey
+    HelmTemplateFolderName: $HelmTemplateServiceFolderName
     kube_config: KubeConfig_Raypro_dev
   environment:
     name: worker-service
@@ -185,14 +185,14 @@ deploy-service-staging:
   extends: .deploy-template
   variables:
     namespace: staging
-    TgsSettingKey: $TgsWorkerSettingKey
-    HelmTemplateFolderName: $HelmTemplateWorkerFolderName
+    TgsSettingKey: $TgsServiceSettingKey
+    HelmTemplateFolderName: $HelmTemplateServiceFolderName
     kube_config: KubeConfig_Raypro_staging
   environment:
     name: service-staging
   stage: deploy-staging
   needs:
-    - deploy-worker-dev
+    - deploy-service-dev
     - job: push-k8s-template
       artifacts: true
   only:
@@ -239,14 +239,14 @@ deploy-service-prod:
   extends: .deploy-template
   variables:
     namespace: prod
-    TgsSettingKey: $TgsWorkerSettingKey
-    HelmTemplateFolderName: $HelmTemplateWorkerFolderName
+    TgsSettingKey: $TgsServiceSettingKey
+    HelmTemplateFolderName: $HelmTemplateServiceFolderName
     kube_config: KubeConfig_Raypro_prod
   environment:
     name: service-prod
   stage: deploy-prod
   needs:
-    - deploy-worker-staging
+    - deploy-service-staging
     - job: push-k8s-template
       artifacts: true
   only:
