@@ -78,8 +78,9 @@ internal class BucketCommitterDispatcher : BackgroundService
 									var distributedResMgr = scope.ServiceProvider.GetRequiredService<IDistributedResourceManager>();
 
 									var command = new ProcessBucketEventsCommand(evt.BucketId, evt.PlayerCode);
+									var commandService = scope.ServiceProvider.GetRequiredService<ICommandService<ProcessBucketEventsCommand>>();
 
-									await serviceCoordinator.ExecuteAsync(command, stoppingToken).ConfigureAwait(false);
+									await commandService.ExecuteAsync(command, stoppingToken).ConfigureAwait(false);
 									await distributedResMgr.ExtendBindAsync(command.BucketId, stoppingToken).ConfigureAwait(false);
 								})
 								.Catch((Exception ex) =>
