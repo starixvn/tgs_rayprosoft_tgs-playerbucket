@@ -261,7 +261,7 @@ deploy-worker-prod:
     namespace: prod
     TgsSettingKey: $TgsWorkerSettingKey
     HelmTemplateFolderName: $HelmTemplateWorkerFolderName
-    kube_config: KubeConfig_Raypro_prod,
+    kube_config: KubeConfig_Raypro_prod
     replica: 3
   environment:
     name: worker-prod
