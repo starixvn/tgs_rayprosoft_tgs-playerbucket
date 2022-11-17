@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Tgs.PlayerBuckets.DatabaseAccess.Entities;
 
@@ -82,7 +83,7 @@ internal class PlayerBucketDataAccess
 			.Where(evt => !alreadyInsertRows.Any(row => row.Id == evt.Id))
 			.ToArray();
 
-		_logger.LogInformation("{newEvents}", newEvents);
+		_logger.LogInformation(JsonSerializer.Serialize(newEvents));
 
 		if (newEvents.Length > 0)
 			await InsertBucketEventsAsync(
