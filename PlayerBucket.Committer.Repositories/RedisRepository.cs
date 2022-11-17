@@ -42,8 +42,7 @@ internal class RedisRepository : IBucketEventRepository, IDistributedResourceMan
 	public async ValueTask RemoveEventsAsync(Guid bucketId, int count, CancellationToken cancellationToken = default)
 		=> _ = await _redisDatabase.ListLeftPopAsync(
 			$"Tgs:Bucket:Events:{bucketId}",
-			count,
-			CommandFlags.FireAndForget).ConfigureAwait(false);
+			count).ConfigureAwait(false);
 
 	public async ValueTask<string> BidAsync(Guid bucketId, string token, CancellationToken cancellationToken = default)
 	{
