@@ -66,6 +66,19 @@ internal class PlayerBucketDataAccess
 			.AddRangeAsync(events, cancellationToken)
 			.ConfigureAwait(false);
 
+	public async ValueTask MigrateBucketEventsAsync(IEnumerable<PlayerBucketEventSource> events, CancellationToken cancellationToken = default)
+	{
+		var preInsertIds = events.Select(evt => evt.Id).ToArray();
+
+		var alreadyInsertRows = await _dbContext.PlayerBucketEventSources
+			.Where(evt => preInsertIds.Contains(evt.Id))
+			.ToArrayAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+		await InsertBucketEventsAsync(
+			events.Where(evt => !alreadyInsertRows.Any(row => row.Id == evt.Id)),
+			cancellationToken).ConfigureAwait(false);
+	}
+
 	public ValueTask<PlayerBucket?> FindPlayerBucketAsync(Guid bucketId, CancellationToken cancellationToken = default)
 		=> _dbContext.PlayerBuckets
 			.FindAsync(new object?[] { bucketId }, cancellationToken: cancellationToken);

@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Logging;
 using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
 
@@ -9,15 +10,18 @@ internal class ProcessBucketEventsCommandService : ICommandService<ProcessBucket
 	private readonly ITgsRepository _tgsRepository;
 	private readonly IBucketEventRepository _bucketEventRepository;
 	private readonly IEventSource _eventSource;
+	private readonly ILogger<ProcessBucketEventsCommandService> _logger;
 
 	public ProcessBucketEventsCommandService(
 		ITgsRepository tgsRepository,
 		IBucketEventRepository bucketEventRepository,
-		IEventSource eventSource)
+		IEventSource eventSource,
+		ILogger<ProcessBucketEventsCommandService> logger)
 	{
 		_tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
 		_bucketEventRepository = bucketEventRepository ?? throw new ArgumentNullException(nameof(bucketEventRepository));
 		_eventSource = eventSource ?? throw new ArgumentNullException(nameof(eventSource));
+		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	}
 
 	public async ValueTask ExecuteAsync(ProcessBucketEventsCommand command, CancellationToken cancellationToken = default)
@@ -27,9 +31,20 @@ internal class ProcessBucketEventsCommandService : ICommandService<ProcessBucket
 			if (waitPersistentEvents.Length == 0)
 				break;
 
-			await _tgsRepository.InsertBucketEventsAsync(
-				waitPersistentEvents,
-				cancellationToken).ConfigureAwait(false);
+			try
+			{
+				await _tgsRepository.InsertBucketEventsAsync(
+					waitPersistentEvents,
+					cancellationToken).ConfigureAwait(false);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogWarning(ex, "{waitPersistentEvents}", waitPersistentEvents);
+
+				await _tgsRepository.MigrateBucketEventsAsync(
+					waitPersistentEvents,
+					cancellationToken).ConfigureAwait(false);
+			}
 
 			await _bucketEventRepository.RemoveEventsAsync(
 				command.BucketId,

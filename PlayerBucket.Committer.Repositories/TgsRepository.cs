@@ -86,4 +86,22 @@ internal class TgsRepository : ITgsRepository
 
 		await _playerBucketDataAccess.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 	}
+
+	public async ValueTask MigrateBucketEventsAsync(IEnumerable<BucketEvent> events, CancellationToken cancellationToken = default)
+	{
+		await _playerBucketDataAccess.MigrateBucketEventsAsync(
+			events.Select(evt => new PlayerBucketEventSource
+			{
+				Id = evt.Id,
+				BucketId = evt.BucketId,
+				ChangeAmount = evt.ChangeAmount,
+				FillType = evt.Type.ToString(),
+				ExternalId = evt.ExternalId,
+				ChangeSets = JsonSerializer.Serialize(evt.ChangeSets),
+				CreatedOn = evt.CreatedOn.ToUniversalTime()
+			}),
+			cancellationToken).ConfigureAwait(false);
+
+		await _playerBucketDataAccess.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+	}
 }

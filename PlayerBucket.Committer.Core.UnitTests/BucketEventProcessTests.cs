@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Tgs.PlayerBuckets.Committer;
 using Tgs.PlayerBuckets.Committer.ApplicationServices;
@@ -19,7 +20,8 @@ public class BucketEventProcessTests
 		var sut = new ProcessBucketEventsCommandService(
 			fakeTgsRepository,
 			fakeBucketEventRepository,
-			fakeEventSource);
+			fakeEventSource,
+			NullLogger<ProcessBucketEventsCommandService>.Instance);
 
 		var command = new ProcessBucketEventsCommand(Guid.NewGuid(), "test1");
 
