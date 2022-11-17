@@ -69,6 +69,10 @@ spec:
               name: appsettings
               readOnly: true
               subPath: appsettings.json
+            - mountPath: /etc/ssl/certs/rds-combined-ca-bundle.pem
+              name: rds-combined-ca-bundle
+              readOnly: true
+              subPath: rds-combined-ca-bundle.pem
           startupProbe:
             httpGet:
               path: /healthz
@@ -129,6 +133,9 @@ spec:
         - name: appsettings
           configMap:
             name: configmap-{{ include "playerbucket-committer.fullname" . }}
+        - name: rds-combined-ca-bundle
+          secret:
+            secretName: rds-combined-ca-bundle
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
