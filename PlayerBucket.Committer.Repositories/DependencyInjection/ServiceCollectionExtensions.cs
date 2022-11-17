@@ -13,7 +13,7 @@ public static class ServiceCollectionExtensions
 		Action<IServiceProvider, DbContextOptionsBuilder> dbContextConfigure)
 		=> services
 			.AddDbContext<TgsContext>(dbContextConfigure)
-			.AddScoped<PlayerBucketDataAccess>()
+			.AddTransient<PlayerBucketDataAccess>()
 			.AddTransient<ITgsRepository, TgsRepository>();
 
 	public static IServiceCollection AddPlayerBucketCommitterRedisRepository(

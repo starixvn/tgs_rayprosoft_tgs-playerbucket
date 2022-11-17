@@ -106,6 +106,7 @@ internal class TgsRepository : ITgsRepository
 		_logger.LogWarning(JsonSerializer.Serialize(newEvents));
 
 		if (newEvents is not null && newEvents.Length > 0)
+		{
 			await _playerBucketDataAccess.InsertBucketEventsAsync(
 				newEvents.Select(evt => new PlayerBucketEventSource
 				{
@@ -119,6 +120,7 @@ internal class TgsRepository : ITgsRepository
 				}),
 				cancellationToken).ConfigureAwait(false);
 
-		await _playerBucketDataAccess.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+			await _playerBucketDataAccess.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+		}
 	}
 }
