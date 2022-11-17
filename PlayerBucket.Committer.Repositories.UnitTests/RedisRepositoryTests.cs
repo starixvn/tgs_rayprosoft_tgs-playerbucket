@@ -134,7 +134,7 @@ public class RedisRepositoryTests
 			.ListLeftPopAsync(
 				Arg.Is(new RedisKey($"Tgs:Bucket:Events:{bucketId}")),
 				Arg.Is((long)length),
-				Arg.Is(CommandFlags.FireAndForget));
+				Arg.Any<CommandFlags>());
 	}
 
 	[TestMethod]
