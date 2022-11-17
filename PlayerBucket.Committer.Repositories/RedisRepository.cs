@@ -27,7 +27,7 @@ internal class RedisRepository : IBucketEventRepository, IDistributedResourceMan
 			.SelectMany(arr => arr.ToAsyncEnumerable());
 
 	public IAsyncEnumerable<BucketEvent> GetWaitingInsertEventsAsync(Guid bucketId, CancellationToken cancellationToken = default)
-			=> _redisDatabase
+		=> _redisDatabase
 			.ListRangeAsync($"Tgs:Bucket:Events:{bucketId}", 0, 10)
 			.ToAsyncEnumerable()
 			.SelectMany(values => values.ToAsyncEnumerable())
@@ -40,8 +40,9 @@ internal class RedisRepository : IBucketEventRepository, IDistributedResourceMan
 			.SelectMany(arr => arr.ToAsyncEnumerable());
 
 	public async ValueTask RemoveEventsAsync(Guid bucketId, int count, CancellationToken cancellationToken = default)
-		=> _ = await _redisDatabase.ListLeftPopAsync(
+		=> await _redisDatabase.ListTrimAsync(			
 			$"Tgs:Bucket:Events:{bucketId}",
+			0,
 			count).ConfigureAwait(false);
 
 	public async ValueTask<string> BidAsync(Guid bucketId, string token, CancellationToken cancellationToken = default)
