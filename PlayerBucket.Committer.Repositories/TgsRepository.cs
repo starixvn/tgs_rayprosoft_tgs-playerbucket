@@ -93,6 +93,8 @@ internal class TgsRepository : ITgsRepository
 
 	public async ValueTask MigrateBucketEventsAsync(IEnumerable<BucketEvent> events, CancellationToken cancellationToken = default)
 	{
+		_playerBucketDataAccess.RejectChanges();
+
 		var alreadyInsertIds = await _playerBucketDataAccess.GetBucketEventsAsync(
 			events.Select(evt => evt.Id),
 			cancellationToken)

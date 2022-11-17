@@ -95,6 +95,25 @@ internal class PlayerBucketDataAccess
 	public async ValueTask SaveChangesAsync(CancellationToken cancellationToken = default)
 		=> await _dbContext.SaveChangesAsync(cancellationToken);
 
+	public void RejectChanges()
+	{
+		foreach (var entry in _dbContext.ChangeTracker.Entries())
+		{
+			switch (entry.State)
+			{
+				case EntityState.Modified:
+				case EntityState.Deleted:
+					entry.State = EntityState.Modified; //Revert changes made to deleted entity.
+					entry.State = EntityState.Unchanged;
+					break;
+
+				case EntityState.Added:
+					entry.State = EntityState.Detached;
+					break;
+			}
+		}
+	}
+
 	public async ValueTask<bool> GetHasMigrateAsync(string playerCode, CancellationToken cancellationToken = default)
 	{
 		var record = await _dbContext.PlayerBucketMigrations.FindAsync(
