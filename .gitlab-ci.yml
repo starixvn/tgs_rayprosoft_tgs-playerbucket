@@ -1,5 +1,7 @@
 include:
-  - local: gitlab-job-template.yml
+  - project: rayprosoft/tgs-ci-scripts
+    ref: main
+    file: GitLab/Templates/gitlab-job-templates.yml
 
 variables:
   ServiceImageName: pgtgs/bucket-service
@@ -259,7 +261,8 @@ deploy-worker-prod:
     namespace: prod
     TgsSettingKey: $TgsWorkerSettingKey
     HelmTemplateFolderName: $HelmTemplateWorkerFolderName
-    kube_config: KubeConfig_Raypro_prod
+    kube_config: KubeConfig_Raypro_prod,
+    replica: 3
   environment:
     name: worker-prod
   stage: deploy-prod
