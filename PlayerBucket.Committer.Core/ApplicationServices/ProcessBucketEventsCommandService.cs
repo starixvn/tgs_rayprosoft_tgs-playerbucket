@@ -31,6 +31,7 @@ internal class ProcessBucketEventsCommandService : ICommandService<ProcessBucket
 			if (waitPersistentEvents.Length == 0)
 				break;
 
+			var processCount = waitPersistentEvents.Length;
 			try
 			{
 				await _tgsRepository.InsertBucketEventsAsync(
@@ -48,7 +49,7 @@ internal class ProcessBucketEventsCommandService : ICommandService<ProcessBucket
 
 			await _bucketEventRepository.RemoveEventsAsync(
 				command.BucketId,
-				waitPersistentEvents.Length,
+				processCount,
 				cancellationToken).ConfigureAwait(false);
 		}
 
