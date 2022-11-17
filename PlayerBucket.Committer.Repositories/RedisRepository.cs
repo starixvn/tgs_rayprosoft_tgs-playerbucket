@@ -43,7 +43,7 @@ internal class RedisRepository : IBucketEventRepository, IDistributedResourceMan
 		=> await _redisDatabase.ListTrimAsync(			
 			$"Tgs:Bucket:Events:{bucketId}",
 			0,
-			count).ConfigureAwait(false);
+			count - 1).ConfigureAwait(false);
 
 	public async ValueTask<string> BidAsync(Guid bucketId, string token, CancellationToken cancellationToken = default)
 	{
