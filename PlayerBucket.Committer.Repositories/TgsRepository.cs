@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Tgs.PlayerBuckets.DatabaseAccess;
 using Tgs.PlayerBuckets.DatabaseAccess.Entities;
 using Tgs.Service.PlayerBuckets;
@@ -89,18 +90,27 @@ internal class TgsRepository : ITgsRepository
 
 	public async ValueTask MigrateBucketEventsAsync(IEnumerable<BucketEvent> events, CancellationToken cancellationToken = default)
 	{
-		await _playerBucketDataAccess.MigrateBucketEventsAsync(
-			events.Select(evt => new PlayerBucketEventSource
-			{
-				Id = evt.Id,
-				BucketId = evt.BucketId,
-				ChangeAmount = evt.ChangeAmount,
-				FillType = evt.Type.ToString(),
-				ExternalId = evt.ExternalId,
-				ChangeSets = JsonSerializer.Serialize(evt.ChangeSets),
-				CreatedOn = evt.CreatedOn.ToUniversalTime()
-			}),
-			cancellationToken).ConfigureAwait(false);
+		var alreadyInsertIds = await _playerBucketDataAccess.GetBucketEventsAsync(
+			events.Select(evt => evt.Id),
+			cancellationToken)
+			.ToArrayAsync(cancellationToken: cancellationToken)
+			.ConfigureAwait(false);
+
+		var newEvents = events.Where(evt => !alreadyInsertIds.Contains(evt.Id)).ToArray();
+
+		if (newEvents is not null && newEvents.Length > 0)
+			await _playerBucketDataAccess.InsertBucketEventsAsync(
+				newEvents.Select(evt => new PlayerBucketEventSource
+				{
+					Id = evt.Id,
+					BucketId = evt.BucketId,
+					ChangeAmount = evt.ChangeAmount,
+					FillType = evt.Type.ToString(),
+					ExternalId = evt.ExternalId,
+					ChangeSets = JsonSerializer.Serialize(evt.ChangeSets),
+					CreatedOn = evt.CreatedOn.ToUniversalTime()
+				}),
+				cancellationToken).ConfigureAwait(false);
 
 		await _playerBucketDataAccess.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 	}

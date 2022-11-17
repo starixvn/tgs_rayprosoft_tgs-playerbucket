@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Tgs.PlayerBuckets.DatabaseAccess.Entities;
 
@@ -70,26 +69,12 @@ internal class PlayerBucketDataAccess
 			.AddRangeAsync(events, cancellationToken)
 			.ConfigureAwait(false);
 
-	public async ValueTask MigrateBucketEventsAsync(IEnumerable<PlayerBucketEventSource> events, CancellationToken cancellationToken = default)
-	{
-		var preInsertIds = events.Select(evt => evt.Id).ToArray();
-
-		var alreadyInsertRows = await _dbContext.PlayerBucketEventSources
-			.Where(evt => preInsertIds.Contains(evt.Id))
-			.ToArrayAsync(cancellationToken: cancellationToken)
-			.ConfigureAwait(false);
-
-		var newEvents = events
-			.Where(evt => !alreadyInsertRows.Any(row => row.Id == evt.Id))
-			.ToArray();
-
-		_logger.LogInformation(JsonSerializer.Serialize(newEvents));
-
-		if (newEvents.Length > 0)
-			await InsertBucketEventsAsync(
-				newEvents,
-				cancellationToken).ConfigureAwait(false);
-	}
+	public IAsyncEnumerable<Guid> GetBucketEventsAsync(IEnumerable<Guid> eventIds, CancellationToken cancellationToken = default)
+		=> _dbContext.PlayerBucketEventSources.AsQueryable()
+			.Where(evt => eventIds.Contains(evt.Id))
+			.ToAsyncEnumerable()
+			.Do(evt => cancellationToken.ThrowIfCancellationRequested())
+			.Select(evt => evt.Id);
 
 	public ValueTask<PlayerBucket?> FindPlayerBucketAsync(Guid bucketId, CancellationToken cancellationToken = default)
 		=> _dbContext.PlayerBuckets
