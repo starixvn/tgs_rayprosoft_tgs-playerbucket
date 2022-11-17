@@ -147,7 +147,9 @@ internal class BucketCommitterDispatcher : BackgroundService
 
 									var command = new SnapshotPlayerBucketCommand(evt.BucketId, evt.PlayerCode);
 
-									await serviceCoordinator.ExecuteAsync(command, stoppingToken).ConfigureAwait(false);
+									var commandService = scope.ServiceProvider.GetRequiredService<ICommandService<SnapshotPlayerBucketCommand>>();
+
+									await commandService.ExecuteAsync(command, stoppingToken).ConfigureAwait(false);
 									await distributedResMgr.ExtendBindAsync(command.BucketId, stoppingToken).ConfigureAwait(false);
 								})
 								.Catch((Exception ex) =>
