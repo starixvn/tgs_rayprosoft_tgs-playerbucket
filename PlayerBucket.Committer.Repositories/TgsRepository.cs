@@ -101,11 +101,11 @@ internal class TgsRepository : ITgsRepository
 			.ToArrayAsync(cancellationToken: cancellationToken)
 			.ConfigureAwait(false);
 
-		_logger.LogWarning(string.Join(", ", alreadyInsertIds));
+		_logger.LogWarning("{alreadyInsertIds}", alreadyInsertIds);
 
 		var newEvents = events.Where(evt => !alreadyInsertIds.Contains(evt.Id)).ToArray();
 
-		_logger.LogWarning(JsonSerializer.Serialize(newEvents));
+		_logger.LogWarning("{@newEvents}", newEvents);
 
 		if (newEvents is not null && newEvents.Length > 0)
 		{

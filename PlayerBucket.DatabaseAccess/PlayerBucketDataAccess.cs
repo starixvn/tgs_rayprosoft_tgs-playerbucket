@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Tgs.PlayerBuckets.DatabaseAccess.Entities;
 
 namespace Tgs.PlayerBuckets.DatabaseAccess;
@@ -7,12 +6,10 @@ namespace Tgs.PlayerBuckets.DatabaseAccess;
 internal class PlayerBucketDataAccess
 {
 	private readonly TgsContext _dbContext;
-	private readonly ILogger<PlayerBucketDataAccess> _logger;
 
-	public PlayerBucketDataAccess(TgsContext dbContext, ILogger<PlayerBucketDataAccess> logger)
+	public PlayerBucketDataAccess(TgsContext dbContext)
 	{
 		_dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	}
 
 	public IAsyncEnumerable<PlayerBucket> GetPlayerNotFullBucketsAsync(string playerCode, CancellationToken cancellationToken = default)

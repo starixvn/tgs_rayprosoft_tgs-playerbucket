@@ -118,24 +118,25 @@ public class RedisRepositoryTests
 			.ListRangeAsync(Arg.Is(new RedisKey($"Tgs:Bucket:Events:{bucketId}")));
 	}
 
-	//[TestMethod]
-	//public async Task RemoveEvents_移除已經處理完的Events()
-	//{
-	//	var fakeRedisDatabase = Substitute.For<IDatabase>();
+	[TestMethod]
+	public async Task RemoveEvents_移除已經處理完的Events()
+	{
+		var fakeRedisDatabase = Substitute.For<IDatabase>();
 
-	//	var sut = new RedisRepository(fakeRedisDatabase);
+		var sut = new RedisRepository(fakeRedisDatabase);
 
-	//	var bucketId = Guid.NewGuid();
-	//	var length = 10;
+		var bucketId = Guid.NewGuid();
+		var length = 10;
 
-	//	await sut.RemoveEventsAsync(bucketId, length);
+		await sut.RemoveEventsAsync(bucketId, length);
 
-	//	_ = fakeRedisDatabase.Received(1)
-	//		.ListLeftPopAsync(
-	//			Arg.Is(new RedisKey($"Tgs:Bucket:Events:{bucketId}")),
-	//			Arg.Is((long)length),
-	//			Arg.Any<CommandFlags>());
-	//}
+		_ = fakeRedisDatabase.Received(1)
+			.ListTrimAsync(
+				Arg.Is(new RedisKey($"Tgs:Bucket:Events:{bucketId}")),
+				Arg.Is((long)length),
+				Arg.Is((long)-1),
+				Arg.Any<CommandFlags>());
+	}
 
 	[TestMethod]
 	public async Task DeleteBucket_刪除已經快照完的Bucket暫存()
