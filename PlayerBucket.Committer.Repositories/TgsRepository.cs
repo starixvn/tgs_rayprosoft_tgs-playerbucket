@@ -105,7 +105,7 @@ internal class TgsRepository : ITgsRepository
 
 		var newEvents = events.Where(evt => !alreadyInsertIds.Contains(evt.Id)).ToArray();
 
-		_logger.LogWarning("{@newEvents}", newEvents);
+		_logger.LogWarning("{newEvents}", newEvents);
 
 		if (newEvents is not null && newEvents.Length > 0)
 		{

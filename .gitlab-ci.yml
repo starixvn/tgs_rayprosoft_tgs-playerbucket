@@ -137,7 +137,7 @@ deploy-service-dev:
     HelmTemplateFolderName: $HelmTemplateServiceFolderName
     kube_config: KubeConfig_Raypro_dev
   environment:
-    name: worker-service
+    name: service-dev
   stage: deploy-dev
   needs:
     - push-nuget

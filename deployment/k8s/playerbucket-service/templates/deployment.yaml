@@ -35,7 +35,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: OTEL_SERVICE_NAME
-              value: PlayerBucket-Worker({{ .Release.Namespace }})
+              value: PlayerBucket-Service({{ .Release.Namespace }})
             - name: NODE_IP
               valueFrom:
                 fieldRef:
