@@ -7,12 +7,14 @@ variables:
   ServiceImageName: pgtgs/bucket-service
   WorkerImageName: pgtgs/bucket-worker
   CommitterImageName: pgtgs/bucket-committer
+  MigrateJobImageName: pgtgs/bucket-mitrate-job
   TgsServiceSettingKey: playerbucket-service
   TgsWorkerSettingKey: playerbucket-worker
   TgsCommitterSettingKey: playerbucket-committer
   HelmTemplateServiceFolderName: playerbucket-service
   HelmTemplateWorkerFolderName: playerbucket-worker
   HelmTemplateCommitterFolderName: playerbucket-committer
+  HelmTemplateMigrateJobFolderName: playerbucket-migrate-job
   BuildCacheKey: Tgs.PlayerBucket.$CI_PIPELINE_IID
 
 default:
@@ -96,6 +98,20 @@ push-docker-image:
     - docker push $WorkerImageName:$Tag
     - docker push $CommitterImageName:$Tag
 
+push-job-image:
+  stage: publish
+  needs:
+    - push-docker-image
+  only:
+    - main
+  cache:
+    key: $BuildCacheKey
+    untracked: true
+    policy: pull
+  script:
+    - dotnet build "PlayerBucketMigrateJob/PlayerBucketMigrateJob.csproj" -c $BuildConfiguration -t:ContainerBuild -p:DockerfileTag="$MigrateJobImageName:$Tag" --no-restore
+    - docker push $MigrateJobImageName:$Tag
+
 push-k8s-template:
   stage: publish
   needs:
@@ -128,6 +144,54 @@ push-k8s-template:
     expire_in: "180 days"
     paths:
       - artifacts/**/*
+
+push-job-k8s-template:
+  stage: publish
+  needs:
+    - unit-test
+  only:
+    - main
+  script:
+    - mkdir -p artifacts/k8s
+    - cp -R deployment/k8s/$HelmTemplateMigrateJobFolderName artifacts/k8s/
+    - |
+      yq -i e '
+        .image.repository = strenv(MigrateJobImageName) |
+        .image.tag = strenv(Tag)
+      ' artifacts/k8s/$HelmTemplateMigrateJobFolderName/values.yaml
+  artifacts:
+    name: HelmTemplate
+    untracked: false
+    expire_in: "180 days"
+    paths:
+      - artifacts/**/*
+
+.deploy-job-template:
+  extends: .deploy-template
+  script:
+    - export dedicated=$(kubectl get cm tgs-settings -o jsonpath={.data.dedicated})
+    - export node_selector=$(kubectl get cm tgs-settings -o jsonpath={.data.node-selector})
+    - |
+      cat << EOF | yq e -P | helm template artifacts/k8s/$HelmTemplateFolderName \
+        -n $namespace \
+        --name-template tgs \
+        -f - 
+      {
+        "nodeSelector": $node_selector,
+        "tolerations": [$dedicated]
+      }
+      EOF
+    - |
+      cat << EOF | yq e -P | helm template artifacts/k8s/$HelmTemplateFolderName \
+        -n $namespace \
+        --name-template tgs \
+        -f - \
+        | kubectl -n $namespace apply -f -
+      {
+        "nodeSelector": $node_selector,
+        "tolerations": [$dedicated]
+      }
+      EOF
 
 deploy-service-dev:
   extends: .deploy-template
@@ -183,6 +247,23 @@ deploy-committer-dev:
   only:
     - main
 
+deploy-migrate-job-dev:
+  extends: .deploy-job-template
+  variables:
+    namespace: dev
+    HelmTemplateFolderName: $HelmTemplateMigrateJobFolderName
+    kube_config: KubeConfig_Raypro_dev
+  environment:
+    name: migrate-job-dev
+  stage: deploy-dev
+  needs:
+    - push-job-image
+    - job: push-job-k8s-template
+      artifacts: true
+  only:
+    - main
+  when: manual
+
 deploy-service-staging:
   extends: .deploy-template
   variables:
@@ -237,6 +318,23 @@ deploy-committer-staging:
     - main
   when: manual
 
+deploy-migrate-job-staging:
+  extends: .deploy-job-template
+  variables:
+    namespace: staging
+    HelmTemplateFolderName: $HelmTemplateMigrateJobFolderName
+    kube_config: KubeConfig_Raypro_staging
+  environment:
+    name: migrate-job-staging
+  stage: deploy-staging
+  needs:
+    - push-job-image
+    - job: push-job-k8s-template
+      artifacts: true
+  only:
+    - main
+  when: manual
+
 deploy-service-prod:
   extends: .deploy-template
   variables:
@@ -282,11 +380,28 @@ deploy-committer-prod:
     HelmTemplateFolderName: $HelmTemplateCommitterFolderName
     kube_config: KubeConfig_Raypro_prod
   environment:
-    name: service-prod
+    name: committer-prod
   stage: deploy-prod
   needs:
     - deploy-committer-staging
     - job: push-k8s-template
+      artifacts: true
+  only:
+    - main
+  when: manual
+
+deploy-migrate-job-prod:
+  extends: .deploy-job-template
+  variables:
+    namespace: prod
+    HelmTemplateFolderName: $HelmTemplateMigrateJobFolderName
+    kube_config: KubeConfig_Raypro_prod
+  environment:
+    name: migrate-job-prod
+  stage: deploy-prod
+  needs:
+    - push-job-image
+    - job: push-job-k8s-template
       artifacts: true
   only:
     - main
