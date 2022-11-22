@@ -48,7 +48,7 @@ Selector labels
 {{- define "playerbucket-migrate-job.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "playerbucket-migrate-job.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-tgs.kind: payment
+tgs.kind: playerbucket
 {{- end }}
 
 {{/*

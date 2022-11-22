@@ -8,6 +8,8 @@ spec:
   ttlSecondsAfterFinished: 86400
   backoffLimit: 3
   template:
+    labels:
+      {{- include "playerbucket-migrate-job.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
