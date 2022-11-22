@@ -53,6 +53,15 @@ public class BucketController : ControllerBase
 		Guid bucketId)
 		=> playerBucketClient.SnapshotBucketAsync(playerCode, bucketId, HttpContext.RequestAborted);
 
+	[HttpPut("flush/{playerCode}/{bucketId}", Name = "FlushBucket")]
+	public ValueTask FrashBucketAsync(
+		[FromServices] IEventSource eventSource,
+		string playerCode,
+		Guid bucketId)
+		=> eventSource.PublishBucketChangedAsync(
+			new BucketChangedEvent(bucketId, playerCode),
+			HttpContext.RequestAborted);
+
 	[HttpDelete("clean", Name = "CleanBuckets")]
 	public ValueTask CleanBucketsAsync(
 		[FromServices] IPlayerBucketClient playerBucketClient,
