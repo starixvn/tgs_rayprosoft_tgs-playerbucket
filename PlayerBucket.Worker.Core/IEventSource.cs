@@ -1,6 +1,6 @@
 ﻿namespace Tgs.Service.PlayerBuckets;
 
-internal interface IEventSource
+public interface IEventSource
 {
 	ValueTask PublishBucketChangedAsync(BucketChangedEvent evt, CancellationToken cancellationToken = default);
 }
