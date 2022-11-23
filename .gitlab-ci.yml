@@ -360,7 +360,7 @@ deploy-worker-prod:
     TgsSettingKey: $TgsWorkerSettingKey
     HelmTemplateFolderName: $HelmTemplateWorkerFolderName
     kube_config: KubeConfig_Raypro_prod
-    replica: 3
+    replica: 2
   environment:
     name: worker-prod
   stage: deploy-prod
