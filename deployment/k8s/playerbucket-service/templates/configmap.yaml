@@ -28,7 +28,7 @@ data:
           insecure: true
       prometheus:
         endpoint: "0.0.0.0:8889"
-        namespace: "tgs_player_bucket"
+        namespace: "tgs"
 
     extensions:
       health_check:
