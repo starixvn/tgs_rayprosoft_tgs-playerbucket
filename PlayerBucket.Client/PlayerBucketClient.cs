@@ -46,7 +46,7 @@ internal class PlayerBucketClient : IPlayerBucketClient
 		return response.BucketId.ToGuid();
 	}
 
-	public ValueTask FillInBucketAsync(
+	public async ValueTask FillInBucketAsync(
 		string playerCode,
 		decimal amount,
 		FillType type,
@@ -61,10 +61,14 @@ internal class PlayerBucketClient : IPlayerBucketClient
 			ExternalId = externalId ?? string.Empty
 		};
 
-		return _messageSender.SendAsync(
-			"tgs.bucket.fill",
-			request.ToByteArray(),
-			cancellationToken);
+		await _messageSender
+			.SendAsync(
+				"tgs.bucket.fill",
+				request.ToByteArray(),
+				cancellationToken)
+			.AsTask()
+			.WaitAsync(TimeSpan.FromSeconds(3D))
+			.ConfigureAwait(false);
 	}
 
 	public ValueTask SnapshotBucketAsync(string playerCode, Guid bucketId, CancellationToken cancellationToken = default)
