@@ -32,10 +32,14 @@ internal class PlayerBucketClient : IPlayerBucketClient
 			ExternalId = externalId ?? string.Empty
 		};
 
-		var result = await _messageSender.RequestAsync(
-			"tgs.bucket.create",
-			request.ToByteArray(),
-			cancellationToken).ConfigureAwait(false);
+		var result = await _messageSender
+			.RequestAsync(
+				"tgs.bucket.create",
+				request.ToByteArray(),
+				cancellationToken)
+			.AsTask()
+			.WaitAsync(TimeSpan.FromSeconds(3D))
+			.ConfigureAwait(false);
 
 		var response = CreateBucketResponse.Parser.ParseFrom(result.Span);
 
@@ -81,10 +85,14 @@ internal class PlayerBucketClient : IPlayerBucketClient
 			PlayerCode = playerCode
 		};
 
-		var result = await _messageSender.RequestAsync(
-			"tgs.bucket.amount",
-			request.ToByteArray(),
-			cancellationToken).ConfigureAwait(false);
+		var result = await _messageSender
+			.RequestAsync(
+				"tgs.bucket.amount",
+				request.ToByteArray(),
+				cancellationToken)
+			.AsTask()
+			.WaitAsync(TimeSpan.FromSeconds(3D))
+			.ConfigureAwait(false);
 
 		var response = GetBucketAmountResponse.Parser.ParseFrom(result.Span);
 
@@ -104,10 +112,14 @@ internal class PlayerBucketClient : IPlayerBucketClient
 			ExternalId = externalId ?? string.Empty
 		};
 
-		await _messageSender.SendAsync(
-			"tgs.bucket.clean",
-			request.ToByteArray(),
-			cancellationToken).ConfigureAwait(false);
+		await _messageSender
+			.SendAsync(
+				"tgs.bucket.clean",
+				request.ToByteArray(),
+				cancellationToken)
+			.AsTask()
+			.WaitAsync(TimeSpan.FromSeconds(3D))
+			.ConfigureAwait(false);
 	}
 
 	public IAsyncEnumerable<BucketInfo> GetBucketsByPlayerCodeAsync(string playerCode, CancellationToken cancellationToken = default)
