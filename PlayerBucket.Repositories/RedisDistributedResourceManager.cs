@@ -76,7 +76,7 @@ internal class RedisDistributedResourceManager : IDistributedResourceManager, IB
 			.ConfigureAwait(false);
 
 		_ = await _redisDatabase.HashSetAsync(
-			$"Tgs.Bucket:CreateBuckets:{bucket.PlayerCode}",
+			$"Tgs:Bucket:CreateBuckets:{bucket.PlayerCode}",
 			bucketId.ToString(),
 			JsonSerializer.Serialize(bucketSnapshot, PlayerBucketUtility.SerializerOptions))
 			.ConfigureAwait(false);
@@ -126,6 +126,8 @@ internal class RedisDistributedResourceManager : IDistributedResourceManager, IB
 	public IAsyncEnumerable<BucketInfo> GetPlayerCreatedBucketsAsync(string playerCode, CancellationToken cancellationToken = default)
 		=> _redisDatabase.HashGetAllAsync($"Tgs.Bucket:CreateBuckets:{playerCode}")
 			.ToAsyncEnumerable()
+			.Concat(_redisDatabase.HashGetAllAsync($"Tgs:Bucket:CreateBuckets:{playerCode}")
+				.ToAsyncEnumerable())
 			.SelectMany(entries => entries.ToAsyncEnumerable())
 			.Select(entry => JsonSerializer.Deserialize<BucketInfo>((string)entry.Value!, PlayerBucketUtility.SerializerOptions))
 			.Where(info => info is not null)
