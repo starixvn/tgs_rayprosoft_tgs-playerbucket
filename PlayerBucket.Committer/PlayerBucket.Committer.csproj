@@ -28,7 +28,7 @@
 		<PackageReference Include="ProfileViewer.OpenTelemetry.Exporter" Version="0.2.1" />
 		<PackageReference Include="Tgs.Interceptors" Version="0.2.1" />
 		<PackageReference Include="Tgs.MessageQueue.MongoDB" Version="2.1.2" />
-		<PackageReference Include="Tgs.MessageQueue.Nats" Version="2.1.6" />
+		<PackageReference Include="Tgs.MessageQueue.Nats" Version="2.1.7" />
 		<PackageReference Include="TGS.ServiceUtility" Version="0.2.0" />
 	</ItemGroup>
 

@@ -29,7 +29,7 @@
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
 		<PackageReference Include="Tgs.Interceptors" Version="0.2.1" />
 		<PackageReference Include="Tgs.MessageQueue.MongoDB" Version="2.1.2" />
-		<PackageReference Include="Tgs.MessageQueue.Nats" Version="2.1.6" />
+		<PackageReference Include="Tgs.MessageQueue.Nats" Version="2.1.7" />
 	</ItemGroup>
 
 	<ItemGroup>

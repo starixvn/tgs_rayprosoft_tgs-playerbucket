@@ -15,7 +15,7 @@
 		</PackageReference>
 		<PackageReference Include="System.Interactive.Async" Version="6.0.1" />
 		<PackageReference Include="System.Reactive" Version="5.0.0" />
-		<PackageReference Include="Tgs.SerialNumberGenerator" Version="0.0.5" />
+		<PackageReference Include="Tgs.SerialNumberGenerator" Version="1.0.0" />
 		<PackageReference Include="TGS.ServiceUtility" Version="0.2.0" />
 	</ItemGroup>
 

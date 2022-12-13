@@ -14,9 +14,9 @@
     </PackageReference>
     <PackageReference Include="MongoDB.Bson" Version="2.18.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.0" />
-    <PackageReference Include="StackExchange.Redis" Version="2.6.70" />
+    <PackageReference Include="StackExchange.Redis" Version="2.6.80" />
     <PackageReference Include="System.Threading.Tasks.Dataflow" Version="7.0.0" />
-    <PackageReference Include="Tgs.MessageQueue" Version="2.1.0" />
+    <PackageReference Include="Tgs.MessageQueue" Version="2.1.1" />
   </ItemGroup>
 
   <ItemGroup>
