@@ -154,5 +154,9 @@ public class RedisRepositoryTests
 			.HashDeleteAsync(
 				Arg.Is(new RedisKey($"Tgs.Bucket:CreateBuckets:{playerCode}")),
 				Arg.Is(new RedisValue(bucketId.ToString())));
+		_ = fakeRedisDatabase.Received(1)
+			.HashDeleteAsync(
+				Arg.Is(new RedisKey($"Tgs:Bucket:CreateBuckets:{playerCode}")),
+				Arg.Is(new RedisValue(bucketId.ToString())));
 	}
 }

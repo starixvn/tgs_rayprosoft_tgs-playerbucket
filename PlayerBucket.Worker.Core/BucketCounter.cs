@@ -349,12 +349,11 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 		{
 			_buckets.Add(bucket);
 			_bucketAmount += bucket.Amount - bucket.FillInAmount;
-		}
 
-		await foreach (var tempBucket in tempBuckets.ToAsyncEnumerable())
 			await _eventSource.PublishBucketChangedAsync(
-				new BucketChangedEvent(tempBucket.Id, PlayerCode),
+				new BucketChangedEvent(bucket.Id, PlayerCode),
 				cancellationToken).ConfigureAwait(false);
+		}
 
 		if (_buckets.Count > 0)
 		{

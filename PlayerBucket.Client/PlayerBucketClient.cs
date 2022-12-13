@@ -38,7 +38,7 @@ internal class PlayerBucketClient : IPlayerBucketClient
 				request.ToByteArray(),
 				cancellationToken)
 			.AsTask()
-			.WaitAsync(TimeSpan.FromSeconds(3D))
+			.WaitAsync(TimeSpan.FromSeconds(3D), cancellationToken)
 			.ConfigureAwait(false);
 
 		var response = CreateBucketResponse.Parser.ParseFrom(result.Span);
@@ -67,7 +67,7 @@ internal class PlayerBucketClient : IPlayerBucketClient
 				request.ToByteArray(),
 				cancellationToken)
 			.AsTask()
-			.WaitAsync(TimeSpan.FromSeconds(3D))
+			.WaitAsync(TimeSpan.FromSeconds(3D), cancellationToken)
 			.ConfigureAwait(false);
 	}
 
@@ -95,7 +95,7 @@ internal class PlayerBucketClient : IPlayerBucketClient
 				request.ToByteArray(),
 				cancellationToken)
 			.AsTask()
-			.WaitAsync(TimeSpan.FromSeconds(3D))
+			.WaitAsync(TimeSpan.FromSeconds(3D), cancellationToken)
 			.ConfigureAwait(false);
 
 		var response = GetBucketAmountResponse.Parser.ParseFrom(result.Span);
@@ -122,7 +122,7 @@ internal class PlayerBucketClient : IPlayerBucketClient
 				request.ToByteArray(),
 				cancellationToken)
 			.AsTask()
-			.WaitAsync(TimeSpan.FromSeconds(3D))
+			.WaitAsync(TimeSpan.FromSeconds(3D), cancellationToken)
 			.ConfigureAwait(false);
 	}
 

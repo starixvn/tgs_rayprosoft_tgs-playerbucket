@@ -40,7 +40,7 @@ internal class RedisRepository : IBucketEventRepository, IDistributedResourceMan
 			.SelectMany(arr => arr.ToAsyncEnumerable());
 
 	public async ValueTask RemoveEventsAsync(Guid bucketId, int count, CancellationToken cancellationToken = default)
-		=> await _redisDatabase.ListTrimAsync(			
+		=> await _redisDatabase.ListTrimAsync(
 			$"Tgs:Bucket:Events:{bucketId}",
 			count,
 			-1).ConfigureAwait(false);
@@ -82,9 +82,14 @@ internal class RedisRepository : IBucketEventRepository, IDistributedResourceMan
 
 	public async ValueTask DeleteCreatedBucketAsync(string playerCode, Guid bucketId, CancellationToken cancellationToken = default)
 	{
-		var redisKey = new RedisKey($"Tgs.Bucket:CreateBuckets:{playerCode}");
+		var redisKey = new RedisKey($"Tgs:Bucket:CreateBuckets:{playerCode}");
 
-		_ = await _redisDatabase.HashDeleteAsync(redisKey, bucketId.ToString());
+		_ = await Task.WhenAll(
+			_redisDatabase.HashDeleteAsync(redisKey, bucketId.ToString()),
+			_redisDatabase.HashDeleteAsync($"Tgs.Bucket:CreateBuckets:{playerCode}", bucketId.ToString()))
+			.ConfigureAwait(false);
+
+		//_ = await _redisDatabase.HashDeleteAsync(redisKey, bucketId.ToString());
 	}
 
 	public async ValueTask ExtendBindAsync(Guid bucketId, CancellationToken cancellationToken = default)
