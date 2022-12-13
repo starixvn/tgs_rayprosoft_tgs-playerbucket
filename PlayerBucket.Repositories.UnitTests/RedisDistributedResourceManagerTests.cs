@@ -146,7 +146,7 @@ public class RedisDistributedResourceManagerTests
 
 		_ = fakeRedisDatabase.Received(1)
 			.HashSetAsync(
-				Arg.Is(new RedisKey($"Tgs.Bucket:CreateBuckets:{createInfo.PlayerCode}")),
+				Arg.Is(new RedisKey($"Tgs:Bucket:CreateBuckets:{createInfo.PlayerCode}")),
 				Arg.Is(new RedisValue(bucketId.ToString())),
 				Arg.Any<RedisValue>());
 	}
