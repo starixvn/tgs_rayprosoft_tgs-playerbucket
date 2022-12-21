@@ -28,9 +28,12 @@ internal class BucketDispatcher : IBucketDispatcher, IDisposable, IAsyncDisposab
 				var newCounter = ActivatorUtilities.CreateInstance<BucketCounter>(
 					scope.ServiceProvider,
 					key);
+				PlayerBucketMeters.ProcessPlayers.Add(1);
 
 				newCounter.Disposed += (_, _) =>
 				{
+					PlayerBucketMeters.ProcessPlayers.Add(-1);
+
 					_ = _counters.TryRemove(newCounter.PlayerCode, out _);
 					scope.Dispose();
 				};
