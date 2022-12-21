@@ -5,7 +5,8 @@
 			"environmentVariables": {
 				"ASPNETCORE_ENVIRONMENT": "Development",
 				"OTEL_SERVICE_NAME": "PlayerBucket-Worker(local)",
-				"NODE_IP": "otel.rpgp.cc"
+				"NODE_IP": "otel.rpgp.cc",
+				"DOTNET_GCHeapHardLimit": "C800000"
 			},
 			"dotnetRunMessages": true,
 			"applicationUrl": "https://localhost:7142;http://localhost:5142"
