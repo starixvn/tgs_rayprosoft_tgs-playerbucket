@@ -109,6 +109,7 @@ builder.Services
 	.AddOpenTelemetryMetrics(meterBuiler => meterBuiler
 		.SetResourceBuilder(ResourceBuilder.CreateDefault()
 			.AddEnvironmentVariableDetector())
+			.AddMeter("Tgs.*")
 			.AddRuntimeInstrumentation()
 			.AddAspNetCoreInstrumentation()
 			.AddOtlpExporter())
