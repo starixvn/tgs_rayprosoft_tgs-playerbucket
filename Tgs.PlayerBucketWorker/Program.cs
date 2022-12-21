@@ -45,7 +45,7 @@ builder.Services
 		builder.Configuration.GetConnectionString("Redis")!))
 	.AddPlayerBucketDistributedResourceManager(sp => sp.GetRequiredService<RedisConnectionManager>().Database)
 	.AddPlayerBucketClient(httpClientBuilder => httpClientBuilder
-		.ConfigureHttpClient(http => http.BaseAddress = 
+		.ConfigureHttpClient(http => http.BaseAddress =
 			builder.Configuration.GetValue<Uri>("PlayerBucket:ServiceBaseUrl")));
 
 builder.Services
