@@ -111,6 +111,7 @@ builder.Services
 		.SetResourceBuilder(ResourceBuilder.CreateDefault()
 			.AddEnvironmentVariableDetector())
 			.AddMeter("Tgs.PlayerBucket")
+			.AddInstrumentation<PlayerBucketMetrics>()
 			.AddRuntimeInstrumentation()
 			.AddAspNetCoreInstrumentation()
 			.AddOtlpExporter())
