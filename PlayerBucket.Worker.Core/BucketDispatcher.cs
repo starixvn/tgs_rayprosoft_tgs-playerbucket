@@ -6,6 +6,7 @@ namespace Tgs.Service.PlayerBuckets;
 internal class BucketDispatcher : IBucketDispatcher, IDisposable, IAsyncDisposable
 {
 	private readonly IServiceProvider _serviceProvider;
+	private readonly Task _meterTask;
 	private readonly ConcurrentDictionary<string, BucketCounter> _counters = new();
 	private readonly CancellationTokenSource _cancellationTokenSource = new();
 
@@ -14,6 +15,17 @@ internal class BucketDispatcher : IBucketDispatcher, IDisposable, IAsyncDisposab
 	public BucketDispatcher(IServiceProvider serviceProvider)
 	{
 		_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+		_meterTask = Task.Run(async () =>
+		{
+			while (true)
+			{
+				PlayerBucketMetrics.ProcessPlayers.Record(_counters.Count);
+
+				await Task.Delay(
+					1000,
+					_cancellationTokenSource.Token).ConfigureAwait(false);
+			}
+		}, _cancellationTokenSource.Token);
 	}
 
 	public async Task PushCommandAsync(string playerCode, IBucketCommand command, CancellationToken cancellationToken = default)
@@ -28,12 +40,9 @@ internal class BucketDispatcher : IBucketDispatcher, IDisposable, IAsyncDisposab
 				var newCounter = ActivatorUtilities.CreateInstance<BucketCounter>(
 					scope.ServiceProvider,
 					key);
-				PlayerBucketMeters.ProcessPlayers.Add(1);
 
 				newCounter.Disposed += (_, _) =>
 				{
-					PlayerBucketMeters.ProcessPlayers.Add(-1);
-
 					_ = _counters.TryRemove(newCounter.PlayerCode, out _);
 					scope.Dispose();
 				};
