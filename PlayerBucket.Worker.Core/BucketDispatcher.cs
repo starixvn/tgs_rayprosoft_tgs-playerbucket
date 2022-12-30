@@ -6,7 +6,6 @@ namespace Tgs.Service.PlayerBuckets;
 internal class BucketDispatcher : IBucketDispatcher, IDisposable, IAsyncDisposable
 {
 	private readonly IServiceProvider _serviceProvider;
-	private readonly Task _meterTask;
 	private readonly ConcurrentDictionary<string, BucketCounter> _counters = new();
 	private readonly CancellationTokenSource _cancellationTokenSource = new();
 
@@ -15,11 +14,11 @@ internal class BucketDispatcher : IBucketDispatcher, IDisposable, IAsyncDisposab
 	public BucketDispatcher(IServiceProvider serviceProvider)
 	{
 		_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-		_meterTask = Task.Run(async () =>
+		_ = Task.Run(async () =>
 		{
 			while (true)
 			{
-				PlayerBucketMetrics.ProcessPlayers.Record(_counters.Count);
+				PlayerBucketMetrics._ProcessPlayers.Record(_counters.Count);
 
 				await Task.Delay(
 					1000,
@@ -86,11 +85,4 @@ internal class BucketDispatcher : IBucketDispatcher, IDisposable, IAsyncDisposab
 			_disposedValue = true;
 		}
 	}
-
-	// // TODO: 僅有當 'Dispose(bool disposing)' 具有會釋出非受控資源的程式碼時，才覆寫完成項
-	// ~BucketDispatcher()
-	// {
-	//     // 請勿變更此程式碼。請將清除程式碼放入 'Dispose(bool disposing)' 方法
-	//     Dispose(disposing: false);
-	// }
 }
