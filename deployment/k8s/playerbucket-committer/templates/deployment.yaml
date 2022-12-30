@@ -60,6 +60,8 @@ spec:
                 secretKeyRef:
                   name: tgs-connections
                   key: mongo-player-bucket
+            - name: DOTNET_gcServer
+              value: "0"
           ports:
             - name: http
               containerPort: 80
