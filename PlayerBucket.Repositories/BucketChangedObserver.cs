@@ -56,7 +56,7 @@ internal class BucketChangedObserver : BackgroundService
 
 	protected override Task ExecuteAsync(CancellationToken stoppingToken)
 	{
-		_ = stoppingToken.Register(() => _subscribe.Dispose());
+		_ = stoppingToken.Register(_subscribe.Dispose);
 
 		return Task.CompletedTask;
 	}

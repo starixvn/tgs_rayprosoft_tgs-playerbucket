@@ -252,10 +252,12 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 		{
 			if (disposing)
 			{
-				_cancellationTokenSource.Cancel();
 				_timer?.Dispose();
 				_timer = null;
+
 				Disposed?.Invoke(this, EventArgs.Empty);
+				_channel.Writer.Complete();
+				_cancellationTokenSource.Cancel();
 			}
 
 			_disposedValue = true;
