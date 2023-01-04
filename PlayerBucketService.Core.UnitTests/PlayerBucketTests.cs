@@ -41,4 +41,45 @@ public class PlayerBucketTests
 		_ = fakeTgsRepository.Received(1)
 			.QueryPlayerBucketHistoriesAsync(Arg.Is(query.BucketId));
 	}
+
+	[Fact]
+	public async Task 依據EventId取得之後的Bucket歷史記錄()
+	{
+		// Arrange
+		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+		var sut = new GetPlayerBucketHistoriesQueryService(fakeTgsRepository);
+
+		var query = new GetPlayerBucketHistoriesByIdQuery(Guid.NewGuid(), Guid.NewGuid());
+
+		// Act
+		_ = await sut.QueryAsync(query).ToArrayAsync();
+
+		// Assert
+		_ = fakeTgsRepository.Received(1)
+			.QueryPlayerBucketHistoriesByIdAsync(
+				Arg.Is(query.BucketId),
+				Arg.Is(query.EventId));
+	}
+
+	[Fact]
+	public async Task 依據QueryDate取得之後的Bucket歷史記錄()
+	{
+		// Arrange
+		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+		var sut = new GetPlayerBucketHistoriesQueryService(fakeTgsRepository);
+
+		var queryDate = DateTime.Now;
+		var query = new GetPlayerBucketHistoriesByDateQuery(Guid.NewGuid(), queryDate);
+
+		// Act
+		_ = await sut.QueryAsync(query).ToArrayAsync();
+
+		// Assert
+		_ = fakeTgsRepository.Received(1)
+			.QueryPlayerBucketHistoriesByDateAsync(
+				Arg.Is(query.BucketId),
+				Arg.Is(queryDate));
+	}
 }

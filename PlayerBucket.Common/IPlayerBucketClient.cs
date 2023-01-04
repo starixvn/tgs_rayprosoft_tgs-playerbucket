@@ -32,4 +32,8 @@ public interface IPlayerBucketClient
 	IAsyncEnumerable<BucketInfo> GetBucketsByPlayerCodeAsync(string playerCode, CancellationToken cancellationToken = default);
 
 	IAsyncEnumerable<BucketEvent> GetBucketEventsAsync(Guid bucketId, CancellationToken cancellationToken = default);
+
+	IAsyncEnumerable<BucketEvent> GetBucketEventsAsync(Guid bucketId, Guid eventId, CancellationToken cancellationToken = default);
+
+	IAsyncEnumerable<BucketEvent> GetBucketEventsAsync(Guid bucketId, DateTime queryDate, CancellationToken cancellationToken = default);
 }

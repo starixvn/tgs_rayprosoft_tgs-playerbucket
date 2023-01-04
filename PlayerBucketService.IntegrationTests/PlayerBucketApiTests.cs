@@ -136,6 +136,118 @@ public class PlayerBucketApiTests
 	}
 
 	[Fact]
+	public async Task 查詢Bucket的歷程_依據EventId查詢條件()
+	{
+		// Arrange
+		await using var web = PlayerBucketServiceTestHost.Instance
+			.WithWebHostBuilder(hostBuilder => hostBuilder
+				.ConfigureLogging(logging => logging.AddXUnit(TestOutputHelper)));
+
+		var fakeClientMessageSender = Substitute.For<IMessageSender>();
+		var httpClient = web.CreateClient();
+		var sut = new PlayerBucketClient(httpClient, fakeClientMessageSender);
+
+		var bucketId = Guid.NewGuid();
+		var eventId = Guid.Parse("097c77de-8401-0000-0001-000080cd2019");
+
+		var dbContext = web.Services.GetRequiredService<TgsContext>();
+
+		await dbContext.PlayerBucketEventSources.AddRangeAsync(
+			new PlayerBucketEventSource
+			{
+				Id = Guid.Parse("097c77de-8401-0000-0001-000080cd2019"),
+				BucketId = bucketId,
+				ChangeAmount = 100M,
+				ChangeSets = "[]",
+				FillType = nameof(FillType.Deposit),
+				CreatedOn = DateTime.Parse("2023-01-03 12:00:00Z")
+			},
+			new PlayerBucketEventSource
+			{
+				Id = Guid.Parse("097c8e45-8401-0000-0001-000080cd2019"),
+				BucketId = bucketId,
+				ChangeAmount = -10M,
+				ChangeSets = "[]",
+				FillType = nameof(FillType.Game),
+				CreatedOn = DateTime.Parse("2023-01-04 12:00:00Z")
+			},
+			new PlayerBucketEventSource
+			{
+				Id = Guid.Parse("097cd6a5-8401-0000-0001-000080cd2019"),
+				BucketId = bucketId,
+				ChangeAmount = -10M,
+				ChangeSets = "[]",
+				FillType = nameof(FillType.Game),
+				CreatedOn = DateTime.Parse("2023-01-05 12:00:00Z")
+			});
+
+		_ = await dbContext.SaveChangesAsync();
+
+		// Act
+		var actual = await sut.GetBucketEventsAsync(bucketId, eventId).ToArrayAsync();
+
+		// Assert
+		Assert.NotNull(actual);
+		Assert.Equal(2, actual.Length);
+	}
+
+	[Fact]
+	public async Task 查詢Bucket的歷程_依據QueryDate查詢條件()
+	{
+		// Arrange
+		await using var web = PlayerBucketServiceTestHost.Instance
+			.WithWebHostBuilder(hostBuilder => hostBuilder
+				.ConfigureLogging(logging => logging.AddXUnit(TestOutputHelper)));
+
+		var fakeClientMessageSender = Substitute.For<IMessageSender>();
+		var httpClient = web.CreateClient();
+		var sut = new PlayerBucketClient(httpClient, fakeClientMessageSender);
+
+		var bucketId = Guid.NewGuid();
+		var queryDate = DateTime.Parse("2023-01-04 12:00:00Z");
+
+		var dbContext = web.Services.GetRequiredService<TgsContext>();
+
+		await dbContext.PlayerBucketEventSources.AddRangeAsync(
+			new PlayerBucketEventSource
+			{
+				Id = Guid.Parse("097c77de-8401-0000-0001-000080cd2019"),
+				BucketId = bucketId,
+				ChangeAmount = 100M,
+				ChangeSets = "[]",
+				FillType = nameof(FillType.Deposit),
+				CreatedOn = DateTime.Parse("2023-01-03 12:00:00Z")
+			},
+			new PlayerBucketEventSource
+			{
+				Id = Guid.Parse("097c8e45-8401-0000-0001-000080cd2019"),
+				BucketId = bucketId,
+				ChangeAmount = -10M,
+				ChangeSets = "[]",
+				FillType = nameof(FillType.Game),
+				CreatedOn = DateTime.Parse("2023-01-04 12:00:00Z")
+			},
+			new PlayerBucketEventSource
+			{
+				Id = Guid.Parse("097cd6a5-8401-0000-0001-000080cd2019"),
+				BucketId = bucketId,
+				ChangeAmount = -10M,
+				ChangeSets = "[]",
+				FillType = nameof(FillType.Game),
+				CreatedOn = DateTime.Parse("2023-01-05 12:00:00Z")
+			});
+
+		_ = await dbContext.SaveChangesAsync();
+
+		// Act
+		var actual = await sut.GetBucketEventsAsync(bucketId, queryDate).ToArrayAsync();
+
+		// Assert
+		Assert.NotNull(actual);
+		_ = Assert.Single(actual);
+	}
+
+	[Fact]
 	public async Task 查詢玩家Buckets_比對資料()
 	{
 		// Arrange
