@@ -31,20 +31,29 @@ public class BucketController : ControllerBase
 
 	[HttpGet("history/{bucketId}")]
 	public IAsyncEnumerable<PlayerBucketEventViewModel> GetBucketHistoriesAsync(
-		[FromServices] IQueryService<GetPlayerBucketHistoriesQuery, BucketEvent> queryService,
-		Guid bucketId)
+		[FromServices] IServiceCoordinator serviceCoordinator,
+		Guid bucketId,
+		[FromQuery] PlayerBucketEventQueryViewModel queryModel)
 	{
-		var query = new GetPlayerBucketHistoriesQuery(bucketId);
-
-		return queryService.QueryAsync(query, HttpContext.RequestAborted)
-			.Select(evt => new PlayerBucketEventViewModel
-			{
-				Id = evt.Id,
-				BucketId = evt.BucketId,
-				ChangeAmount = evt.ChangeAmount,
-				Type = evt.Type,
-				CreatedOn = evt.CreatedOn,
-				ExternalId = evt.ExternalId
-			});
+		return (queryModel switch
+		{
+			{ EventId: not null } => serviceCoordinator.QueryAsync<GetPlayerBucketHistoriesByIdQuery, BucketEvent>(
+				new GetPlayerBucketHistoriesByIdQuery(bucketId, queryModel.EventId!.Value),
+				HttpContext.RequestAborted),
+			{ QueryDate: not null } => serviceCoordinator.QueryAsync<GetPlayerBucketHistoriesByDateQuery, BucketEvent>(
+				new GetPlayerBucketHistoriesByDateQuery(bucketId, queryModel.QueryDate!.Value),
+				HttpContext.RequestAborted),
+			_ => serviceCoordinator.QueryAsync<GetPlayerBucketHistoriesQuery, BucketEvent>(
+				new GetPlayerBucketHistoriesQuery(bucketId),
+				HttpContext.RequestAborted)
+		}).Select(evt => new PlayerBucketEventViewModel
+		{
+			Id = evt.Id,
+			BucketId = evt.BucketId,
+			ChangeAmount = evt.ChangeAmount,
+			Type = evt.Type,
+			CreatedOn = evt.CreatedOn,
+			ExternalId = evt.ExternalId
+		});
 	}
 }

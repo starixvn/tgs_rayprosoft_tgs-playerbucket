@@ -149,4 +149,26 @@ internal class PlayerBucketClient : IPlayerBucketClient
 				.SelectMany(arr => arr!.ToAsyncEnumerable()))
 			.ToEnumerable()
 			.ToAsyncEnumerable();
+
+	public IAsyncEnumerable<BucketEvent> GetBucketEventsAsync(Guid bucketId, Guid eventId, CancellationToken cancellationToken = default)
+		=> _httpClient.GetAsync($"api/bucket/history/{bucketId}?id={eventId}", cancellationToken)
+			.ToAsyncEnumerable()
+			.Do(response => response.EnsureSuccessStatusCode())
+			.SelectMany(response => response.Content
+				.ReadFromJsonAsync<IEnumerable<BucketEvent>>(PlayerBucketUtility.SerializerOptions, cancellationToken)
+				.ToAsyncEnumerable()
+				.SelectMany(arr => arr!.ToAsyncEnumerable()))
+			.ToEnumerable()
+			.ToAsyncEnumerable();
+
+	public IAsyncEnumerable<BucketEvent> GetBucketEventsAsync(Guid bucketId, DateTime queryDate, CancellationToken cancellationToken = default)
+		=> _httpClient.GetAsync($"api/bucket/history/{bucketId}?date={queryDate:u}", cancellationToken)
+			.ToAsyncEnumerable()
+			.Do(response => response.EnsureSuccessStatusCode())
+			.SelectMany(response => response.Content
+				.ReadFromJsonAsync<IEnumerable<BucketEvent>>(PlayerBucketUtility.SerializerOptions, cancellationToken)
+				.ToAsyncEnumerable()
+				.SelectMany(arr => arr!.ToAsyncEnumerable()))
+			.ToEnumerable()
+			.ToAsyncEnumerable();
 }

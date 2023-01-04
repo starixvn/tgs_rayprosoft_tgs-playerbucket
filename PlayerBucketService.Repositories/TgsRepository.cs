@@ -47,6 +47,7 @@ internal class TgsRepository : ITgsRepository
 
 	public IAsyncEnumerable<BucketEvent> QueryPlayerBucketHistoriesAsync(Guid bucketId, CancellationToken cancellationToken = default)
 		=> _playerBucketDataAccess.GetBucketAllEventsAsync(bucketId, cancellationToken)
+			.Take(1000)
 			.Select(row => new BucketEvent(
 				row.Id,
 				row.BucketId,
@@ -55,4 +56,40 @@ internal class TgsRepository : ITgsRepository
 				row.ExternalId,
 				JsonDocument.Parse(row.ChangeSets),
 				row.CreatedOn));
+
+	public IAsyncEnumerable<BucketEvent> QueryPlayerBucketHistoriesByIdAsync(
+		Guid bucketId,
+		Guid eventId,
+		CancellationToken cancellationToken = default)
+		=> _playerBucketDataAccess.GetBucketAllEventsAsync(bucketId, cancellationToken)
+			.Where(row => row.Id.CompareTo(eventId) == 1)
+			.Take(1000)
+			.Select(row => new BucketEvent(
+				row.Id,
+				row.BucketId,
+				row.ChangeAmount,
+				Enum.Parse<FillType>(row.FillType),
+				row.ExternalId,
+				JsonDocument.Parse(row.ChangeSets),
+				row.CreatedOn));
+
+	public IAsyncEnumerable<BucketEvent> QueryPlayerBucketHistoriesByDateAsync(
+		Guid bucketId,
+		DateTime queryDate,
+		CancellationToken cancellationToken = default)
+	{
+		var date = queryDate.ToUniversalTime();
+
+		return _playerBucketDataAccess.GetBucketAllEventsAsync(bucketId, cancellationToken)
+			.Where(row => row.CreatedOn > date)
+			.Take(1000)
+			.Select(row => new BucketEvent(
+				row.Id,
+				row.BucketId,
+				row.ChangeAmount,
+				Enum.Parse<FillType>(row.FillType),
+				row.ExternalId,
+				JsonDocument.Parse(row.ChangeSets),
+				row.CreatedOn));
+	}
 }
