@@ -55,12 +55,16 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	}
 
-	public ValueTask PushCommandAsync(IBucketCommand command, CancellationToken cancellationToken = default)
-		=> _channel.Writer.WriteAsync(
+	public async ValueTask PushCommandAsync(IBucketCommand command, CancellationToken cancellationToken = default)
+	{
+		using var cts = CancellationTokenSource.CreateLinkedTokenSource(
+			cancellationToken,
+			_cancellationTokenSource.Token);
+
+		await _channel.Writer.WriteAsync(
 			command,
-			CancellationTokenSource.CreateLinkedTokenSource(
-				cancellationToken,
-				_cancellationTokenSource.Token).Token);
+			cts.Token).ConfigureAwait(false);
+	}
 
 	public void ExtendExpiry()
 	{
@@ -69,12 +73,12 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 
 	public async ValueTask PrepareAsync(CancellationToken cancellationToken = default)
 	{
-		var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cancellationTokenSource.Token);
+		using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cancellationTokenSource.Token);
 
 		if (_backgroundTask is not null)
 			return;
 
-		await _locker.WaitAsync(cts.Token);
+		await _locker.WaitAsync(cts.Token).ConfigureAwait(false);
 
 		try
 		{
@@ -92,10 +96,9 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 				if (_expiry <= 0)
 					Dispose();
 			}, null, 0, 1000);
-
 			_backgroundTask = Task.Run(
-				() => ProcessCommandLoopAsync(cts.Token),
-				cts.Token);
+				() => ProcessCommandLoopAsync(_cancellationTokenSource.Token),
+				_cancellationTokenSource.Token);
 		}
 		finally
 		{

@@ -29,7 +29,7 @@ internal class BucketDispatcher : IBucketDispatcher, IDisposable, IAsyncDisposab
 
 	public async Task PushCommandAsync(string playerCode, IBucketCommand command, CancellationToken cancellationToken = default)
 	{
-		var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cancellationTokenSource.Token);
+		using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cancellationTokenSource.Token);
 
 		var counter = _counters.GetOrAdd(
 			playerCode,
@@ -80,6 +80,7 @@ internal class BucketDispatcher : IBucketDispatcher, IDisposable, IAsyncDisposab
 			if (disposing)
 			{
 				_cancellationTokenSource.Cancel();
+				_cancellationTokenSource.Dispose();
 			}
 
 			_disposedValue = true;
