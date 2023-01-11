@@ -55,6 +55,12 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	}
 
+	~BucketCounter()
+	{
+		// 請勿變更此程式碼。請將清除程式碼放入 'Dispose(bool disposing)' 方法
+		Dispose(disposing: false);
+	}
+
 	public async ValueTask PushCommandAsync(IBucketCommand command, CancellationToken cancellationToken = default)
 	{
 		using var cts = CancellationTokenSource.CreateLinkedTokenSource(
@@ -237,7 +243,8 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 
 	public ValueTask DisposeAsync()
 	{
-		Dispose();
+		Dispose(true);
+		GC.SuppressFinalize(this);
 
 		return ValueTask.CompletedTask;
 	}
@@ -263,6 +270,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 				_cancellationTokenSource.Cancel();
 			}
 
+			_cancellationTokenSource.Dispose();
 			_disposedValue = true;
 		}
 	}
@@ -444,11 +452,4 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 			FillInAmount = (source?.FillInAmount ?? 0M) + usedAmount
 		};
 	}
-
-	// // TODO: 僅有當 'Dispose(bool disposing)' 具有會釋出非受控資源的程式碼時，才覆寫完成項
-	// ~BucketCounter()
-	// {
-	//     // 請勿變更此程式碼。請將清除程式碼放入 'Dispose(bool disposing)' 方法
-	//     Dispose(disposing: false);
-	// }
 }
