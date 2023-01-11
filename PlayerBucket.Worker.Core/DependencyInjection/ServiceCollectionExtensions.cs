@@ -11,6 +11,6 @@ public static class ServiceCollectionExtensions
 			.AddSerialNumberGenerator()
 			.AddSingleton<IBucketDispatcher, BucketDispatcher>()
 			.AddSingleton<InProcessMessageQueue>()
-			.AddTransient<IEventSource>(sp => sp.GetRequiredService<InProcessMessageQueue>())
-			.AddTransient<IEventBus>(sp => sp.GetRequiredService<InProcessMessageQueue>());
+			.AddSingleton<IEventSource>(sp => sp.GetRequiredService<InProcessMessageQueue>())
+			.AddSingleton<IEventBus>(sp => sp.GetRequiredService<InProcessMessageQueue>());
 }
