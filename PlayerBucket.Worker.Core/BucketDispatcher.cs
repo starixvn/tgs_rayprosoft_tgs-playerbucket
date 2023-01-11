@@ -27,6 +27,11 @@ internal class BucketDispatcher : IBucketDispatcher, IDisposable, IAsyncDisposab
 		}, _cancellationTokenSource.Token);
 	}
 
+	~BucketDispatcher()
+	{
+		Dispose(false);
+	}
+
 	public async Task PushCommandAsync(string playerCode, IBucketCommand command, CancellationToken cancellationToken = default)
 	{
 		using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cancellationTokenSource.Token);
@@ -61,7 +66,8 @@ internal class BucketDispatcher : IBucketDispatcher, IDisposable, IAsyncDisposab
 
 	public ValueTask DisposeAsync()
 	{
-		Dispose();
+		Dispose(true);
+		GC.SuppressFinalize(this);
 
 		return ValueTask.CompletedTask;
 	}
@@ -80,9 +86,9 @@ internal class BucketDispatcher : IBucketDispatcher, IDisposable, IAsyncDisposab
 			if (disposing)
 			{
 				_cancellationTokenSource.Cancel();
-				_cancellationTokenSource.Dispose();
 			}
 
+			_cancellationTokenSource.Dispose();
 			_disposedValue = true;
 		}
 	}
