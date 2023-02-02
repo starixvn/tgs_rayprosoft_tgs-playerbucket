@@ -47,7 +47,12 @@ internal class RedisDistributedResourceManager : IDistributedResourceManager, IB
 		_ = await _redisDatabase.KeyDeleteAsync(redisKey).ConfigureAwait(false);
 	}
 
-	public async ValueTask AddPlayerBucketAsync(Guid createId, Guid bucketId, BucketCreateInfo bucket, CancellationToken cancellationToken = default)
+	public async ValueTask AddPlayerBucketAsync(
+		Guid createId,
+		Guid bucketId,
+		BucketCreateInfo bucket,
+		string? remark,
+		CancellationToken cancellationToken = default)
 	{
 		var currentDate = DateTimeOffset.UtcNow;
 
@@ -58,7 +63,8 @@ internal class RedisDistributedResourceManager : IDistributedResourceManager, IB
 			FillType.Create,
 			bucket.ExternalId,
 			bucket.CreateJsonPatchDocument(bucketId),
-			currentDate.UtcDateTime);
+			currentDate.UtcDateTime,
+			remark);
 
 		var bucketSnapshot = new BucketInfo(
 			bucketId,
@@ -90,7 +96,12 @@ internal class RedisDistributedResourceManager : IDistributedResourceManager, IB
 			.ToAsyncEnumerable()
 			.SelectMany(arr => arr.ToAsyncEnumerable());
 
-	public async ValueTask FillInBucketAsync(Guid createId, Guid bucketId, FillInBucketInfo bucketInfo, CancellationToken cancellationToken = default)
+	public async ValueTask FillInBucketAsync(
+		Guid createId,
+		Guid bucketId,
+		FillInBucketInfo bucketInfo,
+		string? remark,
+		CancellationToken cancellationToken = default)
 	{
 		var currentDate = DateTimeOffset.UtcNow;
 
@@ -101,7 +112,8 @@ internal class RedisDistributedResourceManager : IDistributedResourceManager, IB
 			bucketInfo.Type,
 			bucketInfo.ExternalId,
 			bucketInfo.CreateJsonPatchDocument(),
-			currentDate.UtcDateTime);
+			currentDate.UtcDateTime,
+			remark);
 
 		var json = JsonSerializer.Serialize(record, PlayerBucketUtility.SerializerOptions);
 

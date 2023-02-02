@@ -31,7 +31,8 @@ public class BucketTests
 					1000M,
 					BucketType.Deposit,
 					null).CreateJsonPatchDocument(command.BucketId),
-				DateTime.UtcNow),
+				DateTime.UtcNow,
+				null),
 			new BucketEvent(
 				Guid.Parse("097c8e45-8401-0000-0001-000080cd2019"),
 				command.BucketId,
@@ -39,7 +40,8 @@ public class BucketTests
 				FillType.Game,
 				null,
 				JsonDocument.Parse("[]"),
-				DateTime.UtcNow),
+				DateTime.UtcNow,
+				null),
 			new BucketEvent(
 				Guid.Parse("097cd6a5-8401-0000-0001-000080cd2019"),
 				command.BucketId,
@@ -47,7 +49,8 @@ public class BucketTests
 				FillType.Game,
 				null,
 				JsonDocument.Parse("[]"),
-				DateTime.UtcNow),
+				DateTime.UtcNow,
+				null),
 			new BucketEvent(
 				Guid.Parse("097cd8ff-8401-0000-0001-000080cd2019"),
 				command.BucketId,
@@ -60,7 +63,8 @@ public class BucketTests
 					FillType.Adjust,
 					null,
 					true).CreateJsonPatchDocument(),
-				DateTime.UtcNow)
+				DateTime.UtcNow,
+				null)
 		};
 		_ = fakeTgsRepository.GetBucketAllEventsAsync(Arg.Is(command.BucketId))
 			.Returns(allEvents.ToAsyncEnumerable());
@@ -111,7 +115,8 @@ public class BucketTests
 					1000M,
 					BucketType.Deposit,
 					null).CreateJsonPatchDocument(command.BucketId),
-				createdOn),
+				createdOn,
+				null),
 			new BucketEvent(
 				Guid.Parse("097c8e45-8401-0000-0001-000080cd2019"),
 				command.BucketId,
@@ -119,7 +124,8 @@ public class BucketTests
 				FillType.Game,
 				null,
 				JsonDocument.Parse("[]"),
-				createdOn),
+				createdOn,
+				null),
 			new BucketEvent(
 				Guid.Parse("097cd6a5-8401-0000-0001-000080cd2019"),
 				command.BucketId,
@@ -127,7 +133,8 @@ public class BucketTests
 				FillType.Game,
 				null,
 				JsonDocument.Parse("[]"),
-				createdOn),
+				createdOn,
+				null),
 			new BucketEvent(
 				Guid.Parse("097cd8ff-8401-0000-0001-000080cd2019"),
 				command.BucketId,
@@ -140,7 +147,8 @@ public class BucketTests
 					FillType.Adjust,
 					null,
 					true).CreateJsonPatchDocument(),
-				createdOn)
+				createdOn,
+				null)
 		};
 		_ = fakeTgsRepository.GetBucketAllEventsAsync(
 			Arg.Is(command.BucketId),
@@ -201,7 +209,8 @@ public class BucketTests
 					1000M,
 					BucketType.Deposit,
 					null).CreateJsonPatchDocument(command.BucketId),
-				DateTime.UtcNow),
+				DateTime.UtcNow,
+				null),
 			new BucketEvent(
 				Guid.Parse("097c8e45-8401-0000-0001-000080cd2019"),
 				command.BucketId,
@@ -209,7 +218,8 @@ public class BucketTests
 				FillType.Game,
 				null,
 				JsonDocument.Parse("[]"),
-				DateTime.UtcNow),
+				DateTime.UtcNow,
+				null),
 			new BucketEvent(
 				Guid.Parse("097cd6a5-8401-0000-0001-000080cd2019"),
 				command.BucketId,
@@ -217,7 +227,8 @@ public class BucketTests
 				FillType.Game,
 				null,
 				JsonDocument.Parse("[]"),
-				DateTime.UtcNow),
+				DateTime.UtcNow,
+				null),
 			new BucketEvent(
 				Guid.Parse("097cd8ff-8401-0000-0001-000080cd2019"),
 				command.BucketId,
@@ -230,7 +241,8 @@ public class BucketTests
 					FillType.Adjust,
 					null,
 					true).CreateJsonPatchDocument(),
-				DateTime.UtcNow)
+				DateTime.UtcNow,
+				null)
 		};
 		_ = fakeTgsRepository.GetBucketAllEventsAsync(
 			Arg.Is(command.BucketId),

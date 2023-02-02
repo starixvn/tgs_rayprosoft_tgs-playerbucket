@@ -55,7 +55,8 @@ internal class TgsRepository : ITgsRepository
 				Enum.Parse<FillType>(row.FillType),
 				row.ExternalId,
 				JsonDocument.Parse(row.ChangeSets),
-				row.CreatedOn));
+				row.CreatedOn,
+				row.Remark));
 
 	public IAsyncEnumerable<BucketEvent> QueryPlayerBucketHistoriesByIdAsync(
 		Guid bucketId,
@@ -71,7 +72,8 @@ internal class TgsRepository : ITgsRepository
 				Enum.Parse<FillType>(row.FillType),
 				row.ExternalId,
 				JsonDocument.Parse(row.ChangeSets),
-				row.CreatedOn));
+				row.CreatedOn,
+				row.Remark));
 
 	public IAsyncEnumerable<BucketEvent> QueryPlayerBucketHistoriesByDateAsync(
 		Guid bucketId,
@@ -90,6 +92,7 @@ internal class TgsRepository : ITgsRepository
 				Enum.Parse<FillType>(row.FillType),
 				row.ExternalId,
 				JsonDocument.Parse(row.ChangeSets),
-				row.CreatedOn));
+				row.CreatedOn,
+				row.Remark));
 	}
 }

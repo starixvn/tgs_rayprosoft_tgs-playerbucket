@@ -2,7 +2,12 @@
 
 public interface IBucketEventRepository
 {
-	ValueTask AddPlayerBucketAsync(Guid createId, Guid bucketId, BucketCreateInfo bucket, CancellationToken cancellationToken = default);
+	ValueTask AddPlayerBucketAsync(
+		Guid createId,
+		Guid bucketId,
+		BucketCreateInfo bucket,
+		string? remark,
+		CancellationToken cancellationToken = default);
 
 	IAsyncEnumerable<BucketEvent> GetBucketAllEventsAsync(Guid bucketId, Guid snapshotId, CancellationToken cancellationToken = default);
 
@@ -12,6 +17,7 @@ public interface IBucketEventRepository
 		Guid createId,
 		Guid bucketId,
 		FillInBucketInfo bucketInfo,
+		string? remark,
 		CancellationToken cancellationToken = default);
 
 	IAsyncEnumerable<BucketInfo> GetPlayerCreatedBucketsAsync(string playerCode, CancellationToken cancellationToken = default);

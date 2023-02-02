@@ -34,7 +34,8 @@ public class BucketEventProcessTests
 					FillType.Game,
 					Guid.NewGuid().ToString(),
 					JsonDocument.Parse("[]"),
-					DateTime.UtcNow)
+					DateTime.UtcNow,
+					null)
 			},
 			Array.Empty<BucketEvent>()
 		});

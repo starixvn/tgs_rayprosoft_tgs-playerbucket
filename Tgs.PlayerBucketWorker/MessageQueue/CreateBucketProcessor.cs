@@ -26,7 +26,7 @@ public class CreateBucketProcessor : IMessageProcessor
 			? null
 			: request.ExternalId;
 
-		var command = new CreateBucketCommand(amount, bucketType, externalId);
+		var command = new CreateBucketCommand(amount, bucketType, externalId, null);
 
 		await _bucketDispatcher.PushCommandAsync(
 			playerCode,

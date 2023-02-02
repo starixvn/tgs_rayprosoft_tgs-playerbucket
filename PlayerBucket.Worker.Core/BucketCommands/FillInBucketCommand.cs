@@ -5,13 +5,15 @@ public class FillInBucketCommand : IBucketCommand
 	private readonly decimal _amount;
 	private readonly FillType _type;
 	private readonly string? _externalId;
+	private readonly string? _remark;
 	private readonly TaskCompletionSource _taskCompletionSource = new();
 
-	public FillInBucketCommand(decimal amount, FillType type, string? externalId)
+	public FillInBucketCommand(decimal amount, FillType type, string? externalId, string? remark)
 	{
 		_amount = amount;
 		_type = type;
 		_externalId = externalId;
+		_remark = remark;
 	}
 
 	public async ValueTask ExecuteAsync(IBucketStore bucketStore, CancellationToken cancellationToken = default)
@@ -48,6 +50,7 @@ public class FillInBucketCommand : IBucketCommand
 			await bucketStore.FillInBucketAsync(
 				bucket,
 				fillInfo,
+				_remark,
 				cancellationToken).ConfigureAwait(false);
 		}
 

@@ -25,7 +25,7 @@ public class FillInBucketHandler : IMessageHandler
 			? null
 			: request.ExternalId;
 
-		var command = new FillInBucketCommand(amount, fillType, externalId);
+		var command = new FillInBucketCommand(amount, fillType, externalId, null);
 
 		await _bucketDispatcher.PushCommandAsync(
 			playerCode,

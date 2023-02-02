@@ -36,6 +36,8 @@ namespace Tgs.PlayerBuckets.DatabaseAccess.Entities.Configurations
 
             entity.Property(e => e.FillType).HasColumnName("fill_type");
 
+            entity.Property(e => e.Remark).HasColumnName("remark");
+
             OnConfigurePartial(entity);
         }
 

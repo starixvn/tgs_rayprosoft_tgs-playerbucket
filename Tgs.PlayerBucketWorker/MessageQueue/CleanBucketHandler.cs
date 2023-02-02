@@ -18,7 +18,7 @@ public class CleanBucketHandler : IMessageHandler
 	{
 		var request = CleanBucketRequest.Parser.ParseFrom(data.Span);
 
-		var command = new CleanBucketsCommand(request.AnchorBucketId, request.ExternalId);
+		var command = new CleanBucketsCommand(request.AnchorBucketId, request.ExternalId, null);
 
 		await _bucketDispatcher.PushCommandAsync(
 			request.PlayerCode,

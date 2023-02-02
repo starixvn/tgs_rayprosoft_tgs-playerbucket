@@ -71,6 +71,7 @@ public class CreateBucketTests
 				Arg.Any<Guid>(),
 				Arg.Is(createdId),
 				Arg.Any<BucketCreateInfo>(),
+				Arg.Any<string>(),
 				Arg.Any<CancellationToken>());
 	}
 
@@ -146,6 +147,7 @@ public class CreateBucketTests
 				Arg.Any<Guid>(),
 				Arg.Is(bucketId),
 				Arg.Is(expected),
+				Arg.Any<string>(),
 				Arg.Any<CancellationToken>());
 	}
 
