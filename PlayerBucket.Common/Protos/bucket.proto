@@ -1,4 +1,4 @@
-syntax = "proto3";
+﻿syntax = "proto3";
 
 option csharp_namespace = "Tgs.Services.PlayerBucket.Protos";
 
@@ -22,6 +22,7 @@ message CreateBucketRequest {
 	phoenix.protobuf.DecimalValue amount = 2;
 	string bucket_type = 3;
 	string external_id = 4;
+	string remark = 5;
 }
 
 message CreateBucketResponse {
@@ -33,6 +34,7 @@ message FillInRequest {
 	phoenix.protobuf.DecimalValue amount = 2;
 	string fill_type = 3;
 	string external_id = 4;
+	string remark = 5;
 }
 
 message SnapshotRequest {
@@ -57,4 +59,5 @@ message CleanBucketRequest {
 	string player_code = 1;
 	phoenix.protobuf.GuidValue anchor_bucket_id = 2;
 	string external_id = 3;
+	string remark = 4;
 }
