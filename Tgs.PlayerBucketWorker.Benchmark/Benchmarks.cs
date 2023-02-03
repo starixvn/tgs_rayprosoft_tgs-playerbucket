@@ -42,6 +42,11 @@ public class Benchmarks
 	public async Task Scenario1Async()
 	{
 		for (int i = 0; i < 100; i++)
-			await _playerBucketClient.FillInBucketAsync(_playerCode, 1M, FillType.Game, Guid.NewGuid().ToString());
+			await _playerBucketClient.FillInBucketAsync(
+				_playerCode,
+				1M,
+				FillType.Game,
+				Guid.NewGuid().ToString(),
+				null);
 	}
 }

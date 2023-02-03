@@ -54,7 +54,8 @@ var bucketScenario = Scenario.Create("Bucket Test",
 			playerCode,
 			1M,
 			FillType.Game,
-			Guid.NewGuid().ToString()).ConfigureAwait(false);
+			Guid.NewGuid().ToString(),
+			null).ConfigureAwait(false);
 
 		return Response.Ok();
 	})

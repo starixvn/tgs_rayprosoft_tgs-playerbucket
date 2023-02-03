@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tgs.SerialNumberGenerator;
 using Tgs.Service.PlayerBuckets;
@@ -48,40 +47,6 @@ public class BucketCounterTests
 			NullLogger<BucketCounter>.Instance);
 
 		var externalId = Guid.NewGuid().ToString();
-		var command = new CreateBucketCommand(100M, BucketType.Deposit, externalId, null);
-
-		var expected = new BucketCreateInfo("test1", 100M, BucketType.Deposit, externalId);
-
-		await sut.PrepareAsync();
-		await sut.PushCommandAsync(command);
-
-		_ = await command.GetCreatedIdAsync().WaitAsync(TimeSpan.FromSeconds(1D));
-
-		_ = fakeBucketEventRepository.Received(1)
-			.AddPlayerBucketAsync(
-				Arg.Any<Guid>(),
-				Arg.Any<Guid>(),
-				Arg.Is(expected),
-				Arg.Any<string>(),
-				Arg.Any<CancellationToken>());
-	}
-
-	[TestMethod]
-	public async Task BucketCounter_執行建立Bucket_帶入Remark()
-	{
-		var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();
-		var fakeTgsRepository = Substitute.For<ITgsRepository>();
-		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
-
-		var sut = new BucketCounter(
-			"test1",
-			fakeSerialNumberGenerator,
-			fakeTgsRepository,
-			fakeBucketEventRepository,
-			Substitute.For<IEventSource>(),
-			NullLogger<BucketCounter>.Instance);
-
-		var externalId = Guid.NewGuid().ToString();
 		var command = new CreateBucketCommand(100M, BucketType.Deposit, externalId, "test");
 
 		var expected = new BucketCreateInfo("test1", 100M, BucketType.Deposit, externalId);
@@ -96,7 +61,7 @@ public class BucketCounterTests
 				Arg.Any<Guid>(),
 				Arg.Any<Guid>(),
 				Arg.Is(expected),
-				Arg.Is<string>("test"),
+				Arg.Is("test"),
 				Arg.Any<CancellationToken>());
 	}
 
@@ -116,7 +81,7 @@ public class BucketCounterTests
 			NullLogger<BucketCounter>.Instance);
 
 		var externalId = Guid.NewGuid().ToString();
-		var command = new FillInBucketCommand(100M, FillType.Game, externalId, null);
+		var command = new FillInBucketCommand(100M, FillType.Game, externalId, "remark");
 
 		var expected = new FillInBucketInfo("test1", 100M, FillType.Game, externalId, false);
 
@@ -145,7 +110,7 @@ public class BucketCounterTests
 				Arg.Any<Guid>(),
 				Arg.Any<Guid>(),
 				Arg.Is(expected),
-				Arg.Any<string>(),
+				Arg.Is("remark"),
 				Arg.Any<CancellationToken>());
 	}
 

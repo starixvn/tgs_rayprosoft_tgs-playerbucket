@@ -1,7 +1,6 @@
 ﻿extern alias Client;
 extern alias Server;
 
-using System.Diagnostics;
 using Client::Tgs.PlayerBucket.Clients;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +17,7 @@ using Tgs.Service.PlayerBuckets;
 namespace Tgs.PlayerBucketWorker.IntegrationTests;
 
 [TestClass]
-public class CreateBucketTests
+public class BucketTests
 {
 	[TestMethod]
 	public async Task CreateBucketProcessor_建立一個Bucket()
@@ -86,6 +85,7 @@ public class CreateBucketTests
 		var amount = 100M;
 		var fillType = FillType.Game;
 		var externalId = Guid.NewGuid().ToString();
+		var remark = "remark";
 
 		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
 
@@ -132,7 +132,7 @@ public class CreateBucketTests
 		var expected = new FillInBucketInfo(
 			playerCode,
 			amount,
-			Service.PlayerBuckets.FillType.Game,
+			FillType.Game,
 			externalId,
 			true);
 
@@ -142,14 +142,14 @@ public class CreateBucketTests
 			BucketType.Deposit,
 			externalId,
 			null);
-		await client.FillInBucketAsync(playerCode, amount, fillType, externalId);
+		await client.FillInBucketAsync(playerCode, amount, fillType, externalId, remark);
 
 		_ = fakeBucketEventRepository.Received(1)
 			.FillInBucketAsync(
 				Arg.Any<Guid>(),
 				Arg.Is(bucketId),
 				Arg.Is(expected),
-				Arg.Any<string>(),
+				Arg.Is(remark),
 				Arg.Any<CancellationToken>());
 	}
 
