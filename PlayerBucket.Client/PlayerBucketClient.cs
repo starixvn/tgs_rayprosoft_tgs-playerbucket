@@ -111,13 +111,15 @@ internal class PlayerBucketClient : IPlayerBucketClient
 		string playerCode,
 		Guid anchorBucketId,
 		string? externalId,
+		string? remark,
 		CancellationToken cancellationToken = default)
 	{
 		var request = new CleanBucketRequest
 		{
 			PlayerCode = playerCode,
 			AnchorBucketId = anchorBucketId,
-			ExternalId = externalId ?? string.Empty
+			ExternalId = externalId ?? string.Empty,
+			Remark = remark ?? string.Empty
 		};
 
 		await _messageSender

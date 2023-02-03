@@ -115,6 +115,95 @@ public class BucketCounterTests
 	}
 
 	[TestMethod]
+	public async Task BucketCounter_執行清除Bucket_可以記錄Remark()
+	{
+		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
+
+		var sut = new BucketCounter(
+			"test1",
+			Substitute.For<ISerialNumberGenerator>(),
+			fakeTgsRepository,
+			fakeBucketEventRepository,
+			Substitute.For<IEventSource>(),
+			NullLogger<BucketCounter>.Instance);
+
+		var buckets = new Queue<BucketInfo>(new[]
+		{
+			new BucketInfo(
+				Guid.Parse("0985a64a-8401-0000-0001-000080cd2019"),
+				"test1",
+				100M,
+				BucketType.Deposit,
+				10M,
+				false,
+				DateTime.Now,
+				null),
+			new BucketInfo(
+				Guid.Parse("0987b455-8401-0000-0001-000080cd2019"),
+				"test1",
+				100M,
+				BucketType.Deposit,
+				30M,
+				false,
+				DateTime.Now,
+				null),
+			new BucketInfo(
+				Guid.Parse("098bb7eb-8401-0000-0001-000080cd2019"),
+				"test1",
+				100M,
+				BucketType.Deposit,
+				40M,
+				false,
+				DateTime.Now,
+				null)
+		});
+
+		_ = fakeTgsRepository.GetPlayerNotFullBucketsAsync(
+			Arg.Is("test1"),
+			Arg.Any<CancellationToken>())
+			.Returns(buckets.ToAsyncEnumerable());
+
+		_ = fakeTgsRepository.GetHasMigrateAsync(Arg.Is("test1"), Arg.Any<CancellationToken>())
+			.Returns(true);
+
+		var anchorId = Guid.Parse("0987b455-8401-0000-0001-000080cd2019");
+
+		await sut.PrepareAsync();
+
+		var firstGetCommand = new ReadBucketAmountCommand();
+
+		await sut.PushCommandAsync(firstGetCommand);
+
+		_ = await firstGetCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
+
+		var cleanCommand = new CleanBucketsCommand(anchorId, Guid.NewGuid().ToString(), "remark");
+
+		await sut.PushCommandAsync(cleanCommand);
+
+		var summaryGetCommand = new ReadBucketAmountCommand();
+
+		await sut.PushCommandAsync(summaryGetCommand);
+
+		_ = await summaryGetCommand.GetAmountAsync();
+
+		_ = fakeBucketEventRepository.Received(1)
+			.FillInBucketAsync(
+				Arg.Any<Guid>(),
+				Arg.Is(Guid.Parse("0985a64a-8401-0000-0001-000080cd2019")),
+				Arg.Any<FillInBucketInfo>(),
+				Arg.Is("remark"),
+				Arg.Any<CancellationToken>());
+		_ = fakeBucketEventRepository.Received(1)
+			.FillInBucketAsync(
+				Arg.Any<Guid>(),
+				Arg.Is(Guid.Parse("0987b455-8401-0000-0001-000080cd2019")),
+				Arg.Any<FillInBucketInfo>(),
+				Arg.Is("remark"),
+				Arg.Any<CancellationToken>());
+	}
+
+	[TestMethod]
 	public async Task BucketCounter_填充Bucket_填充到滿後就不會再填充()
 	{
 		var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();

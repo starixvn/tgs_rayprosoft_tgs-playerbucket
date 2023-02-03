@@ -197,4 +197,95 @@ public class BucketTests
 
 		Assert.AreEqual(0M, actual.Amount);
 	}
+
+	[TestMethod]
+	public async Task CleanBucketHandler_清除Buckets()
+	{
+		var fakeClientMessageSender = Substitute.For<IMessageSender>();
+		var client = new PlayerBucketClient(new HttpClient(), fakeClientMessageSender);
+
+		var playerCode = "test1";
+		var amount = 100M;
+		var externalId = Guid.NewGuid().ToString();
+		var remark = "remark";
+
+		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
+
+		await using var web = PlayerBucketWorkerTestHost.Instance
+			.WithWebHostBuilder(hostBuilder => hostBuilder
+				.ConfigureServices(services => services
+					.AddFakeNatsMessageQueue()
+					.Replace(ServiceDescriptor.Singleton(sp =>
+					{
+						var dbContextOptionsBuilder = new DbContextOptionsBuilder<TgsContext>();
+						_ = dbContextOptionsBuilder
+							.UseInMemoryDatabase(Guid.NewGuid().ToString())
+							.ConfigureWarnings(x => x.Ignore(
+								InMemoryEventId.TransactionIgnoredWarning));
+
+						return new TgsContext(dbContextOptionsBuilder.Options);
+					}))
+					.Replace(ServiceDescriptor.Singleton(fakeBucketEventRepository))));
+
+		_ = fakeClientMessageSender.RequestAsync(
+			Arg.Is("tgs.bucket.create"),
+			Arg.Any<ReadOnlyMemory<byte>>())
+			.Returns(callInfo =>
+			{
+				var data = callInfo.Arg<ReadOnlyMemory<byte>>();
+
+				var processor = ActivatorUtilities.CreateInstance<CreateBucketProcessor>(web.Services);
+
+				return processor.HandleAsync(data);
+			});
+
+		_ = fakeClientMessageSender.SendAsync(
+			Arg.Is("tgs.bucket.clean"),
+			Arg.Any<ReadOnlyMemory<byte>>())
+			.Returns(callInfo =>
+			{
+				var data = callInfo.Arg<ReadOnlyMemory<byte>>();
+
+				var processor = ActivatorUtilities.CreateInstance<CleanBucketHandler>(web.Services);
+
+				return processor.HandleAsync(data);
+			});
+
+		_ = fakeClientMessageSender.RequestAsync(
+			Arg.Is("tgs.bucket.amount"),
+			Arg.Any<ReadOnlyMemory<byte>>())
+			.Returns(callInfo =>
+			{
+				var data = callInfo.Arg<ReadOnlyMemory<byte>>();
+
+				var processor = ActivatorUtilities.CreateInstance<GetBucketAmountProcessor>(web.Services);
+
+				return processor.HandleAsync(data);
+			});
+
+		var expected = new FillInBucketInfo(
+			playerCode,
+			amount,
+			FillType.CleanUp,
+			externalId,
+			true);
+
+		var bucketId = await client.CreateBucketAsync(
+			playerCode,
+			amount,
+			BucketType.Deposit,
+			externalId,
+			remark);
+
+		await client.CleanBucketsAsync(playerCode, bucketId, externalId, remark);
+		_ = await client.ReadBucketsAsync(playerCode);
+
+		_ = fakeBucketEventRepository.Received(1)
+			.FillInBucketAsync(
+				Arg.Any<Guid>(),
+				Arg.Is(bucketId),
+				Arg.Is(expected),
+				Arg.Is(remark),
+				Arg.Any<CancellationToken>());
+	}
 }
