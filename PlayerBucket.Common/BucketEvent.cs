@@ -8,4 +8,5 @@ public record BucketEvent(
 	FillType Type,
 	string? ExternalId,
 	JsonDocument ChangeSets,
-	DateTime CreatedOn);
+	DateTime CreatedOn,
+	string? Remark);

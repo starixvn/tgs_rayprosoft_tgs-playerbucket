@@ -22,6 +22,7 @@ internal class PlayerBucketClient : IPlayerBucketClient
 		decimal amount,
 		BucketType type,
 		string? externalId,
+		string? remark,
 		CancellationToken cancellationToken = default)
 	{
 		var request = new CreateBucketRequest
@@ -29,7 +30,8 @@ internal class PlayerBucketClient : IPlayerBucketClient
 			PlayerCode = playerCode,
 			Amount = amount,
 			BucketType = type.ToString(),
-			ExternalId = externalId ?? string.Empty
+			ExternalId = externalId ?? string.Empty,
+			Remark = remark ?? string.Empty,
 		};
 
 		var result = await _messageSender
@@ -51,6 +53,7 @@ internal class PlayerBucketClient : IPlayerBucketClient
 		decimal amount,
 		FillType type,
 		string? externalId,
+		string? remark,
 		CancellationToken cancellationToken = default)
 	{
 		var request = new FillInRequest
@@ -58,7 +61,8 @@ internal class PlayerBucketClient : IPlayerBucketClient
 			PlayerCode = playerCode,
 			Amount = amount,
 			FillType = type.ToString(),
-			ExternalId = externalId ?? string.Empty
+			ExternalId = externalId ?? string.Empty,
+			Remark = remark ?? string.Empty
 		};
 
 		await _messageSender
@@ -107,13 +111,15 @@ internal class PlayerBucketClient : IPlayerBucketClient
 		string playerCode,
 		Guid anchorBucketId,
 		string? externalId,
+		string? remark,
 		CancellationToken cancellationToken = default)
 	{
 		var request = new CleanBucketRequest
 		{
 			PlayerCode = playerCode,
 			AnchorBucketId = anchorBucketId,
-			ExternalId = externalId ?? string.Empty
+			ExternalId = externalId ?? string.Empty,
+			Remark = remark ?? string.Empty
 		};
 
 		await _messageSender

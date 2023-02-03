@@ -112,7 +112,12 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 		}
 	}
 
-	async ValueTask<Guid> IBucketStore.CreateBucketAsync(decimal amount, BucketType type, string? externalId, CancellationToken cancellationToken)
+	async ValueTask<Guid> IBucketStore.CreateBucketAsync(
+		decimal amount,
+		BucketType type,
+		string? externalId,
+		string? remark,
+		CancellationToken cancellationToken)
 	{
 		var createId = await _serialNumberGenerator
 			.GenerateAsync(cancellationToken)
@@ -129,6 +134,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 				amount,
 				type,
 				externalId),
+			remark,
 			cancellationToken).ConfigureAwait(false);
 
 		_buckets.Add(new BucketInfo(
@@ -185,7 +191,11 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 		return _buckets[0];
 	}
 
-	async ValueTask IBucketStore.FillInBucketAsync(BucketInfo bucket, FillInBucketInfo fillInInfo, CancellationToken cancellationToken)
+	async ValueTask IBucketStore.FillInBucketAsync(
+		BucketInfo bucket,
+		FillInBucketInfo fillInInfo,
+		string? remark,
+		CancellationToken cancellationToken)
 	{
 		var newEventId = await _serialNumberGenerator
 			.GenerateAsync(cancellationToken)
@@ -195,6 +205,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 			newEventId,
 			bucket.Id,
 			fillInInfo,
+			remark,
 			cancellationToken).ConfigureAwait(false);
 
 		var newBucket = fillInInfo.ApplyPatch(bucket) with
@@ -218,7 +229,11 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 		return ValueTask.FromResult(new ReadBucketResult(_bucketAmount, _buckets.LastOrDefault()?.Id));
 	}
 
-	async ValueTask IBucketStore.CleanUpBucketsAsync(Guid anchorBucketId, string? externalId, CancellationToken cancellationToken)
+	async ValueTask IBucketStore.CleanUpBucketsAsync(
+		Guid anchorBucketId,
+		string? externalId,
+		string? remark,
+		CancellationToken cancellationToken)
 	{
 		await foreach (var bucket in IterateNotFullBucketsAsync(cancellationToken))
 		{
@@ -237,6 +252,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 			await ((IBucketStore)this).FillInBucketAsync(
 				bucket,
 				fillInfo,
+				remark,
 				cancellationToken).ConfigureAwait(false);
 		}
 	}
@@ -325,7 +341,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 		_bucketAmount = 0M;
 		_buckets.Clear();
 
-		var createCommand = new CreateBucketCommand(amount, BucketType.Migrate, null);
+		var createCommand = new CreateBucketCommand(amount, BucketType.Migrate, null, null);
 
 		await PushCommandAsync(
 			createCommand,

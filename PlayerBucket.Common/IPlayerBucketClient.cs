@@ -7,6 +7,7 @@ public interface IPlayerBucketClient
 		decimal amount,
 		BucketType type,
 		string? externalId,
+		string? remark,
 		CancellationToken cancellationToken = default);
 
 	ValueTask FillInBucketAsync(
@@ -14,6 +15,7 @@ public interface IPlayerBucketClient
 		decimal amount,
 		FillType type,
 		string? externalId,
+		string? remark,
 		CancellationToken cancellationToken = default);
 
 	ValueTask SnapshotBucketAsync(
@@ -27,6 +29,7 @@ public interface IPlayerBucketClient
 		string playerCode,
 		Guid anchorBucketId,
 		string? externalId,
+		string? remark,
 		CancellationToken cancellationToken = default);
 
 	IAsyncEnumerable<BucketInfo> GetBucketsByPlayerCodeAsync(string playerCode, CancellationToken cancellationToken = default);

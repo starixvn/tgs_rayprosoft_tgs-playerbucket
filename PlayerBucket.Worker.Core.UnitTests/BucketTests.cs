@@ -12,7 +12,7 @@ public class BucketTests
 	public async Task CreateBucketCommand_建立Bucket()
 	{
 		var externalId = Guid.NewGuid().ToString();
-		var sut = new CreateBucketCommand(100M, BucketType.Deposit, externalId);
+		var sut = new CreateBucketCommand(100M, BucketType.Deposit, externalId, null);
 
 		var fakeBucketStore = Substitute.For<IBucketStore>();
 
@@ -22,14 +22,15 @@ public class BucketTests
 			.CreateBucketAsync(
 				Arg.Is(100M),
 				Arg.Is(BucketType.Deposit),
-				Arg.Is(externalId));
+				Arg.Is(externalId),
+				Arg.Any<string>());
 	}
 
 	[TestMethod]
 	public async Task FillInBucketCommand_填充Bucket_當Bucket的容量大於等於填充容量時_只會填充一次()
 	{
 		var externalId = Guid.NewGuid().ToString();
-		var sut = new FillInBucketCommand(100M, FillType.Game, externalId);
+		var sut = new FillInBucketCommand(100M, FillType.Game, externalId, null);
 
 		var fakeBucketStore = Substitute.For<IBucketStore>();
 
@@ -63,14 +64,15 @@ public class BucketTests
 		_ = fakeBucketStore.Received(1)
 			.FillInBucketAsync(
 				Arg.Is(bucket),
-				Arg.Is(expectedFillInfo));
+				Arg.Is(expectedFillInfo),
+				Arg.Any<string>());
 	}
 
 	[TestMethod]
 	public async Task FillInBucketCommand_填充Bucket_當Bucket的容量小於填充容量時_會找下一個Bucket填充()
 	{
 		var externalId = Guid.NewGuid().ToString();
-		var sut = new FillInBucketCommand(100M, FillType.Game, externalId);
+		var sut = new FillInBucketCommand(100M, FillType.Game, externalId, null);
 
 		var fakeBucketStore = Substitute.For<IBucketStore>();
 
@@ -115,7 +117,8 @@ public class BucketTests
 		_ = fakeBucketStore.Received(1)
 			.FillInBucketAsync(
 				Arg.Is(firstBucket),
-				Arg.Is(expectedFillInfo));
+				Arg.Is(expectedFillInfo),
+				Arg.Any<string>());
 
 		_ = fakeBucketStore.Received(1)
 			.FillInBucketAsync(
@@ -124,14 +127,15 @@ public class BucketTests
 				{
 					Amount = 60M,
 					SetFull = false
-				}));
+				}),
+				Arg.Any<string>());
 	}
 
 	[TestMethod]
 	public async Task FillInBucketCommand_填充Bucket_如果沒有可以填充的Bucket_會結束填充()
 	{
 		var externalId = Guid.NewGuid().ToString();
-		var sut = new FillInBucketCommand(100M, FillType.Game, externalId);
+		var sut = new FillInBucketCommand(100M, FillType.Game, externalId, null);
 
 		var fakeBucketStore = Substitute.For<IBucketStore>();
 
@@ -145,7 +149,8 @@ public class BucketTests
 		_ = fakeBucketStore.Received(0)
 			.FillInBucketAsync(
 				Arg.Any<BucketInfo>(),
-				Arg.Any<FillInBucketInfo>());
+				Arg.Any<FillInBucketInfo>(),
+				Arg.Any<string>());
 	}
 
 	[TestMethod]
@@ -225,7 +230,7 @@ public class BucketTests
 		var anchorBucketId = Guid.Parse("0985a64a-8401-0000-0001-000080cd2019");
 		var externalId = Guid.NewGuid().ToString();
 
-		var sut = new CleanBucketsCommand(anchorBucketId, externalId);
+		var sut = new CleanBucketsCommand(anchorBucketId, externalId, null);
 
 		var fakeBucketStore = Substitute.For<IBucketStore>();
 
@@ -234,6 +239,7 @@ public class BucketTests
 		_ = fakeBucketStore.Received(1)
 			.CleanUpBucketsAsync(
 				Arg.Is(anchorBucketId),
-				 Arg.Is(externalId));
+				Arg.Is(externalId),
+				Arg.Any<string>());
 	}
 }

@@ -30,13 +30,23 @@ public class Benchmarks
 
 		_playerBucketClient = _host.Services.GetRequiredService<IPlayerBucketClient>();
 
-		_playerBucketClient.CreateBucketAsync(_playerCode, 101M, BucketType.Deposit, Guid.NewGuid().ToString()).AsTask().Wait();
+		_playerBucketClient.CreateBucketAsync(
+			_playerCode,
+			101M,
+			BucketType.Deposit,
+			Guid.NewGuid().ToString(),
+			null).AsTask().Wait();
 	}
 
 	[Benchmark(Baseline = true)]
 	public async Task Scenario1Async()
 	{
 		for (int i = 0; i < 100; i++)
-			await _playerBucketClient.FillInBucketAsync(_playerCode, 1M, FillType.Game, Guid.NewGuid().ToString());
+			await _playerBucketClient.FillInBucketAsync(
+				_playerCode,
+				1M,
+				FillType.Game,
+				Guid.NewGuid().ToString(),
+				null);
 	}
 }

@@ -24,8 +24,11 @@ public class FillInBucketHandler : IMessageHandler
 		var externalId = string.IsNullOrWhiteSpace(request.ExternalId)
 			? null
 			: request.ExternalId;
+		var remark = string.IsNullOrWhiteSpace(request.Remark)
+			? null
+			: request.Remark;
 
-		var command = new FillInBucketCommand(amount, fillType, externalId);
+		var command = new FillInBucketCommand(amount, fillType, externalId, remark);
 
 		await _bucketDispatcher.PushCommandAsync(
 			playerCode,

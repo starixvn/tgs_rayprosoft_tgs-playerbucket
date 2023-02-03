@@ -92,12 +92,12 @@ public class BucketDispatcherTests
 		_ = fakeServiceProvider.GetService<ILogger<BucketCounter>>()
 			.Returns(NullLogger<BucketCounter>.Instance);
 
-		var createCommand = new CreateBucketCommand(30M, BucketType.Deposit, null);
+		var createCommand = new CreateBucketCommand(30M, BucketType.Deposit, null, null);
 
-		var command1 = new FillInBucketCommand(10M, FillType.Game, null);
-		var command2 = new FillInBucketCommand(10M, FillType.Game, null);
-		var command3 = new FillInBucketCommand(10M, FillType.Game, null);
-		var command4 = new FillInBucketCommand(10M, FillType.Game, null);
+		var command1 = new FillInBucketCommand(10M, FillType.Game, null, null);
+		var command2 = new FillInBucketCommand(10M, FillType.Game, null, null);
+		var command3 = new FillInBucketCommand(10M, FillType.Game, null, null);
+		var command4 = new FillInBucketCommand(10M, FillType.Game, null, null);
 
 		var createExpected = new BucketCreateInfo("test1", 30M, BucketType.Deposit, null);
 		var fillExpected = new FillInBucketInfo("test1", 10M, FillType.Game, null, false);
@@ -119,18 +119,21 @@ public class BucketDispatcherTests
 				Arg.Any<Guid>(),
 				Arg.Any<Guid>(),
 				Arg.Is(createExpected),
+				Arg.Any<string>(),
 				Arg.Any<CancellationToken>());
 		_ = fakeBucketEventRepository.Received(2)
 			.FillInBucketAsync(
 				Arg.Any<Guid>(),
 				Arg.Any<Guid>(),
 				Arg.Is(fillExpected),
+				Arg.Any<string>(),
 				Arg.Any<CancellationToken>());
 		_ = fakeBucketEventRepository.Received(1)
 			.FillInBucketAsync(
 				Arg.Any<Guid>(),
 				Arg.Any<Guid>(),
 				Arg.Is(fillExpected with { SetFull = true }),
+				Arg.Any<string>(),
 				Arg.Any<CancellationToken>());
 	}
 }

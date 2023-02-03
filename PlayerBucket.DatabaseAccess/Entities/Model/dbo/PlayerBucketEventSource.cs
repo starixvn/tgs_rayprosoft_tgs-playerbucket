@@ -14,5 +14,6 @@ namespace Tgs.PlayerBuckets.DatabaseAccess.Entities
         public DateTime CreatedOn { get; set; }
         public string? ExternalId { get; set; }
         public string FillType { get; set; } = null!;
+        public string? Remark { get; set; }
     }
 }

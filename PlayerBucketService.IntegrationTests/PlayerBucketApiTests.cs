@@ -336,7 +336,8 @@ public class PlayerBucketApiTests
 			FillType.Deposit,
 			null,
 			JsonDocument.Parse("[]"),
-			createdOn);
+			createdOn,
+			null);
 
 		// Act
 		var actual = await sut.GetBucketEventsAsync(bucketId).ToArrayAsync();

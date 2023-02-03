@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Tgs.SerialNumberGenerator;
 using Tgs.Service.PlayerBuckets;
@@ -48,7 +47,7 @@ public class BucketCounterTests
 			NullLogger<BucketCounter>.Instance);
 
 		var externalId = Guid.NewGuid().ToString();
-		var command = new CreateBucketCommand(100M, BucketType.Deposit, externalId);
+		var command = new CreateBucketCommand(100M, BucketType.Deposit, externalId, "test");
 
 		var expected = new BucketCreateInfo("test1", 100M, BucketType.Deposit, externalId);
 
@@ -62,6 +61,7 @@ public class BucketCounterTests
 				Arg.Any<Guid>(),
 				Arg.Any<Guid>(),
 				Arg.Is(expected),
+				Arg.Is("test"),
 				Arg.Any<CancellationToken>());
 	}
 
@@ -81,7 +81,7 @@ public class BucketCounterTests
 			NullLogger<BucketCounter>.Instance);
 
 		var externalId = Guid.NewGuid().ToString();
-		var command = new FillInBucketCommand(100M, FillType.Game, externalId);
+		var command = new FillInBucketCommand(100M, FillType.Game, externalId, "remark");
 
 		var expected = new FillInBucketInfo("test1", 100M, FillType.Game, externalId, false);
 
@@ -110,6 +110,96 @@ public class BucketCounterTests
 				Arg.Any<Guid>(),
 				Arg.Any<Guid>(),
 				Arg.Is(expected),
+				Arg.Is("remark"),
+				Arg.Any<CancellationToken>());
+	}
+
+	[TestMethod]
+	public async Task BucketCounter_執行清除Bucket_可以記錄Remark()
+	{
+		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
+
+		var sut = new BucketCounter(
+			"test1",
+			Substitute.For<ISerialNumberGenerator>(),
+			fakeTgsRepository,
+			fakeBucketEventRepository,
+			Substitute.For<IEventSource>(),
+			NullLogger<BucketCounter>.Instance);
+
+		var buckets = new Queue<BucketInfo>(new[]
+		{
+			new BucketInfo(
+				Guid.Parse("0985a64a-8401-0000-0001-000080cd2019"),
+				"test1",
+				100M,
+				BucketType.Deposit,
+				10M,
+				false,
+				DateTime.Now,
+				null),
+			new BucketInfo(
+				Guid.Parse("0987b455-8401-0000-0001-000080cd2019"),
+				"test1",
+				100M,
+				BucketType.Deposit,
+				30M,
+				false,
+				DateTime.Now,
+				null),
+			new BucketInfo(
+				Guid.Parse("098bb7eb-8401-0000-0001-000080cd2019"),
+				"test1",
+				100M,
+				BucketType.Deposit,
+				40M,
+				false,
+				DateTime.Now,
+				null)
+		});
+
+		_ = fakeTgsRepository.GetPlayerNotFullBucketsAsync(
+			Arg.Is("test1"),
+			Arg.Any<CancellationToken>())
+			.Returns(buckets.ToAsyncEnumerable());
+
+		_ = fakeTgsRepository.GetHasMigrateAsync(Arg.Is("test1"), Arg.Any<CancellationToken>())
+			.Returns(true);
+
+		var anchorId = Guid.Parse("0987b455-8401-0000-0001-000080cd2019");
+
+		await sut.PrepareAsync();
+
+		var firstGetCommand = new ReadBucketAmountCommand();
+
+		await sut.PushCommandAsync(firstGetCommand);
+
+		_ = await firstGetCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
+
+		var cleanCommand = new CleanBucketsCommand(anchorId, Guid.NewGuid().ToString(), "remark");
+
+		await sut.PushCommandAsync(cleanCommand);
+
+		var summaryGetCommand = new ReadBucketAmountCommand();
+
+		await sut.PushCommandAsync(summaryGetCommand);
+
+		_ = await summaryGetCommand.GetAmountAsync();
+
+		_ = fakeBucketEventRepository.Received(1)
+			.FillInBucketAsync(
+				Arg.Any<Guid>(),
+				Arg.Is(Guid.Parse("0985a64a-8401-0000-0001-000080cd2019")),
+				Arg.Any<FillInBucketInfo>(),
+				Arg.Is("remark"),
+				Arg.Any<CancellationToken>());
+		_ = fakeBucketEventRepository.Received(1)
+			.FillInBucketAsync(
+				Arg.Any<Guid>(),
+				Arg.Is(Guid.Parse("0987b455-8401-0000-0001-000080cd2019")),
+				Arg.Any<FillInBucketInfo>(),
+				Arg.Is("remark"),
 				Arg.Any<CancellationToken>());
 	}
 
@@ -129,10 +219,10 @@ public class BucketCounterTests
 			NullLogger<BucketCounter>.Instance);
 
 		var externalId = Guid.NewGuid().ToString();
-		var command1 = new FillInBucketCommand(10M, FillType.Game, externalId);
-		var command2 = new FillInBucketCommand(10M, FillType.Game, externalId);
-		var command3 = new FillInBucketCommand(10M, FillType.Game, externalId);
-		var command4 = new FillInBucketCommand(10M, FillType.Game, externalId);
+		var command1 = new FillInBucketCommand(10M, FillType.Game, externalId, null);
+		var command2 = new FillInBucketCommand(10M, FillType.Game, externalId, null);
+		var command3 = new FillInBucketCommand(10M, FillType.Game, externalId, null);
+		var command4 = new FillInBucketCommand(10M, FillType.Game, externalId, null);
 
 		var expected = new FillInBucketInfo("test1", 10M, FillType.Game, externalId, false);
 
@@ -167,12 +257,14 @@ public class BucketCounterTests
 				Arg.Any<Guid>(),
 				Arg.Any<Guid>(),
 				Arg.Is(expected),
+				Arg.Any<string>(),
 				Arg.Any<CancellationToken>());
 		_ = fakeBucketEventRepository.Received(1)
 			.FillInBucketAsync(
 				Arg.Any<Guid>(),
 				Arg.Any<Guid>(),
 				Arg.Is(expected with { SetFull = true }),
+				Arg.Any<string>(),
 				Arg.Any<CancellationToken>());
 	}
 
@@ -192,11 +284,11 @@ public class BucketCounterTests
 			NullLogger<BucketCounter>.Instance);
 
 		var externalId = Guid.NewGuid().ToString();
-		var createCommand = new CreateBucketCommand(30M, BucketType.Deposit, externalId);
-		var command1 = new FillInBucketCommand(10M, FillType.Game, externalId);
-		var command2 = new FillInBucketCommand(10M, FillType.Game, externalId);
-		var command3 = new FillInBucketCommand(10M, FillType.Game, externalId);
-		var command4 = new FillInBucketCommand(10M, FillType.Game, externalId);
+		var createCommand = new CreateBucketCommand(30M, BucketType.Deposit, externalId, null);
+		var command1 = new FillInBucketCommand(10M, FillType.Game, externalId, null);
+		var command2 = new FillInBucketCommand(10M, FillType.Game, externalId, null);
+		var command3 = new FillInBucketCommand(10M, FillType.Game, externalId, null);
+		var command4 = new FillInBucketCommand(10M, FillType.Game, externalId, null);
 
 		var createExpected = new BucketCreateInfo("test1", 30M, BucketType.Deposit, externalId);
 		var fillExpected = new FillInBucketInfo("test1", 10M, FillType.Game, externalId, false);
@@ -219,18 +311,21 @@ public class BucketCounterTests
 				Arg.Any<Guid>(),
 				Arg.Any<Guid>(),
 				Arg.Is(createExpected),
+				Arg.Any<string>(),
 				Arg.Any<CancellationToken>());
 		_ = fakeBucketEventRepository.Received(2)
 			.FillInBucketAsync(
 				Arg.Any<Guid>(),
 				Arg.Any<Guid>(),
 				Arg.Is(fillExpected),
+				Arg.Any<string>(),
 				Arg.Any<CancellationToken>());
 		_ = fakeBucketEventRepository.Received(1)
 			.FillInBucketAsync(
 				Arg.Any<Guid>(),
 				Arg.Any<Guid>(),
 				Arg.Is(fillExpected with { SetFull = true }),
+				Arg.Any<string>(),
 				Arg.Any<CancellationToken>());
 	}
 
@@ -269,7 +364,7 @@ public class BucketCounterTests
 
 		await sut.PrepareAsync();
 
-		var createCommand = new CreateBucketCommand(30M, BucketType.Deposit, Guid.NewGuid().ToString());
+		var createCommand = new CreateBucketCommand(30M, BucketType.Deposit, Guid.NewGuid().ToString(), null);
 
 		await sut.PushCommandAsync(createCommand);
 
@@ -312,7 +407,7 @@ public class BucketCounterTests
 
 		await sut.PrepareAsync();
 
-		var fillCommand = new FillInBucketCommand(10M, FillType.Game, Guid.NewGuid().ToString());
+		var fillCommand = new FillInBucketCommand(10M, FillType.Game, Guid.NewGuid().ToString(), null);
 
 		await sut.PushCommandAsync(fillCommand);
 
@@ -382,7 +477,8 @@ public class BucketCounterTests
 					FillType.Game,
 					null,
 					JsonDocument.Parse("[]"),
-					DateTime.UtcNow),
+					DateTime.UtcNow,
+					null),
 				new BucketEvent(
 					Guid.Parse("097cd6a5-8401-0000-0001-000080cd2019"),
 					buckets[1].Id,
@@ -390,7 +486,8 @@ public class BucketCounterTests
 					FillType.Game,
 					null,
 					JsonDocument.Parse("[]"),
-					DateTime.UtcNow)
+					DateTime.UtcNow,
+					null)
 			}.ToAsyncEnumerable());
 
 		await sut.PrepareAsync();
@@ -401,7 +498,7 @@ public class BucketCounterTests
 
 		var firstAmountResult = await firstGetCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
 
-		var fillCommand = new FillInBucketCommand(10M, FillType.Game, Guid.NewGuid().ToString());
+		var fillCommand = new FillInBucketCommand(10M, FillType.Game, Guid.NewGuid().ToString(), null);
 
 		await sut.PushCommandAsync(fillCommand);
 
@@ -411,7 +508,7 @@ public class BucketCounterTests
 
 		var secondAmountResult = await secondGetCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
 
-		await sut.PushCommandAsync(new FillInBucketCommand(10M, FillType.Game, Guid.NewGuid().ToString()));
+		await sut.PushCommandAsync(new FillInBucketCommand(10M, FillType.Game, Guid.NewGuid().ToString(), null));
 
 		var getCommand = new ReadBucketAmountCommand();
 
@@ -486,7 +583,7 @@ public class BucketCounterTests
 
 		var initAmountResult = await firstGetCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
 
-		var cleanCommand = new CleanBucketsCommand(anchorId, Guid.NewGuid().ToString());
+		var cleanCommand = new CleanBucketsCommand(anchorId, Guid.NewGuid().ToString(), null);
 
 		await sut.PushCommandAsync(cleanCommand);
 
@@ -552,7 +649,8 @@ public class BucketCounterTests
 					FillType.CleanUp,
 					null,
 					JsonDocument.Parse("[{\"op\": \"replace\", \"path\": \"/isFull\", \"value\": true}]"),
-					DateTime.UtcNow)
+					DateTime.UtcNow,
+					null)
 			}.ToAsyncEnumerable());
 
 		_ = fakeTgsRepository.GetBucketAllEventsAsync(
@@ -567,7 +665,8 @@ public class BucketCounterTests
 					FillType.CleanUp,
 					null,
 					JsonDocument.Parse("[{\"op\": \"replace\", \"path\": \"/isFull\", \"value\": true}]"),
-					DateTime.UtcNow)
+					DateTime.UtcNow,
+					null)
 			}.ToAsyncEnumerable());
 
 		_ = fakeTgsRepository.GetHasMigrateAsync(Arg.Is("test1"), Arg.Any<CancellationToken>())
@@ -583,7 +682,7 @@ public class BucketCounterTests
 
 		var initAmountResult = await firstGetCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
 
-		var cleanCommand = new CleanBucketsCommand(anchorId, Guid.NewGuid().ToString());
+		var cleanCommand = new CleanBucketsCommand(anchorId, Guid.NewGuid().ToString(), null);
 
 		await sut.PushCommandAsync(cleanCommand);
 
@@ -649,7 +748,8 @@ public class BucketCounterTests
 					FillType.CleanUp,
 					null,
 					JsonDocument.Parse("[{\"op\": \"replace\", \"path\": \"/isFull\", \"value\": true}]"),
-					DateTime.UtcNow)
+					DateTime.UtcNow,
+					null)
 			}.ToAsyncEnumerable());
 
 		_ = fakeTgsRepository.GetBucketAllEventsAsync(
@@ -664,7 +764,8 @@ public class BucketCounterTests
 					FillType.CleanUp,
 					null,
 					JsonDocument.Parse("[{\"op\": \"replace\", \"path\": \"/isFull\", \"value\": true}]"),
-					DateTime.UtcNow)
+					DateTime.UtcNow,
+					null)
 			}.ToAsyncEnumerable());
 
 		_ = fakeTgsRepository.GetHasMigrateAsync(Arg.Is("test1"), Arg.Any<CancellationToken>())
@@ -678,7 +779,7 @@ public class BucketCounterTests
 
 		var initAmountResult = await firstGetCommand.GetAmountAsync().WaitAsync(TimeSpan.FromSeconds(1D));
 
-		var fillInCommand = new FillInBucketCommand(10M, FillType.Game, null);
+		var fillInCommand = new FillInBucketCommand(10M, FillType.Game, null, null);
 
 		await sut.PushCommandAsync(fillInCommand);
 

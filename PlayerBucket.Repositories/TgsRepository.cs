@@ -33,7 +33,8 @@ internal class TgsRepository : ITgsRepository
 				Enum.Parse<FillType>(evt.FillType),
 				evt.ExternalId,
 				JsonDocument.Parse(evt.ChangeSets),
-				evt.CreatedOn));
+				evt.CreatedOn,
+				evt.Remark));
 
 	public IAsyncEnumerable<BucketEvent> GetBucketAllEventsAsync(Guid bucketId, Guid snapshotId, CancellationToken cancellationToken = default)
 		=> _playerBucketDataAccess.GetBucketAllEventsAsync(bucketId, snapshotId, cancellationToken)
@@ -44,7 +45,8 @@ internal class TgsRepository : ITgsRepository
 				Enum.Parse<FillType>(evt.FillType),
 				evt.ExternalId,
 				JsonDocument.Parse(evt.ChangeSets),
-				evt.CreatedOn));
+				evt.CreatedOn,
+				evt.Remark));
 
 	public ValueTask<bool> GetHasMigrateAsync(string playerCode, CancellationToken cancellationToken = default)
 		=> _playerBucketDataAccess.GetHasMigrateAsync(playerCode, cancellationToken);

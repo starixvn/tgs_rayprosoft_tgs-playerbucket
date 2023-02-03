@@ -29,7 +29,8 @@ internal class TgsRepository : ITgsRepository
 				FillType = evt.Type.ToString(),
 				ExternalId = evt.ExternalId,
 				ChangeSets = JsonSerializer.Serialize(evt.ChangeSets),
-				CreatedOn = evt.CreatedOn.ToUniversalTime()
+				CreatedOn = evt.CreatedOn.ToUniversalTime(),
+				Remark = evt.Remark
 			}),
 			cancellationToken).ConfigureAwait(false);
 
@@ -45,7 +46,8 @@ internal class TgsRepository : ITgsRepository
 				Enum.Parse<FillType>(evt.FillType),
 				evt.ExternalId,
 				JsonDocument.Parse(evt.ChangeSets),
-				evt.CreatedOn));
+				evt.CreatedOn,
+				evt.Remark));
 
 	public IAsyncEnumerable<BucketEvent> GetBucketAllEventsAsync(Guid bucketId, Guid snapshotId, CancellationToken cancellationToken = default)
 		=> _playerBucketDataAccess.GetBucketAllEventsAsync(bucketId, snapshotId, cancellationToken)
@@ -56,7 +58,8 @@ internal class TgsRepository : ITgsRepository
 				Enum.Parse<FillType>(evt.FillType),
 				evt.ExternalId,
 				JsonDocument.Parse(evt.ChangeSets),
-				evt.CreatedOn));
+				evt.CreatedOn,
+				evt.Remark));
 
 	public async ValueTask<BucketInfo?> GetCreatedBucketSnapshotAsync(Guid bucketId, CancellationToken cancellationToken = default)
 	{

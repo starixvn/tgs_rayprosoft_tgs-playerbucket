@@ -1,7 +1,6 @@
 ﻿extern alias Client;
 extern alias Server;
 
-using System.Diagnostics;
 using Client::Tgs.PlayerBucket.Clients;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +17,7 @@ using Tgs.Service.PlayerBuckets;
 namespace Tgs.PlayerBucketWorker.IntegrationTests;
 
 [TestClass]
-public class CreateBucketTests
+public class BucketTests
 {
 	[TestMethod]
 	public async Task CreateBucketProcessor_建立一個Bucket()
@@ -30,6 +29,7 @@ public class CreateBucketTests
 		var amount = 100M;
 		var bucketType = BucketType.Deposit;
 		var externalId = Guid.NewGuid().ToString();
+		var remark = "remark";
 
 		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
 
@@ -64,13 +64,14 @@ public class CreateBucketTests
 
 		var dbContext = web.Services.GetRequiredService<TgsContext>();
 
-		var createdId = await client.CreateBucketAsync(playerCode, amount, bucketType, externalId);
+		var createdId = await client.CreateBucketAsync(playerCode, amount, bucketType, externalId, remark);
 
 		_ = fakeBucketEventRepository.Received(1)
 			.AddPlayerBucketAsync(
 				Arg.Any<Guid>(),
 				Arg.Is(createdId),
 				Arg.Any<BucketCreateInfo>(),
+				Arg.Is(remark),
 				Arg.Any<CancellationToken>());
 	}
 
@@ -84,6 +85,7 @@ public class CreateBucketTests
 		var amount = 100M;
 		var fillType = FillType.Game;
 		var externalId = Guid.NewGuid().ToString();
+		var remark = "remark";
 
 		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
 
@@ -130,7 +132,7 @@ public class CreateBucketTests
 		var expected = new FillInBucketInfo(
 			playerCode,
 			amount,
-			Service.PlayerBuckets.FillType.Game,
+			FillType.Game,
 			externalId,
 			true);
 
@@ -138,14 +140,16 @@ public class CreateBucketTests
 			playerCode,
 			amount,
 			BucketType.Deposit,
-			externalId);
-		await client.FillInBucketAsync(playerCode, amount, fillType, externalId);
+			externalId,
+			null);
+		await client.FillInBucketAsync(playerCode, amount, fillType, externalId, remark);
 
 		_ = fakeBucketEventRepository.Received(1)
 			.FillInBucketAsync(
 				Arg.Any<Guid>(),
 				Arg.Is(bucketId),
 				Arg.Is(expected),
+				Arg.Is(remark),
 				Arg.Any<CancellationToken>());
 	}
 
@@ -192,5 +196,96 @@ public class CreateBucketTests
 		var actual = await client.ReadBucketsAsync(playerCode).AsTask().WaitAsync(TimeSpan.FromSeconds(1D));
 
 		Assert.AreEqual(0M, actual.Amount);
+	}
+
+	[TestMethod]
+	public async Task CleanBucketHandler_清除Buckets()
+	{
+		var fakeClientMessageSender = Substitute.For<IMessageSender>();
+		var client = new PlayerBucketClient(new HttpClient(), fakeClientMessageSender);
+
+		var playerCode = "test1";
+		var amount = 100M;
+		var externalId = Guid.NewGuid().ToString();
+		var remark = "remark";
+
+		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
+
+		await using var web = PlayerBucketWorkerTestHost.Instance
+			.WithWebHostBuilder(hostBuilder => hostBuilder
+				.ConfigureServices(services => services
+					.AddFakeNatsMessageQueue()
+					.Replace(ServiceDescriptor.Singleton(sp =>
+					{
+						var dbContextOptionsBuilder = new DbContextOptionsBuilder<TgsContext>();
+						_ = dbContextOptionsBuilder
+							.UseInMemoryDatabase(Guid.NewGuid().ToString())
+							.ConfigureWarnings(x => x.Ignore(
+								InMemoryEventId.TransactionIgnoredWarning));
+
+						return new TgsContext(dbContextOptionsBuilder.Options);
+					}))
+					.Replace(ServiceDescriptor.Singleton(fakeBucketEventRepository))));
+
+		_ = fakeClientMessageSender.RequestAsync(
+			Arg.Is("tgs.bucket.create"),
+			Arg.Any<ReadOnlyMemory<byte>>())
+			.Returns(callInfo =>
+			{
+				var data = callInfo.Arg<ReadOnlyMemory<byte>>();
+
+				var processor = ActivatorUtilities.CreateInstance<CreateBucketProcessor>(web.Services);
+
+				return processor.HandleAsync(data);
+			});
+
+		_ = fakeClientMessageSender.SendAsync(
+			Arg.Is("tgs.bucket.clean"),
+			Arg.Any<ReadOnlyMemory<byte>>())
+			.Returns(callInfo =>
+			{
+				var data = callInfo.Arg<ReadOnlyMemory<byte>>();
+
+				var processor = ActivatorUtilities.CreateInstance<CleanBucketHandler>(web.Services);
+
+				return processor.HandleAsync(data);
+			});
+
+		_ = fakeClientMessageSender.RequestAsync(
+			Arg.Is("tgs.bucket.amount"),
+			Arg.Any<ReadOnlyMemory<byte>>())
+			.Returns(callInfo =>
+			{
+				var data = callInfo.Arg<ReadOnlyMemory<byte>>();
+
+				var processor = ActivatorUtilities.CreateInstance<GetBucketAmountProcessor>(web.Services);
+
+				return processor.HandleAsync(data);
+			});
+
+		var expected = new FillInBucketInfo(
+			playerCode,
+			amount,
+			FillType.CleanUp,
+			externalId,
+			true);
+
+		var bucketId = await client.CreateBucketAsync(
+			playerCode,
+			amount,
+			BucketType.Deposit,
+			externalId,
+			remark);
+
+		await client.CleanBucketsAsync(playerCode, bucketId, externalId, remark);
+		_ = await client.ReadBucketsAsync(playerCode);
+
+		_ = fakeBucketEventRepository.Received(1)
+			.FillInBucketAsync(
+				Arg.Any<Guid>(),
+				Arg.Is(bucketId),
+				Arg.Is(expected),
+				Arg.Is(remark),
+				Arg.Any<CancellationToken>());
 	}
 }
