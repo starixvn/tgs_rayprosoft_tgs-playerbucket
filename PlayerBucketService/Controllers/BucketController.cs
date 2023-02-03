@@ -53,7 +53,8 @@ public class BucketController : ControllerBase
 			ChangeAmount = evt.ChangeAmount,
 			Type = evt.Type,
 			CreatedOn = evt.CreatedOn,
-			ExternalId = evt.ExternalId
+			ExternalId = evt.ExternalId,
+			Remark = evt.Remark
 		});
 	}
 }

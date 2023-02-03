@@ -15,4 +15,6 @@ public class PlayerBucketEventViewModel
 	public string? ExternalId { get; set; }
 
 	public DateTime CreatedOn { get; set; }
+
+	public string? Remark { get; set; }
 }

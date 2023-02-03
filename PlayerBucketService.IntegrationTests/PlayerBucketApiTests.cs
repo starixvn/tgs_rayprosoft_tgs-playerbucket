@@ -324,7 +324,9 @@ public class PlayerBucketApiTests
 				ChangeAmount = 100M,
 				ChangeSets = "[]",
 				FillType = nameof(FillType.Deposit),
-				CreatedOn = createdOn
+				CreatedOn = createdOn,
+				Remark = "remark",
+				ExternalId = "external"
 			});
 
 		_ = await dbContext.SaveChangesAsync();
@@ -334,10 +336,10 @@ public class PlayerBucketApiTests
 			bucketId,
 			100M,
 			FillType.Deposit,
-			null,
+			"external",
 			JsonDocument.Parse("[]"),
 			createdOn,
-			null);
+			"remark");
 
 		// Act
 		var actual = await sut.GetBucketEventsAsync(bucketId).ToArrayAsync();
