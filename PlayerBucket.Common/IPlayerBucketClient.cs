@@ -7,6 +7,7 @@ public interface IPlayerBucketClient
 		decimal amount,
 		BucketType type,
 		string? externalId,
+		string? remark,
 		CancellationToken cancellationToken = default);
 
 	ValueTask FillInBucketAsync(

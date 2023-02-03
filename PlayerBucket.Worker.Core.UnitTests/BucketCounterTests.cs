@@ -67,6 +67,40 @@ public class BucketCounterTests
 	}
 
 	[TestMethod]
+	public async Task BucketCounter_執行建立Bucket_帶入Remark()
+	{
+		var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();
+		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
+
+		var sut = new BucketCounter(
+			"test1",
+			fakeSerialNumberGenerator,
+			fakeTgsRepository,
+			fakeBucketEventRepository,
+			Substitute.For<IEventSource>(),
+			NullLogger<BucketCounter>.Instance);
+
+		var externalId = Guid.NewGuid().ToString();
+		var command = new CreateBucketCommand(100M, BucketType.Deposit, externalId, "test");
+
+		var expected = new BucketCreateInfo("test1", 100M, BucketType.Deposit, externalId);
+
+		await sut.PrepareAsync();
+		await sut.PushCommandAsync(command);
+
+		_ = await command.GetCreatedIdAsync().WaitAsync(TimeSpan.FromSeconds(1D));
+
+		_ = fakeBucketEventRepository.Received(1)
+			.AddPlayerBucketAsync(
+				Arg.Any<Guid>(),
+				Arg.Any<Guid>(),
+				Arg.Is(expected),
+				Arg.Is<string>("test"),
+				Arg.Any<CancellationToken>());
+	}
+
+	[TestMethod]
 	public async Task BucketCounter_執行填充Bucket()
 	{
 		var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();

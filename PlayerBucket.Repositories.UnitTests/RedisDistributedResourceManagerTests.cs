@@ -136,8 +136,9 @@ public class RedisDistributedResourceManagerTests
 			null);
 		var createId = Guid.NewGuid();
 		var bucketId = Guid.NewGuid();
+		var remark = "remark";
 
-		await sut.AddPlayerBucketAsync(createId, bucketId, createInfo, null);
+		await sut.AddPlayerBucketAsync(createId, bucketId, createInfo, remark);
 
 		_ = fakeRedisDatabase.Received(1)
 			.ListRightPushAsync(

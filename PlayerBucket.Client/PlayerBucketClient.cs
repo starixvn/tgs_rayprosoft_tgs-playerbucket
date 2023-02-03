@@ -22,6 +22,7 @@ internal class PlayerBucketClient : IPlayerBucketClient
 		decimal amount,
 		BucketType type,
 		string? externalId,
+		string? remark,
 		CancellationToken cancellationToken = default)
 	{
 		var request = new CreateBucketRequest
@@ -29,7 +30,8 @@ internal class PlayerBucketClient : IPlayerBucketClient
 			PlayerCode = playerCode,
 			Amount = amount,
 			BucketType = type.ToString(),
-			ExternalId = externalId ?? string.Empty
+			ExternalId = externalId ?? string.Empty,
+			Remark = remark ?? string.Empty,
 		};
 
 		var result = await _messageSender

@@ -30,7 +30,12 @@ public class Benchmarks
 
 		_playerBucketClient = _host.Services.GetRequiredService<IPlayerBucketClient>();
 
-		_playerBucketClient.CreateBucketAsync(_playerCode, 101M, BucketType.Deposit, Guid.NewGuid().ToString()).AsTask().Wait();
+		_playerBucketClient.CreateBucketAsync(
+			_playerCode,
+			101M,
+			BucketType.Deposit,
+			Guid.NewGuid().ToString(),
+			null).AsTask().Wait();
 	}
 
 	[Benchmark(Baseline = true)]

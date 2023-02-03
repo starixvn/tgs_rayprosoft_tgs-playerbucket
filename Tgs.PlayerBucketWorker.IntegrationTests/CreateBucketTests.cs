@@ -30,6 +30,7 @@ public class CreateBucketTests
 		var amount = 100M;
 		var bucketType = BucketType.Deposit;
 		var externalId = Guid.NewGuid().ToString();
+		var remark = "remark";
 
 		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
 
@@ -64,14 +65,14 @@ public class CreateBucketTests
 
 		var dbContext = web.Services.GetRequiredService<TgsContext>();
 
-		var createdId = await client.CreateBucketAsync(playerCode, amount, bucketType, externalId);
+		var createdId = await client.CreateBucketAsync(playerCode, amount, bucketType, externalId, remark);
 
 		_ = fakeBucketEventRepository.Received(1)
 			.AddPlayerBucketAsync(
 				Arg.Any<Guid>(),
 				Arg.Is(createdId),
 				Arg.Any<BucketCreateInfo>(),
-				Arg.Any<string>(),
+				Arg.Is(remark),
 				Arg.Any<CancellationToken>());
 	}
 
@@ -139,7 +140,8 @@ public class CreateBucketTests
 			playerCode,
 			amount,
 			BucketType.Deposit,
-			externalId);
+			externalId,
+			null);
 		await client.FillInBucketAsync(playerCode, amount, fillType, externalId);
 
 		_ = fakeBucketEventRepository.Received(1)

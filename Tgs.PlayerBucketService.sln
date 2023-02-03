@@ -53,7 +53,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucketService.Integra
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucketService.Repositories", "PlayerBucketService.Repositories\PlayerBucketService.Repositories.csproj", "{C49C777E-F633-47C6-B862-5975138D13B3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerBucketMigrateJob", "PlayerBucketMigrateJob\PlayerBucketMigrateJob.csproj", "{B3FE30B6-2C6B-4688-9D3E-618F8B26A98A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucketMigrateJob", "PlayerBucketMigrateJob\PlayerBucketMigrateJob.csproj", "{B3FE30B6-2C6B-4688-9D3E-618F8B26A98A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

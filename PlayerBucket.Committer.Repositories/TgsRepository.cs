@@ -29,7 +29,8 @@ internal class TgsRepository : ITgsRepository
 				FillType = evt.Type.ToString(),
 				ExternalId = evt.ExternalId,
 				ChangeSets = JsonSerializer.Serialize(evt.ChangeSets),
-				CreatedOn = evt.CreatedOn.ToUniversalTime()
+				CreatedOn = evt.CreatedOn.ToUniversalTime(),
+				Remark = evt.Remark
 			}),
 			cancellationToken).ConfigureAwait(false);
 
