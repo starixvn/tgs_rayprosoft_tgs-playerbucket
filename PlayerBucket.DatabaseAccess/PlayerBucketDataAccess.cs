@@ -40,7 +40,7 @@ internal class PlayerBucketDataAccess
 
 	public IAsyncEnumerable<PlayerBucketEventSource> GetBucketAllEventsAsync(Guid bucketId, Guid snapshotId, CancellationToken cancellationToken = default)
 		=> _dbContext.PlayerBucketEventSources
-			.FromSqlInterpolated($@"
+			.FromSqlInterpolated($$"""
 				SELECT
 					id,
 					bucket_id,
@@ -48,15 +48,17 @@ internal class PlayerBucketDataAccess
 					change_sets,
 					created_on,
 					external_id,
-					fill_type
+					fill_type,
+					remark
 				FROM
 					dbo.player_bucket_event_source
 				WHERE
-					bucket_id = {bucketId}
+					bucket_id = {{bucketId}}
 					AND
-					id > {snapshotId}
+					id > {{snapshotId}}
 				ORDER BY
-					id")
+					id
+			""")
 			.ToArrayAsync(cancellationToken)
 			.ToAsyncEnumerable()
 			.SelectMany(arr => arr.ToAsyncEnumerable());
