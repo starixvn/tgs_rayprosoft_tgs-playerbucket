@@ -39,4 +39,6 @@ public interface IPlayerBucketClient
 	IAsyncEnumerable<BucketEvent> GetBucketEventsAsync(Guid bucketId, Guid eventId, CancellationToken cancellationToken = default);
 
 	IAsyncEnumerable<BucketEvent> GetBucketEventsAsync(Guid bucketId, DateTime queryDate, CancellationToken cancellationToken = default);
+
+	ValueTask RequestCleanBucketsAsync(string playerCode, CleanBucketOrder order, CancellationToken cancellationToken = default);
 }

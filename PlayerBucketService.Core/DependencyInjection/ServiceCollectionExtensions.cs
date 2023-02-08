@@ -6,5 +6,6 @@ public static class ServiceCollectionExtensions
 {
 	public static IServiceCollection AddPlayerBucketService(this IServiceCollection services)
 		=> services
-			.RegisterAllServiceUtilityTypes(Assembly.GetExecutingAssembly(), ServiceLifetime.Transient);
+			.RegisterAllServiceUtilityTypes(Assembly.GetExecutingAssembly(), ServiceLifetime.Transient)
+			.AddSerialNumberGenerator();
 }

@@ -1,4 +1,6 @@
-﻿using NSubstitute;
+﻿using ExpectedObjects;
+using NSubstitute;
+using Tgs.SerialNumberGenerator;
 using Tgs.Service.PlayerBuckets;
 using Tgs.Service.PlayerBuckets.ApplicationServices;
 
@@ -81,5 +83,48 @@ public class PlayerBucketTests
 			.QueryPlayerBucketHistoriesByDateAsync(
 				Arg.Is(query.BucketId),
 				Arg.Is(queryDate));
+	}
+
+	[Fact]
+	public async Task 建立清除流水申請單()
+	{
+		// Arrange
+		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+		var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();
+
+		var sut = new ApplyCleanBucketsFormCommandService(
+			fakeTgsRepository,
+			fakeSerialNumberGenerator);
+
+		var command = new ApplyCleanBucketsFormCommand(
+			"test1",
+			Guid.NewGuid(),
+			Guid.NewGuid(),
+			0M,
+			1000M,
+			Guid.NewGuid());
+
+		var createId = Guid.NewGuid();
+		_ = fakeSerialNumberGenerator.GenerateAsync()
+			.Returns(createId);
+
+		var expected = new
+		{
+			Id = createId,
+			command.PlayerCode,
+			command.BrandId,
+			command.BucketAnchorId,
+			command.CurrentBalance,
+			command.CurrentBucketAmount,
+			command.DepositFormId
+		};
+
+		// Act
+		_ = await sut.GetAsync(command);
+
+		// Assert
+		_ = fakeTgsRepository.Received(1)
+			.UpsertCleanPlayerBucketFormAsync(
+				Arg.Is<CleanPlayerBucketForm>(form => expected.ToExpectedObject().Matches(form)));
 	}
 }

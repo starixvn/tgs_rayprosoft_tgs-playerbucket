@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Tgs.PlayerBuckets.DatabaseAccess;
+using Tgs.PlayerBuckets.DatabaseAccess.Entities;
 
 namespace Tgs.Service.PlayerBuckets.Repositories;
 
@@ -94,5 +95,31 @@ internal class TgsRepository : ITgsRepository
 				JsonDocument.Parse(row.ChangeSets),
 				row.CreatedOn,
 				row.Remark));
+	}
+
+	public async ValueTask UpsertCleanPlayerBucketFormAsync(CleanPlayerBucketForm form, CancellationToken cancellationToken = default)
+	{
+		var row = new PlayerBucketCleanForm
+		{
+			Id = form.Id,
+			BrandId = form.BrandId,
+			BucketAnchorId = form.BucketAnchorId,
+			CleaningBalance = form.CleaningBalance,
+			CleaningBucketAmount = form.CleaningBucketAmount,
+			CreatedOn = form.CreatedOn,
+			CurrentBalance = form.CurrentBalance,
+			CurrentBucketAmount = form.CurrentBucketAmount,
+			DepositFormId = form.DepositFormId,
+			PlayerCode = form.PlayerCode,
+			Status = form.Status.ToString()
+		};
+
+		await _playerBucketDataAccess.UpsertCleanPlayerBucketFormAsync(
+			row,
+			cancellationToken).ConfigureAwait(false);
+
+		await _playerBucketDataAccess
+			.SaveChangesAsync(cancellationToken)
+			.ConfigureAwait(false);
 	}
 }

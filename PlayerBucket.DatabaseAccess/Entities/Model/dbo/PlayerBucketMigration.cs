@@ -3,10 +3,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace Tgs.PlayerBuckets.DatabaseAccess.Entities
+namespace Tgs.PlayerBuckets.DatabaseAccess.Entities;
+
+public partial class PlayerBucketMigration
 {
-    public partial class PlayerBucketMigration
-    {
-        public string PlayerCode { get; set; } = null!;
-    }
+    public string PlayerCode { get; set; } = null!;
 }

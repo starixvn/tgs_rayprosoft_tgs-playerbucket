@@ -39,4 +39,8 @@
     </ProjectReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
 </Project>
