@@ -130,7 +130,7 @@ internal class PlayerBucketDataAccess
 			},
 			cancellationToken).ConfigureAwait(false);
 
-	public async ValueTask UpsertCleanPlayerBucketFormAsync(PlayerBucketCleanForm formRow, CancellationToken cancellationToken = default)
+	public async ValueTask UpsertPlayerBucketCleanFormAsync(PlayerBucketCleanForm formRow, CancellationToken cancellationToken = default)
 	{
 		var existsRow = await _dbContext.PlayerBucketCleanForms.FindAsync(
 			new object?[] { formRow.Id },
@@ -147,4 +147,9 @@ internal class PlayerBucketDataAccess
 				formRow,
 				cancellationToken).ConfigureAwait(false);
 	}
+
+	public ValueTask<PlayerBucketCleanForm?> FindPlayerBucketCleanFormAsync(Guid formId, CancellationToken cancellationToken = default)
+		=> _dbContext.PlayerBucketCleanForms.FindAsync(
+			new object?[] { formId },
+			cancellationToken: cancellationToken);
 }

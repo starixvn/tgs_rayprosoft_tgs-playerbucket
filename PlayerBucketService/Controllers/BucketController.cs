@@ -76,4 +76,55 @@ public class BucketController : ControllerBase
 
 		return applyService.GetAsync(command, HttpContext.RequestAborted);
 	}
+
+	/// <summary>
+	/// Gets the clean buckets form asynchronous.
+	/// </summary>
+	/// <param name="getService">The get service.</param>
+	/// <param name="formId">The form identifier.</param>
+	/// <returns></returns>
+	/// <response code="200">Find form</response>
+	/// <response code="204">Not found</response>
+	[HttpGet("clean-form/{formId}", Name = "GetCleanBucketsForm")]
+	public async Task<CleanBucketsFormViewModel?> GetCleanBucketsFormAsync(
+		[FromServices] IGetService<GetCleanPlayerBucketsFormQuery, CleanPlayerBucketForm?> getService,
+		Guid formId)
+	{
+		var query = new GetCleanPlayerBucketsFormQuery(formId);
+
+		var form = await getService.GetAsync(
+			query,
+			HttpContext.RequestAborted).ConfigureAwait(false);
+
+		return form is null
+			? null
+			: new CleanBucketsFormViewModel
+			{
+				Id = form.Id,
+				PlayerCode = form.PlayerCode,
+				BrandId = form.BrandId,
+				BucketAnchorId = form.BucketAnchorId,
+				CurrentBalance = form.CurrentBalance,
+				CurrentBucketAmount = form.CurrentBucketAmount,
+				DepositFormId = form.DepositFormId,
+				CleaningBalance = form.CleaningBalance,
+				CleaningBucketAmount = form.CleaningBucketAmount,
+				Status = form.Status,
+				CreatedOn = form.CreatedOn
+			};
+	}
+
+	[HttpPost("clean-form/{formId}", Name = "CompleteCleanBucketsForm")]
+	public ValueTask CompleteCleanBucketsFormAsync(
+		[FromServices] ICommandService<CompleteCleanBucketsFormCommand> completeService,
+		Guid formId,
+		[FromBody] CompleteCleanBucketsFormViewModel viewModel)
+	{
+		var command = new CompleteCleanBucketsFormCommand(
+			formId,
+			viewModel.CleaningBalance,
+			viewModel.CleaningBucketAmount);
+
+		return completeService.ExecuteAsync(command, HttpContext.RequestAborted);
+	}
 }
