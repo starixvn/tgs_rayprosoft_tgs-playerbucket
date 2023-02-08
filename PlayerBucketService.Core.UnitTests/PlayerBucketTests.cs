@@ -127,4 +127,22 @@ public class PlayerBucketTests
 			.UpsertCleanPlayerBucketFormAsync(
 				Arg.Is<CleanPlayerBucketForm>(form => expected.ToExpectedObject().Matches(form)));
 	}
+
+	[Fact]
+	public async Task 取得清除流水申請單內容()
+	{
+		// Arrange
+		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+		var sut = new GetCleanPlayerBucketsFormQueryService(fakeTgsRepository);
+
+		var query = new GetCleanPlayerBucketsFormQuery(Guid.NewGuid());
+
+		// Act
+		_ = await sut.GetAsync(query);
+
+		// Assert
+		_ = fakeTgsRepository.Received(1)
+			.GetCleanPlayerBucketFormAsync(Arg.Is(query.FormId));
+	}
 }

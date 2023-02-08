@@ -114,12 +114,36 @@ internal class TgsRepository : ITgsRepository
 			Status = form.Status.ToString()
 		};
 
-		await _playerBucketDataAccess.UpsertCleanPlayerBucketFormAsync(
+		await _playerBucketDataAccess.UpsertPlayerBucketCleanFormAsync(
 			row,
 			cancellationToken).ConfigureAwait(false);
 
 		await _playerBucketDataAccess
 			.SaveChangesAsync(cancellationToken)
 			.ConfigureAwait(false);
+	}
+
+	public async ValueTask<CleanPlayerBucketForm?> GetCleanPlayerBucketFormAsync(
+		Guid formId,
+		CancellationToken cancellationToken = default)
+	{
+		var row = await _playerBucketDataAccess.FindPlayerBucketCleanFormAsync(
+			formId,
+			cancellationToken).ConfigureAwait(false);
+
+		return row is null
+			? null
+			: new CleanPlayerBucketForm(
+				row.Id,
+				row.PlayerCode,
+				row.BrandId,
+				row.CurrentBalance,
+				row.CurrentBucketAmount,
+				row.BucketAnchorId,
+				row.DepositFormId,
+				row.CleaningBalance,
+				row.CleaningBucketAmount,
+				Enum.Parse<CleanFlowStatus>(row.Status),
+				row.CreatedOn);
 	}
 }

@@ -191,4 +191,15 @@ internal class PlayerBucketClient : IPlayerBucketClient
 					throw new HttpRequestException("Status code unexpected for created.");
 			})
 			.SingleOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+	public async ValueTask<CleanBucketForm?> GetCleanBucketFormAsync(Guid formId, CancellationToken cancellationToken = default)
+		=> await _httpClient.GetAsync($"api/bucket/clean-form/{formId}", cancellationToken)
+			.ToAsyncEnumerable()
+			.Do(response => response.EnsureSuccessStatusCode())
+			.Where(response => response.StatusCode == System.Net.HttpStatusCode.OK)
+			.SelectMany(response => response.Content
+				.ReadFromJsonAsync<CleanBucketForm>(PlayerBucketUtility.SerializerOptions, cancellationToken)
+				.ToAsyncEnumerable())
+			.FirstOrDefaultAsync(cancellationToken)
+			.ConfigureAwait(false);
 }

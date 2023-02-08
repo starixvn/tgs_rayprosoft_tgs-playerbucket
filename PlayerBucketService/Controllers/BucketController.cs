@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using PlayerBucketService.ViewModels;
 using Tgs.Service.PlayerBuckets;
 using Tgs.Service.PlayerBuckets.ApplicationServices;
@@ -75,5 +76,40 @@ public class BucketController : ControllerBase
 			orderModel.DepositFormId);
 
 		return applyService.GetAsync(command, HttpContext.RequestAborted);
+	}
+
+	/// <summary>
+	/// Gets the clean buckets form asynchronous.
+	/// </summary>
+	/// <param name="getService">The get service.</param>
+	/// <param name="formId">The form identifier.</param>
+	/// <returns></returns>
+	/// <response code="200">Find form</response>
+	/// <response code="204">Not found</response>
+	[HttpGet("clean-form/{formId}", Name = "GetCleanBucketsForm")]
+	public async Task<CleanBucketsFormViewModel?> GetCleanBucketsFormAsync(
+		[FromServices] IGetService<GetCleanPlayerBucketsFormQuery, CleanPlayerBucketForm?> getService,
+		Guid formId)
+	{
+		var query = new GetCleanPlayerBucketsFormQuery(formId);
+
+		var form = await getService.GetAsync(
+			query,
+			HttpContext.RequestAborted).ConfigureAwait(false);
+
+		return form is null
+			? null
+			: new CleanBucketsFormViewModel
+			{
+				Id = form.Id,
+				PlayerCode = form.PlayerCode,
+				BrandId = form.BrandId,
+				BucketAnchorId = form.BucketAnchorId,
+				CurrentBalance = form.CurrentBalance,
+				CurrentBucketAmount = form.CurrentBucketAmount,
+				DepositFormId = form.DepositFormId,
+				Status = form.Status,
+				CreatedOn = form.CreatedOn
+			};
 	}
 }

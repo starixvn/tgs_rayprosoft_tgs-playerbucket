@@ -9,6 +9,7 @@ using Tgs.MessageQueue;
 using Tgs.PlayerBucket.Clients;
 using Tgs.PlayerBuckets.DatabaseAccess.Entities;
 using Tgs.Service.PlayerBuckets;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace PlayerBucketService.IntegrationTests;
@@ -393,5 +394,77 @@ public class PlayerBucketApiTests
 
 		// Assert
 		expected.ToExpectedObject().ShouldMatch(row);
+	}
+
+	[Fact]
+	public async Task 取得清除流水表單內容()
+	{
+		// Arrange
+		await using var web = PlayerBucketServiceTestHost.Instance
+			.WithWebHostBuilder(hostBuilder => hostBuilder
+				.ConfigureLogging(logging => logging.AddXUnit(TestOutputHelper)));
+
+		var fakeClientMessageSender = Substitute.For<IMessageSender>();
+		var httpClient = web.CreateClient();
+		var sut = new PlayerBucketClient(httpClient, fakeClientMessageSender);
+
+		var dbContext = web.Services.GetRequiredService<TgsContext>();
+
+		var row = new PlayerBucketCleanForm
+		{
+			Id = Guid.NewGuid(),
+			BrandId = Guid.NewGuid(),
+			BucketAnchorId = Guid.NewGuid(),
+			PlayerCode = "test1",
+			CurrentBalance = 0M,
+			CurrentBucketAmount = 1000M,
+			CleaningBalance = null,
+			CleaningBucketAmount = null,
+			DepositFormId = Guid.NewGuid(),
+			Status = CleanFlowStatus.Create.ToString(),
+			CreatedOn = DateTime.UtcNow
+		};
+
+		_ = await dbContext.PlayerBucketCleanForms.AddAsync(row);
+
+		_ = await dbContext.SaveChangesAsync();
+
+		var expected = new CleanBucketForm(
+			row.Id,
+			row.PlayerCode,
+			row.BrandId,
+			row.CurrentBalance,
+			row.CurrentBucketAmount,
+			row.BucketAnchorId,
+			row.DepositFormId,
+			CleanFlowStatus.Create,
+			row.CreatedOn);
+
+		// Act
+		var actual = await sut.GetCleanBucketFormAsync(row.Id);
+
+		// Assert
+		Assert.Equal(expected, actual);
+	}
+
+	[Fact]
+	public async Task 取得清除流水表單內容但是資料庫沒有資料時傳回Null()
+	{
+		// Arrange
+		await using var web = PlayerBucketServiceTestHost.Instance
+			.WithWebHostBuilder(hostBuilder => hostBuilder
+				.ConfigureLogging(logging => logging.AddXUnit(TestOutputHelper)));
+
+		var fakeClientMessageSender = Substitute.For<IMessageSender>();
+		var httpClient = web.CreateClient();
+		var sut = new PlayerBucketClient(httpClient, fakeClientMessageSender);
+
+		var formId = Guid.NewGuid();
+
+		// Act
+		var actual = await sut.GetCleanBucketFormAsync(formId);
+
+		// Assert
+		Assert.Null(actual);
 	}
 }
