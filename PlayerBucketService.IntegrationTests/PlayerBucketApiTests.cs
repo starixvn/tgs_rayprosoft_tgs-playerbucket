@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using ExpectedObjects;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -351,5 +352,46 @@ public class PlayerBucketApiTests
 			_ = context.IgnoreEqualsOverride();
 			_ = context.Ignore(evt => evt.ChangeSets);
 		}).ShouldMatch(actual.FirstOrDefault());
+	}
+
+	[Fact]
+	public async Task 啟動清除流水流程()
+	{
+		// Arrange
+		await using var web = PlayerBucketServiceTestHost.Instance
+			.WithWebHostBuilder(hostBuilder => hostBuilder
+				.ConfigureLogging(logging => logging.AddXUnit(TestOutputHelper)));
+
+		var fakeClientMessageSender = Substitute.For<IMessageSender>();
+		var httpClient = web.CreateClient();
+		var sut = new PlayerBucketClient(httpClient, fakeClientMessageSender);
+
+		var dbContext = web.Services.GetRequiredService<TgsContext>();
+
+		var playerCode = "test1";
+		var cleanOrder = new CleanBucketOrder(
+			Guid.NewGuid(),
+			0M,
+			1000M,
+			Guid.NewGuid(),
+			Guid.NewGuid());
+
+		var expected = new
+		{
+			PlayerCode = playerCode,
+			cleanOrder.BrandId,
+			cleanOrder.CurrentBalance,
+			cleanOrder.CurrentBucketAmount,
+			cleanOrder.BucketAnchorId,
+			cleanOrder.DepositFormId
+		};
+
+		// Act
+		await sut.RequestCleanBucketsAsync(playerCode, cleanOrder);
+
+		var row = await dbContext.PlayerBucketCleanForms.SingleAsync();
+
+		// Assert
+		expected.ToExpectedObject().ShouldMatch(row);
 	}
 }

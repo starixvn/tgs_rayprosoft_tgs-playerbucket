@@ -3,6 +3,7 @@ using PlayerBucketService.ViewModels;
 using Tgs.Service.PlayerBuckets;
 using Tgs.Service.PlayerBuckets.ApplicationServices;
 using Tgs.ServiceUtility;
+using Tgs.WebApi.Toolkits;
 
 namespace PlayerBucketService.Controllers;
 
@@ -29,7 +30,7 @@ public class BucketController : ControllerBase
 			});
 	}
 
-	[HttpGet("history/{bucketId}")]
+	[HttpGet("history/{bucketId}", Name = "GetBucketHistories")]
 	public IAsyncEnumerable<PlayerBucketEventViewModel> GetBucketHistoriesAsync(
 		[FromServices] IServiceCoordinator serviceCoordinator,
 		Guid bucketId,
@@ -56,5 +57,23 @@ public class BucketController : ControllerBase
 			ExternalId = evt.ExternalId,
 			Remark = evt.Remark
 		});
+	}
+
+	[HttpPut("clean-form/{playerCode}", Name = "RequestCleanBuckets")]
+	[SuccessStatusCode(201, "Created apply")]
+	public ValueTask<Guid> RequestCleanBucketsAsync(
+		[FromServices] IGetService<ApplyCleanBucketsFormCommand, Guid> applyService,
+		string playerCode,
+		[FromBody] CleanBucketsOrderViewModel orderModel)
+	{
+		var command = new ApplyCleanBucketsFormCommand(
+			playerCode,
+			orderModel.BrandId,
+			orderModel.BucketAnchorId,
+			orderModel.CurrentBalance,
+			orderModel.CurrentBucketAmount,
+			orderModel.DepositFormId);
+
+		return applyService.GetAsync(command, HttpContext.RequestAborted);
 	}
 }

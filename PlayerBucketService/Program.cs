@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using FluentdForward.OpenTelemetry.MessagePack;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using OpenTelemetry.Instrumentation.AspNetCore;
@@ -34,6 +35,7 @@ builder.Logging
 builder.Services
 	.AddRouting(options => options.LowercaseUrls = true)
 	.AddControllers()
+	.AddMvcOptions(mvcOptions => mvcOptions.AddWebApiToolkitFilters())
 	.AddJsonOptions(options => options
 		.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
@@ -45,6 +47,8 @@ builder.Services
 builder.Services
 	.AddSwaggerGen(c =>
 	{
+		c.ApplyWebApiToolkitSupport();
+
 		var xmlFileNames = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.xml");
 		foreach (var xmlFileName in xmlFileNames)
 			c.IncludeXmlComments(xmlFileName);

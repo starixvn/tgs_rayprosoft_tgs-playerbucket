@@ -3,17 +3,23 @@
 using System;
 using System.Collections.Generic;
 
-namespace Tgs.PlayerBuckets.DatabaseAccess.Entities
+namespace Tgs.PlayerBuckets.DatabaseAccess.Entities;
+
+public partial class PlayerBucket
 {
-    public partial class PlayerBucket
-    {
-        public Guid Id { get; set; }
-        public string PlayerCode { get; set; } = null!;
-        public decimal BucketAmount { get; set; }
-        public short BucketType { get; set; }
-        public bool IsFull { get; set; }
-        public DateTime CreatedOn { get; set; }
-        public decimal CurrentBucketAmount { get; set; }
-        public Guid? SnapshotId { get; set; }
-    }
+    public Guid Id { get; set; }
+
+    public string PlayerCode { get; set; } = null!;
+
+    public decimal BucketAmount { get; set; }
+
+    public short BucketType { get; set; }
+
+    public bool IsFull { get; set; }
+
+    public DateTime CreatedOn { get; set; }
+
+    public decimal CurrentBucketAmount { get; set; }
+
+    public Guid? SnapshotId { get; set; }
 }

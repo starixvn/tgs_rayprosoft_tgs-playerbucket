@@ -9,4 +9,6 @@ public interface ITgsRepository
 	IAsyncEnumerable<BucketEvent> QueryPlayerBucketHistoriesByIdAsync(Guid bucketId, Guid eventId, CancellationToken cancellationToken = default);
 
 	IAsyncEnumerable<BucketEvent> QueryPlayerBucketHistoriesByDateAsync(Guid bucketId, DateTime queryDate, CancellationToken cancellationToken = default);
+
+	ValueTask UpsertCleanPlayerBucketFormAsync(CleanPlayerBucketForm form, CancellationToken cancellationToken = default);
 }

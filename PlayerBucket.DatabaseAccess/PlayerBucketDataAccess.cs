@@ -129,4 +129,22 @@ internal class PlayerBucketDataAccess
 				PlayerCode = playerCode
 			},
 			cancellationToken).ConfigureAwait(false);
+
+	public async ValueTask UpsertCleanPlayerBucketFormAsync(PlayerBucketCleanForm formRow, CancellationToken cancellationToken = default)
+	{
+		var existsRow = await _dbContext.PlayerBucketCleanForms.FindAsync(
+			new object?[] { formRow.Id },
+			cancellationToken: cancellationToken).ConfigureAwait(false);
+
+		if (existsRow is not null)
+		{
+			existsRow.CleaningBalance = formRow.CleaningBalance;
+			existsRow.CleaningBucketAmount = formRow.CleaningBucketAmount;
+			existsRow.Status = formRow.Status;
+		}
+		else
+			_ = await _dbContext.PlayerBucketCleanForms.AddAsync(
+				formRow,
+				cancellationToken).ConfigureAwait(false);
+	}
 }
