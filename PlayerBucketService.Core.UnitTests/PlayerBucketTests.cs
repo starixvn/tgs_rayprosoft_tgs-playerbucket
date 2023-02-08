@@ -145,4 +145,45 @@ public class PlayerBucketTests
 		_ = fakeTgsRepository.Received(1)
 			.GetCleanPlayerBucketFormAsync(Arg.Is(query.FormId));
 	}
+
+	[Fact]
+	public async Task 完成清除流水申請單()
+	{
+		// Arrange
+		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+		var sut = new CompleteCleanBucketsFormCommandService(
+			fakeTgsRepository);
+
+		var command = new CompleteCleanBucketsFormCommand(Guid.NewGuid(), 100M, 2000M);
+
+		var form = new CleanPlayerBucketForm(
+			command.FormId,
+			"test1",
+			Guid.NewGuid(),
+			0M,
+			1000M,
+			Guid.NewGuid(),
+			Guid.NewGuid(),
+			null,
+			null,
+			CleanFlowStatus.Create,
+			DateTime.UtcNow);
+
+		_ = fakeTgsRepository.GetCleanPlayerBucketFormAsync(Arg.Is(command.FormId))
+			.Returns(form);
+
+		// Act
+		await sut.ExecuteAsync(command);
+
+		// Assert
+		_ = fakeTgsRepository.Received(1)
+			.UpsertCleanPlayerBucketFormAsync(
+				Arg.Is(form with
+				{
+					Status = CleanFlowStatus.Completed,
+					CleaningBalance = command.CleaningBalance,
+					CleaningBucketAmount = command.CleaningBucketAmount
+				}));
+	}
 }

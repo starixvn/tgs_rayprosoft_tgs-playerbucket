@@ -7,5 +7,7 @@ public record CleanBucketForm(
 	decimal CurrentBucketAmount,
 	Guid BucketAnchorId,
 	Guid DepositFormId,
+	decimal? CleaningBalance,
+	decimal? CleaningBucketAmount,
 	CleanFlowStatus Status,
 	DateTime CreatedOn);

@@ -9,7 +9,6 @@ using Tgs.MessageQueue;
 using Tgs.PlayerBucket.Clients;
 using Tgs.PlayerBuckets.DatabaseAccess.Entities;
 using Tgs.Service.PlayerBuckets;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace PlayerBucketService.IntegrationTests;
@@ -437,6 +436,8 @@ public class PlayerBucketApiTests
 			row.CurrentBucketAmount,
 			row.BucketAnchorId,
 			row.DepositFormId,
+			null,
+			null,
 			CleanFlowStatus.Create,
 			row.CreatedOn);
 
@@ -466,5 +467,64 @@ public class PlayerBucketApiTests
 
 		// Assert
 		Assert.Null(actual);
+	}
+
+	[Fact]
+	public async Task 完成清除流水表單()
+	{
+		// Arrange
+		await using var web = PlayerBucketServiceTestHost.Instance
+			.WithWebHostBuilder(hostBuilder => hostBuilder
+				.ConfigureLogging(logging => logging.AddXUnit(TestOutputHelper)));
+
+		var fakeClientMessageSender = Substitute.For<IMessageSender>();
+		var httpClient = web.CreateClient();
+		var sut = new PlayerBucketClient(httpClient, fakeClientMessageSender);
+
+		var formId = Guid.NewGuid();
+
+		var dbContext = web.Services.GetRequiredService<TgsContext>();
+
+		var row = new PlayerBucketCleanForm
+		{
+			Id = formId,
+			BrandId = Guid.NewGuid(),
+			BucketAnchorId = Guid.NewGuid(),
+			PlayerCode = "test1",
+			CurrentBalance = 0M,
+			CurrentBucketAmount = 1000M,
+			CleaningBalance = null,
+			CleaningBucketAmount = null,
+			DepositFormId = Guid.NewGuid(),
+			Status = CleanFlowStatus.Create.ToString(),
+			CreatedOn = DateTime.UtcNow
+		};
+
+		_ = await dbContext.PlayerBucketCleanForms.AddAsync(row);
+
+		_ = await dbContext.SaveChangesAsync();
+
+		var request = new CompleteCleanBucketRequest(100M, 2000M);
+
+		var expected = new PlayerBucketCleanForm
+		{
+			Id = formId,
+			BrandId = row.BrandId,
+			BucketAnchorId = row.BucketAnchorId,
+			PlayerCode = "test1",
+			CurrentBalance = 0M,
+			CurrentBucketAmount = 1000M,
+			CleaningBalance = request.CleaningBalance,
+			CleaningBucketAmount = request.CleaningBucketAmount,
+			DepositFormId = row.DepositFormId,
+			Status = CleanFlowStatus.Completed.ToString(),
+			CreatedOn = row.CreatedOn
+		};
+
+		// Act
+		await sut.CompleteCleanBucketsAsync(formId, request);
+
+		// Assert
+		expected.ToExpectedObject().ShouldMatch(row);
 	}
 }

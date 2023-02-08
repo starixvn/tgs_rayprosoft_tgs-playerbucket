@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using PlayerBucketService.ViewModels;
 using Tgs.Service.PlayerBuckets;
 using Tgs.Service.PlayerBuckets.ApplicationServices;
@@ -108,8 +107,24 @@ public class BucketController : ControllerBase
 				CurrentBalance = form.CurrentBalance,
 				CurrentBucketAmount = form.CurrentBucketAmount,
 				DepositFormId = form.DepositFormId,
+				CleaningBalance = form.CleaningBalance,
+				CleaningBucketAmount = form.CleaningBucketAmount,
 				Status = form.Status,
 				CreatedOn = form.CreatedOn
 			};
+	}
+
+	[HttpPost("clean-form/{formId}", Name = "CompleteCleanBucketsForm")]
+	public ValueTask CompleteCleanBucketsFormAsync(
+		[FromServices] ICommandService<CompleteCleanBucketsFormCommand> completeService,
+		Guid formId,
+		[FromBody] CompleteCleanBucketsFormViewModel viewModel)
+	{
+		var command = new CompleteCleanBucketsFormCommand(
+			formId,
+			viewModel.CleaningBalance,
+			viewModel.CleaningBucketAmount);
+
+		return completeService.ExecuteAsync(command, HttpContext.RequestAborted);
 	}
 }

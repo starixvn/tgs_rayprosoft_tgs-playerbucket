@@ -18,6 +18,10 @@ public class CleanBucketsFormViewModel
 
 	public Guid DepositFormId { get; set; }
 
+	public decimal? CleaningBalance { get; set; }
+
+	public decimal? CleaningBucketAmount { get; set; }
+
 	public CleanFlowStatus Status { get; set; }
 
 	public DateTime CreatedOn { get; set; }
