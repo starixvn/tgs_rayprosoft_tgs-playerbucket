@@ -114,11 +114,11 @@ public class BucketController : ControllerBase
 			};
 	}
 
-	[HttpPost("clean-form/{formId}", Name = "CompleteCleanBucketsForm")]
+	[HttpPost("clean-form/{formId}:complete", Name = "CompleteCleanBucketsForm")]
 	public ValueTask CompleteCleanBucketsFormAsync(
 		[FromServices] ICommandService<CompleteCleanBucketsFormCommand> completeService,
 		Guid formId,
-		[FromBody] CompleteCleanBucketsFormViewModel viewModel)
+		[FromBody] ReviewCleanBucketsFormViewModel viewModel)
 	{
 		var command = new CompleteCleanBucketsFormCommand(
 			formId,
@@ -126,5 +126,19 @@ public class BucketController : ControllerBase
 			viewModel.CleaningBucketAmount);
 
 		return completeService.ExecuteAsync(command, HttpContext.RequestAborted);
+	}
+
+	[HttpPost("clean-form/{formId}:reject", Name = "RejectCleanBucketsForm")]
+	public ValueTask RejectCleanBucketsFormAsync(
+		[FromServices] ICommandService<RejectCleanBucketsFormCommand> rejectService,
+		Guid formId,
+		[FromBody] ReviewCleanBucketsFormViewModel viewModel)
+	{
+		var command = new RejectCleanBucketsFormCommand(
+			formId,
+			viewModel.CleaningBalance,
+			viewModel.CleaningBucketAmount);
+
+		return rejectService.ExecuteAsync(command, HttpContext.RequestAborted);
 	}
 }

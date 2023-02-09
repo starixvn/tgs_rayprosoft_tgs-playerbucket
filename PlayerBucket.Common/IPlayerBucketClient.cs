@@ -44,5 +44,7 @@ public interface IPlayerBucketClient
 
 	ValueTask<CleanBucketForm?> GetCleanBucketFormAsync(Guid formId, CancellationToken cancellationToken = default);
 
-	ValueTask CompleteCleanBucketsAsync(Guid formId, CompleteCleanBucketRequest request, CancellationToken cancellationToken = default);
+	ValueTask CompleteCleanBucketsAsync(Guid formId, ReviewCleanBucketRequest request, CancellationToken cancellationToken = default);
+
+	ValueTask RejectCleanBucketsAsync(Guid formId, ReviewCleanBucketRequest request, CancellationToken cancellationToken = default);
 }

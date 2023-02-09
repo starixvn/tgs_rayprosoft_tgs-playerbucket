@@ -504,7 +504,7 @@ public class PlayerBucketApiTests
 
 		_ = await dbContext.SaveChangesAsync();
 
-		var request = new CompleteCleanBucketRequest(100M, 2000M);
+		var request = new ReviewCleanBucketRequest(100M, 2000M);
 
 		var expected = new PlayerBucketCleanForm
 		{
@@ -523,6 +523,65 @@ public class PlayerBucketApiTests
 
 		// Act
 		await sut.CompleteCleanBucketsAsync(formId, request);
+
+		// Assert
+		expected.ToExpectedObject().ShouldMatch(row);
+	}
+
+	[Fact]
+	public async Task 拒絕清除流水表單()
+	{
+		// Arrange
+		await using var web = PlayerBucketServiceTestHost.Instance
+			.WithWebHostBuilder(hostBuilder => hostBuilder
+				.ConfigureLogging(logging => logging.AddXUnit(TestOutputHelper)));
+
+		var fakeClientMessageSender = Substitute.For<IMessageSender>();
+		var httpClient = web.CreateClient();
+		var sut = new PlayerBucketClient(httpClient, fakeClientMessageSender);
+
+		var formId = Guid.NewGuid();
+
+		var dbContext = web.Services.GetRequiredService<TgsContext>();
+
+		var row = new PlayerBucketCleanForm
+		{
+			Id = formId,
+			BrandId = Guid.NewGuid(),
+			BucketAnchorId = Guid.NewGuid(),
+			PlayerCode = "test1",
+			CurrentBalance = 0M,
+			CurrentBucketAmount = 1000M,
+			CleaningBalance = null,
+			CleaningBucketAmount = null,
+			DepositFormId = Guid.NewGuid(),
+			Status = CleanFlowStatus.Create.ToString(),
+			CreatedOn = DateTime.UtcNow
+		};
+
+		_ = await dbContext.PlayerBucketCleanForms.AddAsync(row);
+
+		_ = await dbContext.SaveChangesAsync();
+
+		var request = new ReviewCleanBucketRequest(100M, 2000M);
+
+		var expected = new PlayerBucketCleanForm
+		{
+			Id = formId,
+			BrandId = row.BrandId,
+			BucketAnchorId = row.BucketAnchorId,
+			PlayerCode = "test1",
+			CurrentBalance = 0M,
+			CurrentBucketAmount = 1000M,
+			CleaningBalance = request.CleaningBalance,
+			CleaningBucketAmount = request.CleaningBucketAmount,
+			DepositFormId = row.DepositFormId,
+			Status = CleanFlowStatus.Rejected.ToString(),
+			CreatedOn = row.CreatedOn
+		};
+
+		// Act
+		await sut.RejectCleanBucketsAsync(formId, request);
 
 		// Assert
 		expected.ToExpectedObject().ShouldMatch(row);
