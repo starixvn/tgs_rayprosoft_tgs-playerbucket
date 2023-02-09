@@ -1,4 +1,5 @@
 ﻿namespace Tgs.Service.PlayerBuckets;
-public record ReviewCleanBucketRequest(
+public record ReviewCleanBucketRequest<TGameBalanceReturn>(
 	decimal CleaningBalance,
-	decimal CleaningBucketAmount);
+	decimal CleaningBucketAmount,
+	TGameBalanceReturn? GameBalanceReturn);

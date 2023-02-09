@@ -100,9 +100,11 @@ public class PlayerBucketTests
 			"test1",
 			Guid.NewGuid(),
 			Guid.NewGuid(),
+			Guid.NewGuid(),
 			0M,
 			1000M,
-			Guid.NewGuid());
+			Guid.NewGuid(),
+			0M);
 
 		var createId = Guid.NewGuid();
 		_ = fakeSerialNumberGenerator.GenerateAsync()
@@ -113,10 +115,12 @@ public class PlayerBucketTests
 			Id = createId,
 			command.PlayerCode,
 			command.BrandId,
+			command.WalletId,
 			command.BucketAnchorId,
 			command.CurrentBalance,
 			command.CurrentBucketAmount,
-			command.DepositFormId
+			command.DepositFormId,
+			command.ClearWageringRequirementBalance
 		};
 
 		// Act
@@ -155,16 +159,19 @@ public class PlayerBucketTests
 		var sut = new CompleteCleanBucketsFormCommandService(
 			fakeTgsRepository);
 
-		var command = new CompleteCleanBucketsFormCommand(Guid.NewGuid(), 100M, 2000M);
+		var command = new CompleteCleanBucketsFormCommand(Guid.NewGuid(), 100M, 2000M, null);
 
 		var form = new CleanPlayerBucketForm(
 			command.FormId,
 			"test1",
 			Guid.NewGuid(),
+			Guid.NewGuid(),
 			0M,
 			1000M,
 			Guid.NewGuid(),
 			Guid.NewGuid(),
+			0M,
+			null,
 			null,
 			null,
 			CleanFlowStatus.Create,
@@ -195,16 +202,19 @@ public class PlayerBucketTests
 
 		var sut = new RejectCleanBucketsFormCommandService(fakeTgsRepository);
 
-		var command = new RejectCleanBucketsFormCommand(Guid.NewGuid(), 100M, 2000M);
+		var command = new RejectCleanBucketsFormCommand(Guid.NewGuid(), 100M, 2000M, null);
 
 		var form = new CleanPlayerBucketForm(
 			command.FormId,
 			"test1",
 			Guid.NewGuid(),
+			Guid.NewGuid(),
 			0M,
 			1000M,
 			Guid.NewGuid(),
 			Guid.NewGuid(),
+			0M,
+			null,
 			null,
 			null,
 			CleanFlowStatus.Create,

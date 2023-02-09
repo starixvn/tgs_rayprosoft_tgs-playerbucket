@@ -69,10 +69,12 @@ public class BucketController : ControllerBase
 		var command = new ApplyCleanBucketsFormCommand(
 			playerCode,
 			orderModel.BrandId,
+			orderModel.WalletId,
 			orderModel.BucketAnchorId,
 			orderModel.CurrentBalance,
 			orderModel.CurrentBucketAmount,
-			orderModel.DepositFormId);
+			orderModel.DepositFormId,
+			orderModel.ClearWageringRequirementBalance);
 
 		return applyService.GetAsync(command, HttpContext.RequestAborted);
 	}
@@ -103,10 +105,12 @@ public class BucketController : ControllerBase
 				Id = form.Id,
 				PlayerCode = form.PlayerCode,
 				BrandId = form.BrandId,
+				WalletId = form.WalletId,
 				BucketAnchorId = form.BucketAnchorId,
 				CurrentBalance = form.CurrentBalance,
 				CurrentBucketAmount = form.CurrentBucketAmount,
 				DepositFormId = form.DepositFormId,
+				ClearWageringRequirementBalance = form.ClearWageringRequirementBalance,
 				CleaningBalance = form.CleaningBalance,
 				CleaningBucketAmount = form.CleaningBucketAmount,
 				Status = form.Status,
@@ -123,7 +127,8 @@ public class BucketController : ControllerBase
 		var command = new CompleteCleanBucketsFormCommand(
 			formId,
 			viewModel.CleaningBalance,
-			viewModel.CleaningBucketAmount);
+			viewModel.CleaningBucketAmount,
+			viewModel.GameBalanceReturn);
 
 		return completeService.ExecuteAsync(command, HttpContext.RequestAborted);
 	}
@@ -137,7 +142,8 @@ public class BucketController : ControllerBase
 		var command = new RejectCleanBucketsFormCommand(
 			formId,
 			viewModel.CleaningBalance,
-			viewModel.CleaningBucketAmount);
+			viewModel.CleaningBucketAmount,
+			viewModel.GameBalanceReturn);
 
 		return rejectService.ExecuteAsync(command, HttpContext.RequestAborted);
 	}

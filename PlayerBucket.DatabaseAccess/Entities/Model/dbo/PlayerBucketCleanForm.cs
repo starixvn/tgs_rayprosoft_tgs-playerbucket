@@ -28,4 +28,10 @@ public partial class PlayerBucketCleanForm
     public string PlayerCode { get; set; } = null!;
 
     public string Status { get; set; } = null!;
+
+    public decimal ClearWageringRequirementBalance { get; set; }
+
+    public string? GameBalanceReturn { get; set; }
+
+    public Guid WalletId { get; set; }
 }

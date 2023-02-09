@@ -1,5 +1,8 @@
-﻿namespace Tgs.Service.PlayerBuckets.ApplicationServices;
+﻿using System.Text.Json;
+
+namespace Tgs.Service.PlayerBuckets.ApplicationServices;
 public record CompleteCleanBucketsFormCommand(
 	Guid FormId,
 	decimal CleaningBalance,
-	decimal CleaningBucketAmount);
+	decimal CleaningBucketAmount,
+	JsonDocument? GameBalanceReturn);

@@ -24,7 +24,8 @@ internal class RejectCleanBucketsFormCommandService : ICommandService<RejectClea
 		{
 			Status = CleanFlowStatus.Rejected,
 			CleaningBalance = command.CleaningBalance,
-			CleaningBucketAmount = command.CleaningBucketAmount
+			CleaningBucketAmount = command.CleaningBucketAmount,
+			GameBalanceReturn = command.GameBalanceReturn
 		};
 
 		await _tgsRepository.UpsertCleanPlayerBucketFormAsync(

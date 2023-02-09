@@ -7,12 +7,15 @@ public record CleanPlayerBucketForm(
 	Guid Id,
 	string PlayerCode,
 	Guid BrandId,
+	Guid WalletId,
 	decimal CurrentBalance,
 	decimal CurrentBucketAmount,
 	Guid BucketAnchorId,
 	Guid DepositFormId,
+	decimal ClearWageringRequirementBalance,
 	decimal? CleaningBalance,
 	decimal? CleaningBucketAmount,
+	JsonDocument? GameBalanceReturn,
 	CleanFlowStatus Status,
 	DateTime CreatedOn)
 {

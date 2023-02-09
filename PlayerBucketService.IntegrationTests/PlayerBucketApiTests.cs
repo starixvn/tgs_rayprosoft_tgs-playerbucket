@@ -371,19 +371,23 @@ public class PlayerBucketApiTests
 		var playerCode = "test1";
 		var cleanOrder = new CleanBucketOrder(
 			Guid.NewGuid(),
+			Guid.NewGuid(),
 			0M,
 			1000M,
 			Guid.NewGuid(),
-			Guid.NewGuid());
+			Guid.NewGuid(),
+			5M);
 
 		var expected = new
 		{
 			PlayerCode = playerCode,
 			cleanOrder.BrandId,
+			cleanOrder.WalletId,
 			cleanOrder.CurrentBalance,
 			cleanOrder.CurrentBucketAmount,
 			cleanOrder.BucketAnchorId,
-			cleanOrder.DepositFormId
+			cleanOrder.DepositFormId,
+			cleanOrder.ClearWageringRequirementBalance
 		};
 
 		// Act
@@ -413,6 +417,7 @@ public class PlayerBucketApiTests
 		{
 			Id = Guid.NewGuid(),
 			BrandId = Guid.NewGuid(),
+			WalletId = Guid.NewGuid(),
 			BucketAnchorId = Guid.NewGuid(),
 			PlayerCode = "test1",
 			CurrentBalance = 0M,
@@ -420,6 +425,7 @@ public class PlayerBucketApiTests
 			CleaningBalance = null,
 			CleaningBucketAmount = null,
 			DepositFormId = Guid.NewGuid(),
+			ClearWageringRequirementBalance = 5M,
 			Status = CleanFlowStatus.Create.ToString(),
 			CreatedOn = DateTime.UtcNow
 		};
@@ -431,11 +437,13 @@ public class PlayerBucketApiTests
 		var expected = new CleanBucketForm(
 			row.Id,
 			row.PlayerCode,
+			row.WalletId,
 			row.BrandId,
 			row.CurrentBalance,
 			row.CurrentBucketAmount,
 			row.BucketAnchorId,
 			row.DepositFormId,
+			row.ClearWageringRequirementBalance,
 			null,
 			null,
 			CleanFlowStatus.Create,
@@ -489,10 +497,12 @@ public class PlayerBucketApiTests
 		{
 			Id = formId,
 			BrandId = Guid.NewGuid(),
+			WalletId = Guid.NewGuid(),
 			BucketAnchorId = Guid.NewGuid(),
 			PlayerCode = "test1",
 			CurrentBalance = 0M,
 			CurrentBucketAmount = 1000M,
+			ClearWageringRequirementBalance = 5M,
 			CleaningBalance = null,
 			CleaningBucketAmount = null,
 			DepositFormId = Guid.NewGuid(),
@@ -504,18 +514,85 @@ public class PlayerBucketApiTests
 
 		_ = await dbContext.SaveChangesAsync();
 
-		var request = new ReviewCleanBucketRequest(100M, 2000M);
+		var request = new ReviewCleanBucketRequest<object>(100M, 2000M, new object());
 
 		var expected = new PlayerBucketCleanForm
 		{
 			Id = formId,
 			BrandId = row.BrandId,
+			WalletId = row.WalletId,
 			BucketAnchorId = row.BucketAnchorId,
 			PlayerCode = "test1",
 			CurrentBalance = 0M,
 			CurrentBucketAmount = 1000M,
+			ClearWageringRequirementBalance = row.ClearWageringRequirementBalance,
 			CleaningBalance = request.CleaningBalance,
 			CleaningBucketAmount = request.CleaningBucketAmount,
+			GameBalanceReturn = "{}",
+			DepositFormId = row.DepositFormId,
+			Status = CleanFlowStatus.Completed.ToString(),
+			CreatedOn = row.CreatedOn
+		};
+
+		// Act
+		await sut.CompleteCleanBucketsAsync(formId, request);
+
+		// Assert
+		expected.ToExpectedObject().ShouldMatch(row);
+	}
+
+	[Fact]
+	public async Task 完成清除流水表單_如果GameBalanceReturn為空_資料表欄位會是Null()
+	{
+		// Arrange
+		await using var web = PlayerBucketServiceTestHost.Instance
+			.WithWebHostBuilder(hostBuilder => hostBuilder
+				.ConfigureLogging(logging => logging.AddXUnit(TestOutputHelper)));
+
+		var fakeClientMessageSender = Substitute.For<IMessageSender>();
+		var httpClient = web.CreateClient();
+		var sut = new PlayerBucketClient(httpClient, fakeClientMessageSender);
+
+		var formId = Guid.NewGuid();
+
+		var dbContext = web.Services.GetRequiredService<TgsContext>();
+
+		var row = new PlayerBucketCleanForm
+		{
+			Id = formId,
+			BrandId = Guid.NewGuid(),
+			WalletId = Guid.NewGuid(),
+			BucketAnchorId = Guid.NewGuid(),
+			PlayerCode = "test1",
+			CurrentBalance = 0M,
+			CurrentBucketAmount = 1000M,
+			ClearWageringRequirementBalance = 5M,
+			CleaningBalance = null,
+			CleaningBucketAmount = null,
+			DepositFormId = Guid.NewGuid(),
+			Status = CleanFlowStatus.Create.ToString(),
+			CreatedOn = DateTime.UtcNow
+		};
+
+		_ = await dbContext.PlayerBucketCleanForms.AddAsync(row);
+
+		_ = await dbContext.SaveChangesAsync();
+
+		var request = new ReviewCleanBucketRequest<object?>(100M, 2000M, null);
+
+		var expected = new PlayerBucketCleanForm
+		{
+			Id = formId,
+			BrandId = row.BrandId,
+			WalletId = row.WalletId,
+			BucketAnchorId = row.BucketAnchorId,
+			PlayerCode = "test1",
+			CurrentBalance = 0M,
+			CurrentBucketAmount = 1000M,
+			ClearWageringRequirementBalance = row.ClearWageringRequirementBalance,
+			CleaningBalance = request.CleaningBalance,
+			CleaningBucketAmount = request.CleaningBucketAmount,
+			GameBalanceReturn = null,
 			DepositFormId = row.DepositFormId,
 			Status = CleanFlowStatus.Completed.ToString(),
 			CreatedOn = row.CreatedOn
@@ -548,10 +625,12 @@ public class PlayerBucketApiTests
 		{
 			Id = formId,
 			BrandId = Guid.NewGuid(),
+			WalletId = Guid.NewGuid(),
 			BucketAnchorId = Guid.NewGuid(),
 			PlayerCode = "test1",
 			CurrentBalance = 0M,
 			CurrentBucketAmount = 1000M,
+			ClearWageringRequirementBalance = 5M,
 			CleaningBalance = null,
 			CleaningBucketAmount = null,
 			DepositFormId = Guid.NewGuid(),
@@ -563,18 +642,85 @@ public class PlayerBucketApiTests
 
 		_ = await dbContext.SaveChangesAsync();
 
-		var request = new ReviewCleanBucketRequest(100M, 2000M);
+		var request = new ReviewCleanBucketRequest<object>(100M, 2000M, new object());
 
 		var expected = new PlayerBucketCleanForm
 		{
 			Id = formId,
 			BrandId = row.BrandId,
+			WalletId = row.WalletId,
 			BucketAnchorId = row.BucketAnchorId,
 			PlayerCode = "test1",
 			CurrentBalance = 0M,
 			CurrentBucketAmount = 1000M,
+			ClearWageringRequirementBalance = row.ClearWageringRequirementBalance,
 			CleaningBalance = request.CleaningBalance,
 			CleaningBucketAmount = request.CleaningBucketAmount,
+			GameBalanceReturn = "{}",
+			DepositFormId = row.DepositFormId,
+			Status = CleanFlowStatus.Rejected.ToString(),
+			CreatedOn = row.CreatedOn
+		};
+
+		// Act
+		await sut.RejectCleanBucketsAsync(formId, request);
+
+		// Assert
+		expected.ToExpectedObject().ShouldMatch(row);
+	}
+
+	[Fact]
+	public async Task 拒絕清除流水表單_如果GameBalanceReturn為空_資料庫欄位會是Null()
+	{
+		// Arrange
+		await using var web = PlayerBucketServiceTestHost.Instance
+			.WithWebHostBuilder(hostBuilder => hostBuilder
+				.ConfigureLogging(logging => logging.AddXUnit(TestOutputHelper)));
+
+		var fakeClientMessageSender = Substitute.For<IMessageSender>();
+		var httpClient = web.CreateClient();
+		var sut = new PlayerBucketClient(httpClient, fakeClientMessageSender);
+
+		var formId = Guid.NewGuid();
+
+		var dbContext = web.Services.GetRequiredService<TgsContext>();
+
+		var row = new PlayerBucketCleanForm
+		{
+			Id = formId,
+			BrandId = Guid.NewGuid(),
+			WalletId = Guid.NewGuid(),
+			BucketAnchorId = Guid.NewGuid(),
+			PlayerCode = "test1",
+			CurrentBalance = 0M,
+			CurrentBucketAmount = 1000M,
+			ClearWageringRequirementBalance = 5M,
+			CleaningBalance = null,
+			CleaningBucketAmount = null,
+			DepositFormId = Guid.NewGuid(),
+			Status = CleanFlowStatus.Create.ToString(),
+			CreatedOn = DateTime.UtcNow
+		};
+
+		_ = await dbContext.PlayerBucketCleanForms.AddAsync(row);
+
+		_ = await dbContext.SaveChangesAsync();
+
+		var request = new ReviewCleanBucketRequest<object?>(100M, 2000M, null);
+
+		var expected = new PlayerBucketCleanForm
+		{
+			Id = formId,
+			BrandId = row.BrandId,
+			WalletId = row.WalletId,
+			BucketAnchorId = row.BucketAnchorId,
+			PlayerCode = "test1",
+			CurrentBalance = 0M,
+			CurrentBucketAmount = 1000M,
+			ClearWageringRequirementBalance = row.ClearWageringRequirementBalance,
+			CleaningBalance = request.CleaningBalance,
+			CleaningBucketAmount = request.CleaningBucketAmount,
+			GameBalanceReturn = null,
 			DepositFormId = row.DepositFormId,
 			Status = CleanFlowStatus.Rejected.ToString(),
 			CreatedOn = row.CreatedOn

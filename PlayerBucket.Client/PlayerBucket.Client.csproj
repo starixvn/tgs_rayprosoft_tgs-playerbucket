@@ -7,7 +7,7 @@
 		<RootNamespace>Tgs.PlayerBucket.Clients</RootNamespace>
 		<PackageId>Tgs.PlayerBucket.Client</PackageId>
 		<Title>Tgs.PlayerBucket.Client</Title>
-		<Version>0.0.12</Version>
+		<Version>0.0.13</Version>
 		<Authors>Raypro</Authors>
 		<PackageProjectUrl>https://gitlab.com/rayprosoft/tgs-playerbucket</PackageProjectUrl>
 		<RepositoryUrl>https://gitlab.com/rayprosoft/tgs-playerbucket.git</RepositoryUrl>
