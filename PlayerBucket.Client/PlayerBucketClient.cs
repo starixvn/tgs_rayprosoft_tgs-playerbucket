@@ -203,15 +203,18 @@ internal class PlayerBucketClient : IPlayerBucketClient
 			.FirstOrDefaultAsync(cancellationToken)
 			.ConfigureAwait(false);
 
-	public async ValueTask CompleteCleanBucketsAsync(Guid formId, ReviewCleanBucketRequest request, CancellationToken cancellationToken = default)
+	public async ValueTask CompleteCleanBucketsAsync<TGameBalanceReturn>(
+		Guid formId,
+		ReviewCleanBucketRequest<TGameBalanceReturn> request,
+		CancellationToken cancellationToken = default)
 	{
 		var response = await _httpClient.PostAsJsonAsync(
 			$"api/bucket/clean-form/{formId}:complete",
 			new
 			{
-				FormId = formId,
 				request.CleaningBalance,
-				request.CleaningBucketAmount
+				request.CleaningBucketAmount,
+				request.GameBalanceReturn
 			},
 			PlayerBucketUtility.SerializerOptions,
 			cancellationToken)
@@ -220,15 +223,18 @@ internal class PlayerBucketClient : IPlayerBucketClient
 		_ = response.EnsureSuccessStatusCode();
 	}
 
-	public async ValueTask RejectCleanBucketsAsync(Guid formId, ReviewCleanBucketRequest request, CancellationToken cancellationToken = default)
+	public async ValueTask RejectCleanBucketsAsync<TGameBalanceReturn>(
+		Guid formId,
+		ReviewCleanBucketRequest<TGameBalanceReturn> request,
+		CancellationToken cancellationToken = default)
 	{
 		var response = await _httpClient.PostAsJsonAsync(
 			$"api/bucket/clean-form/{formId}:reject",
 			new
 			{
-				FormId = formId,
 				request.CleaningBalance,
-				request.CleaningBucketAmount
+				request.CleaningBucketAmount,
+				request.GameBalanceReturn
 			},
 			PlayerBucketUtility.SerializerOptions,
 			cancellationToken)

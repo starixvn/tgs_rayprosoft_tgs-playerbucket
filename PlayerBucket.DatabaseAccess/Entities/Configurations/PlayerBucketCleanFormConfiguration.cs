@@ -28,14 +28,19 @@ namespace Tgs.PlayerBuckets.DatabaseAccess.Entities.Configurations
             entity.Property(e => e.BucketAnchorId).HasColumnName("bucket_anchor_id");
             entity.Property(e => e.CleaningBalance).HasColumnName("cleaning_balance");
             entity.Property(e => e.CleaningBucketAmount).HasColumnName("cleaning_bucket_amount");
+            entity.Property(e => e.ClearWageringRequirementBalance).HasColumnName("clear_wagering_requirement_balance");
             entity.Property(e => e.CreatedOn).HasColumnName("created_on");
             entity.Property(e => e.CurrentBalance).HasColumnName("current_balance");
             entity.Property(e => e.CurrentBucketAmount).HasColumnName("current_bucket_amount");
             entity.Property(e => e.DepositFormId).HasColumnName("deposit_form_id");
+            entity.Property(e => e.GameBalanceReturn)
+            .HasColumnType("jsonb")
+            .HasColumnName("game_balance_return");
             entity.Property(e => e.PlayerCode)
             .HasMaxLength(16)
             .HasColumnName("player_code");
             entity.Property(e => e.Status).HasColumnName("status");
+            entity.Property(e => e.WalletId).HasColumnName("wallet_id");
 
             OnConfigurePartial(entity);
         }

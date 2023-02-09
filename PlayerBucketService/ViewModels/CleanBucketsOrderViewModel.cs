@@ -4,6 +4,8 @@ public class CleanBucketsOrderViewModel
 {
 	public Guid BrandId { get; set; }
 
+	public Guid WalletId { get; set; }
+
 	public Guid BucketAnchorId { get; set; }
 
 	public decimal CurrentBalance { get; set; }
@@ -11,4 +13,6 @@ public class CleanBucketsOrderViewModel
 	public decimal CurrentBucketAmount { get; set; }
 
 	public Guid DepositFormId { get; set; }
+
+	public decimal ClearWageringRequirementBalance { get; set; }
 }

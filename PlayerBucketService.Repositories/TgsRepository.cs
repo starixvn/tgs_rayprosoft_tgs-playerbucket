@@ -103,6 +103,7 @@ internal class TgsRepository : ITgsRepository
 		{
 			Id = form.Id,
 			BrandId = form.BrandId,
+			WalletId = form.WalletId,
 			BucketAnchorId = form.BucketAnchorId,
 			CleaningBalance = form.CleaningBalance,
 			CleaningBucketAmount = form.CleaningBucketAmount,
@@ -111,6 +112,10 @@ internal class TgsRepository : ITgsRepository
 			CurrentBucketAmount = form.CurrentBucketAmount,
 			DepositFormId = form.DepositFormId,
 			PlayerCode = form.PlayerCode,
+			ClearWageringRequirementBalance = form.ClearWageringRequirementBalance,
+			GameBalanceReturn = form.GameBalanceReturn is null
+				? null
+				: JsonSerializer.Serialize(form.GameBalanceReturn),
 			Status = form.Status.ToString()
 		};
 
@@ -137,12 +142,17 @@ internal class TgsRepository : ITgsRepository
 				row.Id,
 				row.PlayerCode,
 				row.BrandId,
+				row.WalletId,
 				row.CurrentBalance,
 				row.CurrentBucketAmount,
 				row.BucketAnchorId,
 				row.DepositFormId,
+				row.ClearWageringRequirementBalance,
 				row.CleaningBalance,
 				row.CleaningBucketAmount,
+				string.IsNullOrWhiteSpace(row.GameBalanceReturn)
+					? null
+					: JsonDocument.Parse(row.GameBalanceReturn),
 				Enum.Parse<CleanFlowStatus>(row.Status),
 				row.CreatedOn);
 	}

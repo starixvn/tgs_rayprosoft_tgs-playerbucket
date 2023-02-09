@@ -140,6 +140,7 @@ internal class PlayerBucketDataAccess
 		{
 			existsRow.CleaningBalance = formRow.CleaningBalance;
 			existsRow.CleaningBucketAmount = formRow.CleaningBucketAmount;
+			existsRow.GameBalanceReturn = formRow.GameBalanceReturn;
 			existsRow.Status = formRow.Status;
 		}
 		else

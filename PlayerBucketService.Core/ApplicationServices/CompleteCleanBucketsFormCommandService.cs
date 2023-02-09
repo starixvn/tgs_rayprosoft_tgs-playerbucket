@@ -24,7 +24,8 @@ internal class CompleteCleanBucketsFormCommandService : ICommandService<Complete
 		{
 			Status = CleanFlowStatus.Completed,
 			CleaningBalance = command.CleaningBalance,
-			CleaningBucketAmount = command.CleaningBucketAmount
+			CleaningBucketAmount = command.CleaningBucketAmount,
+			GameBalanceReturn = command.GameBalanceReturn
 		};
 
 		await _tgsRepository.UpsertCleanPlayerBucketFormAsync(
