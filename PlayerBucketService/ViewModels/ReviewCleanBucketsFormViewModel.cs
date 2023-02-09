@@ -1,6 +1,6 @@
 ﻿namespace PlayerBucketService.ViewModels;
 
-public class CompleteCleanBucketsFormViewModel
+public class ReviewCleanBucketsFormViewModel
 {
 	public decimal CleaningBalance { get; set; }
 

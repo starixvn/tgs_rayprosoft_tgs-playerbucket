@@ -203,10 +203,27 @@ internal class PlayerBucketClient : IPlayerBucketClient
 			.FirstOrDefaultAsync(cancellationToken)
 			.ConfigureAwait(false);
 
-	public async ValueTask CompleteCleanBucketsAsync(Guid formId, CompleteCleanBucketRequest request, CancellationToken cancellationToken = default)
+	public async ValueTask CompleteCleanBucketsAsync(Guid formId, ReviewCleanBucketRequest request, CancellationToken cancellationToken = default)
 	{
 		var response = await _httpClient.PostAsJsonAsync(
-			$"api/bucket/clean-form/{formId}",
+			$"api/bucket/clean-form/{formId}:complete",
+			new
+			{
+				FormId = formId,
+				request.CleaningBalance,
+				request.CleaningBucketAmount
+			},
+			PlayerBucketUtility.SerializerOptions,
+			cancellationToken)
+			.ConfigureAwait(false);
+
+		_ = response.EnsureSuccessStatusCode();
+	}
+
+	public async ValueTask RejectCleanBucketsAsync(Guid formId, ReviewCleanBucketRequest request, CancellationToken cancellationToken = default)
+	{
+		var response = await _httpClient.PostAsJsonAsync(
+			$"api/bucket/clean-form/{formId}:reject",
 			new
 			{
 				FormId = formId,

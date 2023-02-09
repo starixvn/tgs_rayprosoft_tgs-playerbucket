@@ -1,4 +1,4 @@
 ﻿namespace Tgs.Service.PlayerBuckets;
-public record CompleteCleanBucketRequest(
+public record ReviewCleanBucketRequest(
 	decimal CleaningBalance,
 	decimal CleaningBucketAmount);
