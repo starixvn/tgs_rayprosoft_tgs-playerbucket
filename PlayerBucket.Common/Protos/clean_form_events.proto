@@ -1,0 +1,9 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "Tgs.Services.PlayerBucket.Protos";
+
+import "phoenix/protobuf/guid.proto";
+
+message CleanFormCreatedEvent {
+	phoenix.protobuf.GuidValue form_id = 1;
+}

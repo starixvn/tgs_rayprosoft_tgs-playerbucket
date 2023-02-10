@@ -7,13 +7,16 @@ internal class ApplyCleanBucketsFormCommandService : IGetService<ApplyCleanBucke
 {
 	private readonly ITgsRepository _tgsRepository;
 	private readonly ISerialNumberGenerator _serialNumberGenerator;
+	private readonly IPlayerBucketClient _playerBucketClient;
 
 	public ApplyCleanBucketsFormCommandService(
 		ITgsRepository tgsRepository,
-		ISerialNumberGenerator serialNumberGenerator)
+		ISerialNumberGenerator serialNumberGenerator,
+		IPlayerBucketClient playerBucketClient)
 	{
 		_tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
 		_serialNumberGenerator = serialNumberGenerator ?? throw new ArgumentNullException(nameof(serialNumberGenerator));
+		_playerBucketClient = playerBucketClient ?? throw new ArgumentNullException(nameof(playerBucketClient));
 	}
 
 	public async ValueTask<Guid> GetAsync(ApplyCleanBucketsFormCommand command, CancellationToken cancellationToken = default)
@@ -40,6 +43,10 @@ internal class ApplyCleanBucketsFormCommandService : IGetService<ApplyCleanBucke
 
 		await _tgsRepository.UpsertCleanPlayerBucketFormAsync(
 			form,
+			cancellationToken).ConfigureAwait(false);
+
+		await _playerBucketClient.PublishCleanBucketsFormCreatedEventAsync(
+			createId,
 			cancellationToken).ConfigureAwait(false);
 
 		return createId;

@@ -53,4 +53,6 @@ public interface IPlayerBucketClient
 		Guid formId,
 		ReviewCleanBucketRequest<TGameBalanceReturn> request,
 		CancellationToken cancellationToken = default);
+
+	ValueTask PublishCleanBucketsFormCreatedEventAsync(Guid formId, CancellationToken cancellationToken = default);
 }

@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <None Remove="Protos\bucket.proto" />
+    <None Remove="Protos\clean_form_events.proto" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,6 +27,7 @@
 
   <ItemGroup>
     <Protobuf Include="Protos\bucket.proto" GrpcServices="None" />
+    <Protobuf Include="Protos\clean_form_events.proto" GrpcServices="None" />
   </ItemGroup>
 
 </Project>
