@@ -242,4 +242,17 @@ internal class PlayerBucketClient : IPlayerBucketClient
 
 		_ = response.EnsureSuccessStatusCode();
 	}
+
+	public async ValueTask PublishCleanBucketsFormCreatedEventAsync(Guid formId, CancellationToken cancellationToken = default)
+	{
+		var request = new CleanFormCreatedEvent
+		{
+			FormId = formId
+		};
+
+		await _messageSender.PublishAsync(
+			"tgs.bucket.clean-form.created",
+			request.ToByteArray(),
+			cancellationToken).ConfigureAwait(false);
+	}
 }

@@ -7,6 +7,7 @@ using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Tgs.PlayerBucket.Clients.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,7 +43,19 @@ builder.Services
 builder.Services
 	.AddPlayerBucketService()
 	.AddPlayerBucketServiceRepositories((_, dbBuilder) => dbBuilder
-		.UseNpgsql("name=Tgs"));
+		.UseNpgsql("name=Tgs"))
+	.AddPlayerBucketClient(clientBuilder => { });
+
+builder.Services
+	.AddMessageQueue()
+	.AddNatsMessageQueue(config => config
+		.ConfigQueueOptions((options, sp) =>
+		{
+			var configuration = sp.GetRequiredService<IConfiguration>();
+
+			options.Url = configuration.GetConnectionString("Nats")!;
+		}))
+	.AddNatsGlobPatternExchange("*");
 
 builder.Services
 	.AddSwaggerGen(c =>

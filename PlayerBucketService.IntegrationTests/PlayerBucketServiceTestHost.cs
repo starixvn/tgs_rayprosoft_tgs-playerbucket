@@ -31,5 +31,6 @@ internal class PlayerBucketServiceTestHost
 							InMemoryEventId.TransactionIgnoredWarning));
 
 					return new TgsContext(dbContextOptionsBuilder.Options);
-				}))));
+				}))
+				.AddFakeNatsMessageQueue()));
 }

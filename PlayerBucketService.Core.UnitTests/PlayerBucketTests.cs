@@ -91,10 +91,12 @@ public class PlayerBucketTests
 		// Arrange
 		var fakeTgsRepository = Substitute.For<ITgsRepository>();
 		var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();
+		var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
 
 		var sut = new ApplyCleanBucketsFormCommandService(
 			fakeTgsRepository,
-			fakeSerialNumberGenerator);
+			fakeSerialNumberGenerator,
+			fakePlayerBucketClient);
 
 		var command = new ApplyCleanBucketsFormCommand(
 			"test1",
@@ -130,6 +132,8 @@ public class PlayerBucketTests
 		_ = fakeTgsRepository.Received(1)
 			.UpsertCleanPlayerBucketFormAsync(
 				Arg.Is<CleanPlayerBucketForm>(form => expected.ToExpectedObject().Matches(form)));
+		_ = fakePlayerBucketClient.Received(1)
+			.PublishCleanBucketsFormCreatedEventAsync(Arg.Is(createId));
 	}
 
 	[Fact]
