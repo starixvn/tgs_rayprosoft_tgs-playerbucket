@@ -1,16 +1,19 @@
 ﻿using System.Text.Json;
 using Tgs.PlayerBuckets.DatabaseAccess;
 using Tgs.PlayerBuckets.DatabaseAccess.Entities;
+using Tgs.SerialNumberGenerator;
 
 namespace Tgs.Service.PlayerBuckets.Repositories;
 
 internal class TgsRepository : ITgsRepository
 {
 	private readonly PlayerBucketDataAccess _playerBucketDataAccess;
+	private readonly ISerialNumberGenerator _serialNumberGenerator;
 
-	public TgsRepository(PlayerBucketDataAccess playerBucketDataAccess)
+	public TgsRepository(PlayerBucketDataAccess playerBucketDataAccess, ISerialNumberGenerator serialNumberGenerator)
 	{
 		_playerBucketDataAccess = playerBucketDataAccess ?? throw new ArgumentNullException(nameof(playerBucketDataAccess));
+		_serialNumberGenerator = serialNumberGenerator ?? throw new ArgumentNullException(nameof(serialNumberGenerator));
 	}
 
 	public IAsyncEnumerable<BucketInfo> QueryPlayerBucketsAsync(string playerCode, CancellationToken cancellationToken = default)
@@ -97,8 +100,28 @@ internal class TgsRepository : ITgsRepository
 				row.Remark));
 	}
 
-	public async ValueTask UpsertCleanPlayerBucketFormAsync(CleanPlayerBucketForm form, CancellationToken cancellationToken = default)
+	public async ValueTask UpsertCleanPlayerBucketFormAsync(
+		CleanPlayerBucketForm form,
+		CleanPlayerBucketForm? previousForm,
+		CancellationToken cancellationToken = default)
 	{
+		var eventId = await _serialNumberGenerator
+			.GenerateAsync(cancellationToken)
+			.ConfigureAwait(false);
+
+		var eventSource = new PlayerBucketCleanEventSource
+		{
+			Id = eventId,
+			FormId = form.Id,
+			ChangeSets = JsonSerializer.Serialize(
+				form.CreateJsonPatchDocument(previousForm)),
+			CreatedOn = DateTime.UtcNow
+		};
+
+		await _playerBucketDataAccess.InsertPlayerBucketCleanEventSourceAsync(
+			eventSource,
+			cancellationToken).ConfigureAwait(false);
+
 		var row = new PlayerBucketCleanForm
 		{
 			Id = form.Id,
@@ -116,7 +139,8 @@ internal class TgsRepository : ITgsRepository
 			GameBalanceReturn = form.GameBalanceReturn is null
 				? null
 				: JsonSerializer.Serialize(form.GameBalanceReturn),
-			Status = form.Status.ToString()
+			Status = form.Status.ToString(),
+			SnapshotId = eventId
 		};
 
 		await _playerBucketDataAccess.UpsertPlayerBucketCleanFormAsync(

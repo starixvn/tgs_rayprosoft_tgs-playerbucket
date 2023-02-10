@@ -1,4 +1,6 @@
-﻿namespace Tgs.Service.PlayerBuckets;
+﻿using System.Text.Json;
+
+namespace Tgs.Service.PlayerBuckets;
 
 public interface ITgsRepository
 {
@@ -10,7 +12,7 @@ public interface ITgsRepository
 
 	IAsyncEnumerable<BucketEvent> QueryPlayerBucketHistoriesByDateAsync(Guid bucketId, DateTime queryDate, CancellationToken cancellationToken = default);
 
-	ValueTask UpsertCleanPlayerBucketFormAsync(CleanPlayerBucketForm form, CancellationToken cancellationToken = default);
+	ValueTask UpsertCleanPlayerBucketFormAsync(CleanPlayerBucketForm form, CleanPlayerBucketForm? previousForm, CancellationToken cancellationToken = default);
 
 	ValueTask<CleanPlayerBucketForm?> GetCleanPlayerBucketFormAsync(Guid formId, CancellationToken cancellationToken = default);
 }

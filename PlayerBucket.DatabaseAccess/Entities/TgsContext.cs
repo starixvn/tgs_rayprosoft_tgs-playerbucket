@@ -16,6 +16,8 @@ public partial class TgsContext : DbContext
 
     public virtual DbSet<PlayerBucket> PlayerBuckets { get; set; }
 
+    public virtual DbSet<PlayerBucketCleanEventSource> PlayerBucketCleanEventSources { get; set; }
+
     public virtual DbSet<PlayerBucketCleanForm> PlayerBucketCleanForms { get; set; }
 
     public virtual DbSet<PlayerBucketEventSource> PlayerBucketEventSources { get; set; }
@@ -29,6 +31,7 @@ public partial class TgsContext : DbContext
             .HasPostgresExtension("pg_trgm");
 
             modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketConfiguration());
+            modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketCleanEventSourceConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketCleanFormConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketEventSourceConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketMigrationConfiguration());

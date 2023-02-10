@@ -19,6 +19,10 @@
    "SelectedToBeGenerated": 0,
    "Tables": [
       {
+         "Name": "dbo.player_bucket_clean_event_source",
+         "ObjectType": 0
+      },
+      {
          "Name": "dbo.player_bucket_clean_forms",
          "ObjectType": 0
       },
