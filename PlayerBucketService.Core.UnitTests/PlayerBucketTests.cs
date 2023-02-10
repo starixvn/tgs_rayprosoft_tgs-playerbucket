@@ -131,7 +131,8 @@ public class PlayerBucketTests
 		// Assert
 		_ = fakeTgsRepository.Received(1)
 			.UpsertCleanPlayerBucketFormAsync(
-				Arg.Is<CleanPlayerBucketForm>(form => expected.ToExpectedObject().Matches(form)));
+				Arg.Is<CleanPlayerBucketForm>(form => expected.ToExpectedObject().Matches(form)),
+				Arg.Is(default(CleanPlayerBucketForm)));
 		_ = fakePlayerBucketClient.Received(1)
 			.PublishCleanBucketsFormCreatedEventAsync(Arg.Is(createId));
 	}
@@ -195,7 +196,8 @@ public class PlayerBucketTests
 					Status = CleanFlowStatus.Completed,
 					CleaningBalance = command.CleaningBalance,
 					CleaningBucketAmount = command.CleaningBucketAmount
-				}));
+				}),
+				Arg.Is(form));
 	}
 
 	[Fact]
@@ -238,6 +240,7 @@ public class PlayerBucketTests
 					Status = CleanFlowStatus.Rejected,
 					CleaningBalance = command.CleaningBalance,
 					CleaningBucketAmount = command.CleaningBucketAmount
-				}));
+				}),
+				Arg.Is(form));
 	}
 }

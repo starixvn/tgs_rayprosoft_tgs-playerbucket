@@ -39,6 +39,7 @@ namespace Tgs.PlayerBuckets.DatabaseAccess.Entities.Configurations
             entity.Property(e => e.PlayerCode)
             .HasMaxLength(16)
             .HasColumnName("player_code");
+            entity.Property(e => e.SnapshotId).HasColumnName("snapshot_id");
             entity.Property(e => e.Status).HasColumnName("status");
             entity.Property(e => e.WalletId).HasColumnName("wallet_id");
 

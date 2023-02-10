@@ -153,4 +153,11 @@ internal class PlayerBucketDataAccess
 		=> _dbContext.PlayerBucketCleanForms.FindAsync(
 			new object?[] { formId },
 			cancellationToken: cancellationToken);
+
+	public async ValueTask InsertPlayerBucketCleanEventSourceAsync(
+		PlayerBucketCleanEventSource eventSource,
+		CancellationToken cancellationToken = default)
+		=> await _dbContext.PlayerBucketCleanEventSources.AddAsync(
+			eventSource,
+			cancellationToken).ConfigureAwait(false);
 }

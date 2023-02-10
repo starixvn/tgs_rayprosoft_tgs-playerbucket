@@ -30,6 +30,7 @@ internal class CompleteCleanBucketsFormCommandService : ICommandService<Complete
 
 		await _tgsRepository.UpsertCleanPlayerBucketFormAsync(
 			updateForm,
+			form,
 			cancellationToken).ConfigureAwait(false);
 	}
 }

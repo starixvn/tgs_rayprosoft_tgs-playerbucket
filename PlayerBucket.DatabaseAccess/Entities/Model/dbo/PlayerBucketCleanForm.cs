@@ -34,4 +34,6 @@ public partial class PlayerBucketCleanForm
     public string? GameBalanceReturn { get; set; }
 
     public Guid WalletId { get; set; }
+
+    public Guid SnapshotId { get; set; }
 }
