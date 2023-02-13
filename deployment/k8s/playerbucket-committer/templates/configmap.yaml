@@ -11,6 +11,11 @@ data:
           "ExportProcessorType": "Batch"
         }
       },
+      "Logging": {
+        "LogLevel": {
+          "Default": "Warning",
+        }
+      }
     }
   otel-collector-config.yaml: |
     receivers:
