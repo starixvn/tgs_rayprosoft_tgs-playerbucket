@@ -52,8 +52,6 @@ spec:
                   key: nats
             - name: DOTNET_gcServer
               value: "0"
-            - name: DOTNET_GCHeapHardLimitPercent
-              value: "55"
           ports:
             - name: http
               containerPort: 80
