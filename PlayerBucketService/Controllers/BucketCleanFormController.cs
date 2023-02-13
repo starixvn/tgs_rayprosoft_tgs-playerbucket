@@ -11,6 +11,32 @@ namespace PlayerBucketService.Controllers;
 [ApiController]
 public class BucketCleanFormController : ControllerBase
 {
+	[HttpGet("{playerCode}", Name = "GetCleanBucketsFormList")]
+	public IAsyncEnumerable<CleanBucketsFormViewModel> GetCleanBucketsFormListAsync(
+		[FromServices] IQueryService<GetCleanBucketsFormListQuery, CleanBucketForm> queryService,
+		string playerCode)
+	{
+		var query = new GetCleanBucketsFormListQuery(playerCode);
+
+		return queryService.QueryAsync(query, HttpContext.RequestAborted)
+			.Select(form => new CleanBucketsFormViewModel
+			{
+				Id = form.Id,
+				PlayerCode = form.PlayerCode,
+				BrandId = form.BrandId,
+				WalletId = form.WalletId,
+				BucketAnchorId = form.BucketAnchorId,
+				CurrentBalance = form.CurrentBalance,
+				CurrentBucketAmount = form.CurrentBucketAmount,
+				DepositFormId = form.DepositFormId,
+				ClearWageringRequirementBalance = form.ClearWageringRequirementBalance,
+				CleaningBalance = form.CleaningBalance,
+				CleaningBucketAmount = form.CleaningBucketAmount,
+				Status = form.Status,
+				CreatedOn = form.CreatedOn
+			});
+	}
+
 	[HttpPut("{playerCode}", Name = "RequestCleanBuckets")]
 	[SuccessStatusCode(201, "Created apply")]
 	public ValueTask<Guid> RequestCleanBucketsAsync(
@@ -39,7 +65,7 @@ public class BucketCleanFormController : ControllerBase
 	/// <returns></returns>
 	/// <response code="200">Find form</response>
 	/// <response code="204">Not found</response>
-	[HttpGet("{formId}", Name = "GetCleanBucketsForm")]
+	[HttpGet("{formId:Guid}", Name = "GetCleanBucketsForm")]
 	public async Task<CleanBucketsFormViewModel?> GetCleanBucketsFormAsync(
 		[FromServices] IGetService<GetCleanPlayerBucketsFormQuery, CleanPlayerBucketForm?> getService,
 		Guid formId)

@@ -9,6 +9,7 @@ using Tgs.MessageQueue;
 using Tgs.PlayerBucket.Clients;
 using Tgs.PlayerBuckets.DatabaseAccess.Entities;
 using Tgs.Service.PlayerBuckets;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace PlayerBucketService.IntegrationTests;
@@ -731,5 +732,184 @@ public class PlayerBucketApiTests
 
 		// Assert
 		expected.ToExpectedObject().ShouldMatch(row);
+	}
+
+	[Fact]
+	public async Task 取得清流水表單列表()
+	{
+		// Arrange
+		await using var web = PlayerBucketServiceTestHost.Instance
+			.WithWebHostBuilder(hostBuilder => hostBuilder
+				.ConfigureLogging(logging => logging.AddXUnit(TestOutputHelper)));
+
+		var fakeClientMessageSender = Substitute.For<IMessageSender>();
+		var httpClient = web.CreateClient();
+		var sut = new PlayerBucketClient(httpClient, fakeClientMessageSender);
+
+		var playerCode = "test1";
+		var form1Id = Guid.NewGuid();
+		var form2Id = Guid.NewGuid();
+
+		var dbContext = web.Services.GetRequiredService<TgsContext>();
+
+		var row1 = new PlayerBucketCleanForm
+		{
+			Id = form1Id,
+			BrandId = Guid.NewGuid(),
+			WalletId = Guid.NewGuid(),
+			BucketAnchorId = Guid.NewGuid(),
+			PlayerCode = "test1",
+			CurrentBalance = 0M,
+			CurrentBucketAmount = 1000M,
+			ClearWageringRequirementBalance = 5M,
+			CleaningBalance = null,
+			CleaningBucketAmount = null,
+			DepositFormId = Guid.NewGuid(),
+			Status = CleanFlowStatus.Create.ToString(),
+			CreatedOn = DateTime.UtcNow.AddDays(-1D)
+		};
+
+		var row2 = new PlayerBucketCleanForm
+		{
+			Id = form2Id,
+			BrandId = Guid.NewGuid(),
+			WalletId = Guid.NewGuid(),
+			BucketAnchorId = Guid.NewGuid(),
+			PlayerCode = "test1",
+			CurrentBalance = 0M,
+			CurrentBucketAmount = 1000M,
+			ClearWageringRequirementBalance = 5M,
+			CleaningBalance = null,
+			CleaningBucketAmount = null,
+			DepositFormId = Guid.NewGuid(),
+			Status = CleanFlowStatus.Create.ToString(),
+			CreatedOn = DateTime.UtcNow
+		};
+
+		await dbContext.PlayerBucketCleanForms.AddRangeAsync(row1, row2);
+
+		_ = await dbContext.SaveChangesAsync();
+
+		// Act
+		var actual = await sut.QueryCleanBucketFomsAsync(playerCode).ToArrayAsync();
+
+		// Assert
+		Assert.Equal(2, actual.Length);
+		Assert.Equal(new[] { form2Id, form1Id }, actual.Select(form => form.Id));
+	}
+
+	[Fact]
+	public async Task 取得清流水表單列表只會列出30天以內的資料()
+	{
+		// Arrange
+		await using var web = PlayerBucketServiceTestHost.Instance
+			.WithWebHostBuilder(hostBuilder => hostBuilder
+				.ConfigureLogging(logging => logging.AddXUnit(TestOutputHelper)));
+
+		var fakeClientMessageSender = Substitute.For<IMessageSender>();
+		var httpClient = web.CreateClient();
+		var sut = new PlayerBucketClient(httpClient, fakeClientMessageSender);
+
+		var playerCode = "test1";
+		var form1Id = Guid.NewGuid();
+		var form2Id = Guid.NewGuid();
+
+		var dbContext = web.Services.GetRequiredService<TgsContext>();
+
+		var row1 = new PlayerBucketCleanForm
+		{
+			Id = form1Id,
+			BrandId = Guid.NewGuid(),
+			WalletId = Guid.NewGuid(),
+			BucketAnchorId = Guid.NewGuid(),
+			PlayerCode = "test1",
+			CurrentBalance = 0M,
+			CurrentBucketAmount = 1000M,
+			ClearWageringRequirementBalance = 5M,
+			CleaningBalance = null,
+			CleaningBucketAmount = null,
+			DepositFormId = Guid.NewGuid(),
+			Status = CleanFlowStatus.Create.ToString(),
+			CreatedOn = DateTime.UtcNow.AddDays(-30D)
+		};
+
+		var row2 = new PlayerBucketCleanForm
+		{
+			Id = form2Id,
+			BrandId = Guid.NewGuid(),
+			WalletId = Guid.NewGuid(),
+			BucketAnchorId = Guid.NewGuid(),
+			PlayerCode = "test1",
+			CurrentBalance = 0M,
+			CurrentBucketAmount = 1000M,
+			ClearWageringRequirementBalance = 5M,
+			CleaningBalance = null,
+			CleaningBucketAmount = null,
+			DepositFormId = Guid.NewGuid(),
+			Status = CleanFlowStatus.Create.ToString(),
+			CreatedOn = DateTime.UtcNow
+		};
+
+		await dbContext.PlayerBucketCleanForms.AddRangeAsync(row1, row2);
+
+		_ = await dbContext.SaveChangesAsync();
+
+		// Act
+		var actual = await sut.QueryCleanBucketFomsAsync(playerCode).ToArrayAsync();
+
+		// Assert
+		_ = Assert.Single(actual);
+		Assert.Equal(new[] { form2Id }, actual.Select(form => form.Id));
+	}
+
+	[Fact]
+	public async Task 取得清流水表單列表最多只會顯示20筆資料()
+	{
+		// Arrange
+		await using var web = PlayerBucketServiceTestHost.Instance
+			.WithWebHostBuilder(hostBuilder => hostBuilder
+				.ConfigureLogging(logging => logging.AddXUnit(TestOutputHelper)));
+
+		var fakeClientMessageSender = Substitute.For<IMessageSender>();
+		var httpClient = web.CreateClient();
+		var sut = new PlayerBucketClient(httpClient, fakeClientMessageSender);
+
+		var playerCode = "test1";
+
+		var dbContext = web.Services.GetRequiredService<TgsContext>();
+
+		IEnumerable<PlayerBucketCleanForm> GenerateForms(int count)
+		{
+			var generateCount = count;
+			while (generateCount-- > 0)
+			{
+				yield return new PlayerBucketCleanForm
+				{
+					Id = Guid.NewGuid(),
+					BrandId = Guid.NewGuid(),
+					WalletId = Guid.NewGuid(),
+					BucketAnchorId = Guid.NewGuid(),
+					PlayerCode = "test1",
+					CurrentBalance = 0M,
+					CurrentBucketAmount = 1000M,
+					ClearWageringRequirementBalance = 5M,
+					CleaningBalance = null,
+					CleaningBucketAmount = null,
+					DepositFormId = Guid.NewGuid(),
+					Status = CleanFlowStatus.Create.ToString(),
+					CreatedOn = DateTime.UtcNow
+				};
+			}
+		}
+
+		await dbContext.PlayerBucketCleanForms.AddRangeAsync(GenerateForms(21));
+
+		_ = await dbContext.SaveChangesAsync();
+
+		// Act
+		var actual = await sut.QueryCleanBucketFomsAsync(playerCode).ToArrayAsync();
+
+		// Assert
+		Assert.Equal(20, actual.Length);
 	}
 }

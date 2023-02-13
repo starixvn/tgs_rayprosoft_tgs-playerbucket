@@ -55,4 +55,6 @@ public interface IPlayerBucketClient
 		CancellationToken cancellationToken = default);
 
 	ValueTask PublishCleanBucketsFormCreatedEventAsync(Guid formId, CancellationToken cancellationToken = default);
+
+	IAsyncEnumerable<CleanBucketForm> QueryCleanBucketFomsAsync(string playerCode, CancellationToken cancellationToken = default);
 }
