@@ -160,4 +160,19 @@ internal class PlayerBucketDataAccess
 		=> await _dbContext.PlayerBucketCleanEventSources.AddAsync(
 			eventSource,
 			cancellationToken).ConfigureAwait(false);
+
+	public IAsyncEnumerable<PlayerBucketCleanForm> QueryPlayerBucketCleanFormsAsync(
+		string playerCode,
+		CancellationToken cancellationToken = default)
+	{
+		var fromTime = DateTime.UtcNow.AddDays(-30D);
+
+		return _dbContext.PlayerBucketCleanForms.AsQueryable()
+			.Where(row => row.PlayerCode == playerCode
+				&& row.CreatedOn > fromTime)
+			.OrderByDescending(row => row.CreatedOn)
+			.Take(20)
+			.ToAsyncEnumerable()
+			.Do(_ => cancellationToken.ThrowIfCancellationRequested());
+	}
 }

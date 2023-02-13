@@ -255,4 +255,18 @@ internal class PlayerBucketClient : IPlayerBucketClient
 			request.ToByteArray(),
 			cancellationToken).ConfigureAwait(false);
 	}
+
+	public IAsyncEnumerable<CleanBucketForm> QueryCleanBucketFomsAsync(string playerCode, CancellationToken cancellationToken = default)
+		=> _httpClient.GetAsync($"/api/bucket/clean-form/{playerCode}", cancellationToken)
+			.ToAsyncEnumerable()
+			.Do(response => response.EnsureSuccessStatusCode())
+			.SelectMany(response => response.Content
+				.ReadFromJsonAsync<CleanBucketForm[]>(PlayerBucketUtility.SerializerOptions, cancellationToken)
+				.ToAsyncEnumerable()
+				.Where(arr => arr is not null)
+				.SelectMany(arr => arr!.ToAsyncEnumerable()))
+			.ToArrayAsync(cancellationToken: cancellationToken)
+			.AsTask()
+			.ToAsyncEnumerable()
+			.SelectMany(arr => arr.ToAsyncEnumerable());
 }

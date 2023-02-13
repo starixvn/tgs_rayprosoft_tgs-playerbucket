@@ -3,6 +3,7 @@ using NSubstitute;
 using Tgs.SerialNumberGenerator;
 using Tgs.Service.PlayerBuckets;
 using Tgs.Service.PlayerBuckets.ApplicationServices;
+using Xunit;
 
 namespace PlayerBucketService.Core.UnitTests;
 
@@ -242,5 +243,23 @@ public class PlayerBucketTests
 					CleaningBucketAmount = command.CleaningBucketAmount
 				}),
 				Arg.Is(form));
+	}
+
+	[Fact]
+	public async Task 依照PlayerCode查詢清除流水申請單列表()
+	{
+		// Arrange
+		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+		var sut = new GetCleanBucketsFormListQueryService(fakeTgsRepository);
+
+		var query = new GetCleanBucketsFormListQuery("test1");
+
+		// Act
+		_ = await sut.QueryAsync(query).ToArrayAsync();
+
+		// Assert
+		_ = fakeTgsRepository.Received(1)
+			.QueryCleanPlayerBucketFormsAsync(Arg.Is(query.PlayerCode));
 	}
 }

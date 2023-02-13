@@ -210,7 +210,7 @@ deploy-service-dev:
       artifacts: true
   only:
     - main
-  when: always
+  when: on_success
 
 deploy-worker-dev:
   extends: .deploy-template
@@ -229,7 +229,7 @@ deploy-worker-dev:
       artifacts: true
   only:
     - main
-  when: always
+  when: on_success
 
 deploy-committer-dev:
   extends: .deploy-template
@@ -248,7 +248,7 @@ deploy-committer-dev:
       artifacts: true
   only:
     - main
-  when: always
+  when: on_success
 
 deploy-migrate-job-dev:
   extends: .deploy-job-template
