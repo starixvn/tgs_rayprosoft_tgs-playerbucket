@@ -878,7 +878,7 @@ public class PlayerBucketApiTests
 
 		var dbContext = web.Services.GetRequiredService<TgsContext>();
 
-		IEnumerable<PlayerBucketCleanForm> GenerateForms(int count)
+		static IEnumerable<PlayerBucketCleanForm> GenerateForms(int count)
 		{
 			var generateCount = count;
 			while (generateCount-- > 0)
