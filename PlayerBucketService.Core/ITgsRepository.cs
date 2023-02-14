@@ -14,5 +14,8 @@ public interface ITgsRepository
 
 	ValueTask<CleanPlayerBucketForm?> GetCleanPlayerBucketFormAsync(Guid formId, CancellationToken cancellationToken = default);
 
-	IAsyncEnumerable<CleanPlayerBucketForm> QueryCleanPlayerBucketFormsAsync(string playerCode, CancellationToken cancellationToken = default);
+	IAsyncEnumerable<CleanPlayerBucketForm> QueryCleanPlayerBucketFormsAsync(
+		string playerCode,
+		CleanFlowStatus? flowStatus,
+		CancellationToken cancellationToken = default);
 }

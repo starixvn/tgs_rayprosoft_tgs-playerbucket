@@ -3,7 +3,6 @@ using NSubstitute;
 using Tgs.SerialNumberGenerator;
 using Tgs.Service.PlayerBuckets;
 using Tgs.Service.PlayerBuckets.ApplicationServices;
-using Xunit;
 
 namespace PlayerBucketService.Core.UnitTests;
 
@@ -253,13 +252,15 @@ public class PlayerBucketTests
 
 		var sut = new GetCleanBucketsFormListQueryService(fakeTgsRepository);
 
-		var query = new GetCleanBucketsFormListQuery("test1");
+		var query = new GetCleanBucketsFormListQuery("test1", null);
 
 		// Act
 		_ = await sut.QueryAsync(query).ToArrayAsync();
 
 		// Assert
 		_ = fakeTgsRepository.Received(1)
-			.QueryCleanPlayerBucketFormsAsync(Arg.Is(query.PlayerCode));
+			.QueryCleanPlayerBucketFormsAsync(
+				Arg.Is(query.PlayerCode),
+				Arg.Is(default(CleanFlowStatus?)));
 	}
 }

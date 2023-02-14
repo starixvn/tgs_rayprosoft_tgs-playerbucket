@@ -256,8 +256,15 @@ internal class PlayerBucketClient : IPlayerBucketClient
 			cancellationToken).ConfigureAwait(false);
 	}
 
-	public IAsyncEnumerable<CleanBucketForm> QueryCleanBucketFomsAsync(string playerCode, CancellationToken cancellationToken = default)
-		=> _httpClient.GetAsync($"/api/bucket/clean-form/{playerCode}", cancellationToken)
+	public IAsyncEnumerable<CleanBucketForm> QueryCleanBucketFomsAsync(
+		string playerCode,
+		CleanFlowStatus? flowStatus = null,
+		CancellationToken cancellationToken = default)
+		=> _httpClient.GetAsync(
+			flowStatus is null
+				? $"/api/bucket/clean-form/{playerCode}"
+				: $"/api/bucket/clean-form/{playerCode}/{flowStatus}",
+			cancellationToken)
 			.ToAsyncEnumerable()
 			.Do(response => response.EnsureSuccessStatusCode())
 			.SelectMany(response => response.Content

@@ -1,2 +1,2 @@
 ﻿namespace Tgs.Service.PlayerBuckets.ApplicationServices;
-public record GetCleanBucketsFormListQuery(string PlayerCode);
+public record GetCleanBucketsFormListQuery(string PlayerCode, CleanFlowStatus? FlowStatus);

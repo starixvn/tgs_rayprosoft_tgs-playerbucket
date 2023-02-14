@@ -181,8 +181,14 @@ internal class TgsRepository : ITgsRepository
 				row.CreatedOn);
 	}
 
-	public IAsyncEnumerable<CleanPlayerBucketForm> QueryCleanPlayerBucketFormsAsync(string playerCode, CancellationToken cancellationToken = default)
-		=> _playerBucketDataAccess.QueryPlayerBucketCleanFormsAsync(playerCode, cancellationToken)
+	public IAsyncEnumerable<CleanPlayerBucketForm> QueryCleanPlayerBucketFormsAsync(
+		string playerCode,
+		CleanFlowStatus? flowStatus,
+		CancellationToken cancellationToken = default)
+		=> _playerBucketDataAccess.QueryPlayerBucketCleanFormsAsync(
+			playerCode,
+			flowStatus?.ToString(),
+			cancellationToken)
 			.Select(row => new CleanPlayerBucketForm(
 				row.Id,
 				row.PlayerCode,
