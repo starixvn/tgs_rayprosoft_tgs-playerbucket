@@ -9,7 +9,6 @@ using Tgs.MessageQueue;
 using Tgs.PlayerBucket.Clients;
 using Tgs.PlayerBuckets.DatabaseAccess.Entities;
 using Tgs.Service.PlayerBuckets;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace PlayerBucketService.IntegrationTests;
@@ -911,5 +910,69 @@ public class PlayerBucketApiTests
 
 		// Assert
 		Assert.Equal(20, actual.Length);
+	}
+
+	[Fact]
+	public async Task 取得清流水表單列表可以依照CleanFlowStatus過濾資料()
+	{
+		// Arrange
+		await using var web = PlayerBucketServiceTestHost.Instance
+			.WithWebHostBuilder(hostBuilder => hostBuilder
+				.ConfigureLogging(logging => logging.AddXUnit(TestOutputHelper)));
+
+		var fakeClientMessageSender = Substitute.For<IMessageSender>();
+		var httpClient = web.CreateClient();
+		var sut = new PlayerBucketClient(httpClient, fakeClientMessageSender);
+
+		var playerCode = "test1";
+		var form1Id = Guid.NewGuid();
+		var form2Id = Guid.NewGuid();
+
+		var dbContext = web.Services.GetRequiredService<TgsContext>();
+
+		var row1 = new PlayerBucketCleanForm
+		{
+			Id = form1Id,
+			BrandId = Guid.NewGuid(),
+			WalletId = Guid.NewGuid(),
+			BucketAnchorId = Guid.NewGuid(),
+			PlayerCode = "test1",
+			CurrentBalance = 0M,
+			CurrentBucketAmount = 1000M,
+			ClearWageringRequirementBalance = 5M,
+			CleaningBalance = null,
+			CleaningBucketAmount = null,
+			DepositFormId = Guid.NewGuid(),
+			Status = CleanFlowStatus.Create.ToString(),
+			CreatedOn = DateTime.UtcNow.AddDays(-30D)
+		};
+
+		var row2 = new PlayerBucketCleanForm
+		{
+			Id = form2Id,
+			BrandId = Guid.NewGuid(),
+			WalletId = Guid.NewGuid(),
+			BucketAnchorId = Guid.NewGuid(),
+			PlayerCode = "test1",
+			CurrentBalance = 0M,
+			CurrentBucketAmount = 1000M,
+			ClearWageringRequirementBalance = 5M,
+			CleaningBalance = 0M,
+			CleaningBucketAmount = 1000M,
+			DepositFormId = Guid.NewGuid(),
+			Status = CleanFlowStatus.Completed.ToString(),
+			CreatedOn = DateTime.UtcNow
+		};
+
+		await dbContext.PlayerBucketCleanForms.AddRangeAsync(row1, row2);
+
+		_ = await dbContext.SaveChangesAsync();
+
+		// Act
+		var actual = await sut.QueryCleanBucketFomsAsync(playerCode, CleanFlowStatus.Completed).ToArrayAsync();
+
+		// Assert
+		_ = Assert.Single(actual);
+		Assert.Equal(new[] { form2Id }, actual.Select(form => form.Id));
 	}
 }

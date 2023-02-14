@@ -11,12 +11,16 @@ namespace PlayerBucketService.Controllers;
 [ApiController]
 public class BucketCleanFormController : ControllerBase
 {
+	[HttpGet("{playerCode}/{flowStatus}", Name = "GetCleanBucketsFormListByFlowStatus")]
 	[HttpGet("{playerCode}", Name = "GetCleanBucketsFormList")]
 	public IAsyncEnumerable<CleanBucketsFormViewModel> GetCleanBucketsFormListAsync(
 		[FromServices] IQueryService<GetCleanBucketsFormListQuery, CleanBucketForm> queryService,
-		string playerCode)
+		string playerCode,
+		string? flowStatus)
 	{
-		var query = new GetCleanBucketsFormListQuery(playerCode);
+		var query = new GetCleanBucketsFormListQuery(
+			playerCode,
+			string.IsNullOrWhiteSpace(flowStatus) ? null : Enum.Parse<CleanFlowStatus>(flowStatus));
 
 		return queryService.QueryAsync(query, HttpContext.RequestAborted)
 			.Select(form => new CleanBucketsFormViewModel

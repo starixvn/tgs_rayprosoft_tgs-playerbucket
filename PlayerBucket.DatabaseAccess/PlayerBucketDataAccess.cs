@@ -163,16 +163,26 @@ internal class PlayerBucketDataAccess
 
 	public IAsyncEnumerable<PlayerBucketCleanForm> QueryPlayerBucketCleanFormsAsync(
 		string playerCode,
+		string? flowStatus,
 		CancellationToken cancellationToken = default)
 	{
 		var fromTime = DateTime.UtcNow.AddDays(-30D);
 
-		return _dbContext.PlayerBucketCleanForms.AsQueryable()
-			.Where(row => row.PlayerCode == playerCode
-				&& row.CreatedOn > fromTime)
-			.OrderByDescending(row => row.CreatedOn)
-			.Take(20)
-			.ToAsyncEnumerable()
-			.Do(_ => cancellationToken.ThrowIfCancellationRequested());
+		return string.IsNullOrWhiteSpace(flowStatus)
+			? _dbContext.PlayerBucketCleanForms.AsQueryable()
+				.Where(row => row.PlayerCode == playerCode
+					&& row.CreatedOn > fromTime)
+				.OrderByDescending(row => row.CreatedOn)
+				.Take(20)
+				.ToAsyncEnumerable()
+				.Do(_ => cancellationToken.ThrowIfCancellationRequested())
+			: _dbContext.PlayerBucketCleanForms.AsQueryable()
+				.Where(row => row.PlayerCode == playerCode
+					&& row.CreatedOn > fromTime
+					&& row.Status == flowStatus)
+				.OrderByDescending(row => row.CreatedOn)
+				.Take(20)
+				.ToAsyncEnumerable()
+				.Do(_ => cancellationToken.ThrowIfCancellationRequested());
 	}
 }
