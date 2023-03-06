@@ -96,18 +96,18 @@ builder.Services
 	.AddHealthChecks();
 
 builder.Services
-	.AddOpenTelemetryTracing(
-		tracingBuilder => tracingBuilder
-			.SetResourceBuilder(ResourceBuilder.CreateDefault()
-				.AddEnvironmentVariableDetector())
-			.AddSource("Tgs.*")
-			.AddSource("TGS.*")
-			.AddNpgsql()
-			.AddAspNetCoreInstrumentation()
-			.AddEntityFrameworkCoreInstrumentation(options => options.SetDbStatementForText = true)
-			.AddProfileViewExporter()
-			.AddOtlpExporter())
-	.AddOpenTelemetryMetrics(meterBuiler => meterBuiler
+	.AddOpenTelemetry()
+	.WithTracing(tracingBuilder => tracingBuilder
+		.SetResourceBuilder(ResourceBuilder.CreateDefault()
+			.AddEnvironmentVariableDetector())
+		.AddSource("Tgs.*")
+		.AddSource("TGS.*")
+		.AddNpgsql()
+		.AddAspNetCoreInstrumentation()
+		.AddEntityFrameworkCoreInstrumentation(options => options.SetDbStatementForText = true)
+		.AddProfileViewExporter()
+		.AddOtlpExporter())
+	.WithMetrics(meterBuiler => meterBuiler
 		.SetResourceBuilder(ResourceBuilder.CreateDefault()
 			.AddEnvironmentVariableDetector())
 			.AddMeter("Tgs.PlayerBucket")
@@ -115,6 +115,7 @@ builder.Services
 			.AddRuntimeInstrumentation()
 			.AddAspNetCoreInstrumentation()
 			.AddOtlpExporter())
+	.Services
 	.AddProfileViewer()
 	.Configure<AspNetCoreInstrumentationOptions>(options => options.Filter =
 		httpContext => !httpContext.Request.Path.HasValue
