@@ -5,3 +5,4 @@
 [assembly: InternalsVisibleTo("PlayerBucket.Committer.Repositories")]
 [assembly: InternalsVisibleTo("PlayerBucketService.Repositories")]
 [assembly: InternalsVisibleTo("PlayerBucket.Committer.Repositories.UnitTests")]
+[assembly: InternalsVisibleTo("RefreshAllBucketsTool")]

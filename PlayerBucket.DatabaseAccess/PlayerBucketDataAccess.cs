@@ -185,4 +185,16 @@ internal class PlayerBucketDataAccess
 				.ToAsyncEnumerable()
 				.Do(_ => cancellationToken.ThrowIfCancellationRequested());
 	}
+
+	public IAsyncEnumerable<(Guid Id, string PlayerCode)> QueryPlayerBucketsForFlushAsync(IEnumerable<Guid> bucketIds)
+		=> _dbContext.PlayerBuckets
+			.AsQueryable()
+			.Where(row => bucketIds.Contains(row.Id))
+			.Select(row => new
+			{
+				row.Id,
+				row.PlayerCode
+			})
+			.ToAsyncEnumerable()
+			.Select(info => (info.Id, info.PlayerCode));
 }

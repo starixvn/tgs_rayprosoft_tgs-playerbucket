@@ -1,5 +1,6 @@
 ﻿using FluentdForward.OpenTelemetry.MessagePack;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Npgsql;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Metrics;
@@ -62,30 +63,39 @@ builder.Services
 		.AddProcessor<BidProcessor>("tgs.bucket.commit.bid")
 		.AddHandler<ProcessBucketEventRequestHandler>($"tgs.bucket.commit.batch.{Environment.MachineName}")
 		.AddHandler<SnapshotBucketHandler>($"tgs.bucket.commit.snapshot.{Environment.MachineName}")
-		.AddHandler<SnapshotBucketDispatchHandler>("tgs.bucket.snapshot", "tgs.bucket.snapshot"))
+		.AddHandler<SnapshotBucketDispatchHandler>("tgs.bucket.snapshot", "tgs.bucket.snapshot")
+		.HandleNatsMessageException((ex, ct) =>
+		{
+			if (ex is OutOfMemoryException)
+				OutOfMemoryExceptionHealthCheck.SetExceptionHappened();
+
+			return Task.CompletedTask;
+		}))
 	.AddNatsGlobPatternExchange("*");
 
 builder.Services
-	.AddHealthChecks();
+	.AddHealthChecks()
+	.AddCheck<OutOfMemoryExceptionHealthCheck>("OOM", HealthStatus.Unhealthy);
 
 builder.Services
-	.AddOpenTelemetryTracing(
-		tracingBuilder => tracingBuilder
-			.SetResourceBuilder(ResourceBuilder.CreateDefault()
-				.AddEnvironmentVariableDetector())
-			.AddSource("Tgs.*")
-			.AddSource("TGS.*")
-			.AddNpgsql()
-			.AddAspNetCoreInstrumentation()
-			.AddEntityFrameworkCoreInstrumentation(options => options.SetDbStatementForText = true)
-			.AddProfileViewExporter()
-			.AddOtlpExporter())
-	.AddOpenTelemetryMetrics(meterBuiler => meterBuiler
+	.AddOpenTelemetry()
+	.WithTracing(tracingBuilder => tracingBuilder
+		.SetResourceBuilder(ResourceBuilder.CreateDefault()
+			.AddEnvironmentVariableDetector())
+		.AddSource("Tgs.*")
+		.AddSource("TGS.*")
+		.AddNpgsql()
+		.AddAspNetCoreInstrumentation()
+		.AddEntityFrameworkCoreInstrumentation(options => options.SetDbStatementForText = true)
+		.AddProfileViewExporter()
+		.AddOtlpExporter())
+	.WithMetrics(meterBuiler => meterBuiler
 		.SetResourceBuilder(ResourceBuilder.CreateDefault()
 			.AddEnvironmentVariableDetector())
 			.AddRuntimeInstrumentation()
 			.AddAspNetCoreInstrumentation()
 			.AddOtlpExporter())
+	.Services
 	.AddProfileViewer()
 	.Configure<AspNetCoreInstrumentationOptions>(options => options.Filter =
 		httpContext => !httpContext.Request.Path.HasValue
