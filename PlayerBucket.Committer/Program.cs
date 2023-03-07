@@ -46,6 +46,13 @@ builder.Services
 builder.Services
 	.AddMessageQueue()
 	.AddMongoMessageQueue(config => config
+		.HandleMongoMessageException((ex, _) =>
+		{
+			if (ex is OutOfMemoryException)
+				OutOfMemoryExceptionHealthCheck.SetExceptionHappened();
+
+			return Task.CompletedTask;
+		})
 		.DefineMessageQueue("PlayerBucket", sp => new MongoMessageQueueBuilderOptions
 		{
 			MessageQueue = MongoDB.Messaging.MessageQueue.Default,
@@ -64,7 +71,7 @@ builder.Services
 		.AddHandler<ProcessBucketEventRequestHandler>($"tgs.bucket.commit.batch.{Environment.MachineName}")
 		.AddHandler<SnapshotBucketHandler>($"tgs.bucket.commit.snapshot.{Environment.MachineName}")
 		.AddHandler<SnapshotBucketDispatchHandler>("tgs.bucket.snapshot", "tgs.bucket.snapshot")
-		.HandleNatsMessageException((ex, ct) =>
+		.HandleNatsMessageException((ex, _) =>
 		{
 			if (ex is OutOfMemoryException)
 				OutOfMemoryExceptionHealthCheck.SetExceptionHappened();
