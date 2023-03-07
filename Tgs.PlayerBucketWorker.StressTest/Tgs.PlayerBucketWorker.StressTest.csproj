@@ -13,7 +13,7 @@
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
 		<PackageReference Include="NBomber" Version="4.1.0" />
-		<PackageReference Include="Tgs.MessageQueue.Nats" Version="2.1.7" />
+		<PackageReference Include="Tgs.MessageQueue.Nats" Version="2.2.1-alpha" />
 	</ItemGroup>
 
 	<ItemGroup>
