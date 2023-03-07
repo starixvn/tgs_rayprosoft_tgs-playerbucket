@@ -14,7 +14,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="System.Interactive.Async" Version="6.0.1" />
-    <PackageReference Include="Tgs.MessageQueue" Version="2.2.0" />
+    <PackageReference Include="Tgs.MessageQueue" Version="2.3.0" />
     <PackageReference Include="Tgs.SerialNumberGenerator" Version="1.0.0" />
     <PackageReference Include="TGS.ServiceUtility" Version="0.2.0" />
   </ItemGroup>
