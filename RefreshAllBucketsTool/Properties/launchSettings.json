@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "RefreshAllBucketsTool": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
