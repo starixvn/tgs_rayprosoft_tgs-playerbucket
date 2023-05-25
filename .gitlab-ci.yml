@@ -8,6 +8,7 @@ variables:
   WorkerImageName: pgtgs/bucket-worker
   CommitterImageName: pgtgs/bucket-committer
   MigrateJobImageName: pgtgs/bucket-mitrate-job
+  CountervailImageName: pgtgs/bucket-countervail
   TgsServiceSettingKey: playerbucket-service
   TgsWorkerSettingKey: playerbucket-worker
   TgsCommitterSettingKey: playerbucket-committer
@@ -15,11 +16,8 @@ variables:
   HelmTemplateWorkerFolderName: playerbucket-worker
   HelmTemplateCommitterFolderName: playerbucket-committer
   HelmTemplateMigrateJobFolderName: playerbucket-migrate-job
+  HelmTemplateCountervailFolderName: playerbucket-countervail
   BuildCacheKey: Tgs.PlayerBucket.$CI_PIPELINE_IID
-
-default:
-  before_script:
-    - export Tag="$(date -d $CI_PIPELINE_CREATED_AT +%Y%m%d%H%M).$CI_PIPELINE_IID"
 
 stages:
   - build
@@ -30,168 +28,82 @@ stages:
   - deploy-prod
 
 build-code:
-  stage: build
-  script:
-    - dotnet build -c $BuildConfiguration
-  only:
-    - merge_requests
-    - main
-  cache:
-    key: $BuildCacheKey
-    untracked: true
+  extends: .build-code-template
 
 unit-test:
-  stage: test
-  script:
-    - dotnet test -c $BuildConfiguration -l:"junit;LogFilePath=../TestReports/{assembly}-TestReport.xml" --no-restore --no-build
-  needs:
-    - build-code
-  only:
-    - merge_requests
-    - main
-  cache:
-    key: $BuildCacheKey
-    untracked: true
-    policy: pull
-  artifacts:
-    when: always
-    reports:
-      junit: ./TestReports/*-TestReport.xml
+  extends: .unit-test-template
 
 push-nuget:
-  stage: publish
-  needs:
-    - build-code
-    - unit-test
-  only:
-    - main
-  cache:
-    key: $BuildCacheKey
-    untracked: true
-    policy: pull
+  extends: .push-nuget-template
   script:
-    - dotnet pack -c $BuildConfiguration "PlayerBucket.Client/PlayerBucket.Client.csproj" --no-restore
-    - dotnet nuget push "PlayerBucket.Client/bin/$BuildConfiguration/*.nupkg" -s "raypro-baget" -k $NugetApiKey --skip-duplicate
+    - push_package "PlayerBucket.Client"
   artifacts:
-    name: Nuget
-    untracked: false
-    expire_in: "30 days"
     paths:
       - PlayerBucket.Client/bin/$BuildConfiguration/*.nupkg
 
 push-docker-image:
-  stage: publish
-  needs:
-    - build-code
-    - unit-test
-  only:
-    - main
-  cache:
-    key: $BuildCacheKey
-    untracked: true
-    policy: pull
+  extends: .push-docker-image-template
   script:
-    - dotnet build "PlayerBucketService/PlayerBucketService.csproj" -c $BuildConfiguration -t:ContainerBuild -p:DockerfileTag="$ServiceImageName:$Tag" --no-restore
-    - dotnet build "Tgs.PlayerBucketWorker/Tgs.PlayerBucketWorker.csproj" -c $BuildConfiguration -t:ContainerBuild -p:DockerfileTag="$WorkerImageName:$Tag" --no-restore
-    - dotnet build "PlayerBucket.Committer/PlayerBucket.Committer.csproj" -c $BuildConfiguration -t:ContainerBuild -p:DockerfileTag="$CommitterImageName:$Tag" --no-restore
-    - docker push $ServiceImageName:$Tag
-    - docker push $WorkerImageName:$Tag
-    - docker push $CommitterImageName:$Tag
+    - push_docker "PlayerBucketService/PlayerBucketService.csproj" $ServiceImageName $Tag
+    - push_docker "Tgs.PlayerBucketWorker/Tgs.PlayerBucketWorker.csproj" $WorkerImageName $Tag
+    - push_docker "PlayerBucket.Committer/PlayerBucket.Committer.csproj" $CommitterImageName $Tag
 
 push-job-image:
-  stage: publish
-  needs:
-    - push-docker-image
-  only:
-    - main
-  cache:
-    key: $BuildCacheKey
-    untracked: true
-    policy: pull
+  extends: .push-docker-image-template
   script:
-    - dotnet build "PlayerBucketMigrateJob/PlayerBucketMigrateJob.csproj" -c $BuildConfiguration -t:ContainerBuild -p:DockerfileTag="$MigrateJobImageName:$Tag" --no-restore
-    - docker push $MigrateJobImageName:$Tag
+    - push_docker "PlayerBucketMigrateJob/PlayerBucketMigrateJob.csproj" $MigrateJobImageName $Tag
+    - push_docker "RefreshAllBucketsTool/RefreshAllBucketsTool.csproj" $CountervailImageName $Tag
 
 push-k8s-template:
-  stage: publish
-  needs:
-    - unit-test
-  only:
-    - main
+  extends: .push-k8s-template
   script:
-    - mkdir -p artifacts/k8s
-    - cp -R deployment/k8s/$HelmTemplateServiceFolderName artifacts/k8s/
-    - |
-      yq -i e '
-        .image.repository = strenv(ServiceImageName) |
-        .image.tag = strenv(Tag)
-      ' artifacts/k8s/$HelmTemplateServiceFolderName/values.yaml
-    - cp -R deployment/k8s/$HelmTemplateWorkerFolderName artifacts/k8s/
-    - |
-      yq -i e '
-        .image.repository = strenv(WorkerImageName) |
-        .image.tag = strenv(Tag)
-      ' artifacts/k8s/$HelmTemplateWorkerFolderName/values.yaml
-    - cp -R deployment/k8s/$HelmTemplateCommitterFolderName artifacts/k8s/
-    - |
-      yq -i e '
-        .image.repository = strenv(CommitterImageName) |
-        .image.tag = strenv(Tag)
-      ' artifacts/k8s/$HelmTemplateCommitterFolderName/values.yaml
-  artifacts:
-    name: HelmTemplate
-    untracked: false
-    expire_in: "180 days"
-    paths:
-      - artifacts/**/*
+    - push_k8s_template $HelmTemplateServiceFolderName $ServiceImageName $Tag
+    - push_k8s_template $HelmTemplateWorkerFolderName $WorkerImageName $Tag
+    - push_k8s_template $HelmTemplateCommitterFolderName $CommitterImageName $Tag
 
 push-job-k8s-template:
-  stage: publish
-  needs:
-    - unit-test
-  only:
-    - main
+  extends: .push-k8s-template
   script:
-    - mkdir -p artifacts/k8s
-    - cp -R deployment/k8s/$HelmTemplateMigrateJobFolderName artifacts/k8s/
-    - |
-      yq -i e '
-        .image.repository = strenv(MigrateJobImageName) |
-        .image.tag = strenv(Tag)
-      ' artifacts/k8s/$HelmTemplateMigrateJobFolderName/values.yaml
-  artifacts:
-    name: HelmTemplate
-    untracked: false
-    expire_in: "180 days"
-    paths:
-      - artifacts/**/*
+    - push_k8s_template 
+    - mkdir -p artifacts/k8s $HelmTemplateMigrateJobFolderName $MigrateJobImageName $Tag
+    - mkdir -p artifacts/k8s $HelmTemplateCountervailFolderName $CountervailImageName $Tag
 
 .deploy-job-template:
   extends: .deploy-template
-  script:
-    - export dedicated=$(kubectl get cm tgs-settings -o jsonpath={.data.dedicated})
-    - export node_selector=$(kubectl get cm tgs-settings -o jsonpath={.data.node-selector})
+  before_script:
+    - !reference [.deploy-template, before_script]
     - |
-      cat << EOF | yq e -P | helm template artifacts/k8s/$HelmTemplateFolderName \
-        -n $namespace \
-        --name-template tgs \
-        -f - 
-      {
-        "nodeSelector": $node_selector,
-        "tolerations": [$dedicated]
-      }
+      function deploy_k8s() {
+        local helmFolderName=$1
+        local ns=$2
+        local extendSettings=${3:-$(</dev/stdin)}
+
+        local dedicated=$(kubectl get cm tgs-settings -o jsonpath={.data.dedicated})
+        local node_selector=$(kubectl get cm tgs-settings -o jsonpath={.data.node-selector})
+
+        local valueConfig=$(
+          cat << EOF
+          {
+            "replicaCount": $replica,
+            "nodeSelector": $node_selector,
+            "tolerations": [$dedicated]
+          }
       EOF
-    - |
-      cat << EOF | yq e -P | helm template artifacts/k8s/$HelmTemplateFolderName \
-        -n $namespace \
-        --name-template tgs \
-        -f - \
-        | kubectl -n $namespace apply -f -
-      {
-        "nodeSelector": $node_selector,
-        "tolerations": [$dedicated]
+        )
+
+        echo $valueConfig $extendSettings | jq -s 'reduce .[] as $item ({}; . * $item)' \
+          | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
+          -n ${ns:$namespace} \
+          --name-template $name_template \
+          -f - 
+
+        echo $valueConfig $extendSettings | jq -s 'reduce .[] as $item ({}; . * $item)' \
+          | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
+          -n ${ns:$namespace} \
+          --name-template $name_template \
+          -f - \
+          | kubectl -n ${ns:=$namespace} apply -f -
       }
-      EOF
 
 deploy-service-dev:
   extends: .deploy-template
@@ -254,7 +166,6 @@ deploy-migrate-job-dev:
   extends: .deploy-job-template
   variables:
     namespace: dev
-    HelmTemplateFolderName: $HelmTemplateMigrateJobFolderName
     kube_config: KubeConfig_Raypro_dev
   environment:
     name: migrate-job-dev
@@ -266,6 +177,26 @@ deploy-migrate-job-dev:
   only:
     - main
   when: manual
+  script:
+    - deploy_k8s $HelmTemplateMigrateJobFolderName $namespace
+
+deploy-countervail-dev:
+  extends: .deploy-job-template
+  variables:
+    namespace: dev
+    kube_config: KubeConfig_Raypro_dev
+  environment:
+    name: schedule-job-dev
+  stage: deploy-dev
+  needs:
+    - push-job-image
+    - job: push-job-k8s-template
+      artifacts: true
+  only:
+    - main
+  when: manual
+  script:
+    - deploy_k8s $HelmTemplateCountervailFolderName $namespace
 
 deploy-service-staging:
   extends: .deploy-template
@@ -325,7 +256,6 @@ deploy-migrate-job-staging:
   extends: .deploy-job-template
   variables:
     namespace: staging
-    HelmTemplateFolderName: $HelmTemplateMigrateJobFolderName
     kube_config: KubeConfig_Raypro_staging
   environment:
     name: migrate-job-staging
@@ -337,6 +267,26 @@ deploy-migrate-job-staging:
   only:
     - main
   when: manual
+  script:
+    - deploy_k8s $HelmTemplateMigrateJobFolderName $namespace
+
+deploy-countervail-staging:
+  extends: .deploy-job-template
+  variables:
+    namespace: staging
+    kube_config: KubeConfig_Raypro_staging
+  environment:
+    name: schedule-job-staging
+  stage: deploy-staging
+  needs:
+    - push-job-image
+    - job: push-job-k8s-template
+      artifacts: true
+  only:
+    - main
+  when: manual
+  script:
+    - deploy_k8s $HelmTemplateCountervailFolderName $namespace
 
 deploy-service-prod:
   extends: .deploy-template
@@ -397,7 +347,6 @@ deploy-migrate-job-prod:
   extends: .deploy-job-template
   variables:
     namespace: prod
-    HelmTemplateFolderName: $HelmTemplateMigrateJobFolderName
     kube_config: KubeConfig_Raypro_prod
   environment:
     name: migrate-job-prod
@@ -409,3 +358,23 @@ deploy-migrate-job-prod:
   only:
     - main
   when: manual
+  script:
+    - deploy_k8s $HelmTemplateMigrateJobFolderName $namespace
+
+deploy-countervail-prod:
+  extends: .deploy-job-template
+  variables:
+    namespace: prod
+    kube_config: KubeConfig_Raypro_prod
+  environment:
+    name: schedule-job-prod
+  stage: deploy-prod
+  needs:
+    - push-job-image
+    - job: push-job-k8s-template
+      artifacts: true
+  only:
+    - main
+  when: manual
+  script:
+    - deploy_k8s $HelmTemplateCountervailFolderName $namespace
