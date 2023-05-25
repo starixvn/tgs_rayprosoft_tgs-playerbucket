@@ -35,6 +35,16 @@ unit-test:
 
 push-nuget:
   extends: .push-nuget-template
+  before_script:
+    - !reference [.push-nuget-template, before_script]
+    - |
+      function push_package() {
+        local projectFolder=$1
+        local project=$2
+
+        dotnet pack -c $BuildConfiguration "${project:=$projectFolder/$projectFolder.csproj}" --no-restore
+        dotnet nuget push "$projectFolder/bin/$BuildConfiguration/*.nupkg" -s "raypro-baget" -k $NugetApiKey --skip-duplicate
+      }
   script:
     - push_package "PlayerBucket.Client"
   artifacts:
@@ -64,9 +74,8 @@ push-k8s-template:
 push-job-k8s-template:
   extends: .push-k8s-template
   script:
-    - push_k8s_template 
-    - mkdir -p artifacts/k8s $HelmTemplateMigrateJobFolderName $MigrateJobImageName $Tag
-    - mkdir -p artifacts/k8s $HelmTemplateCountervailFolderName $CountervailImageName $Tag
+    - push_k8s_template $HelmTemplateMigrateJobFolderName $MigrateJobImageName $Tag
+    - push_k8s_template $HelmTemplateCountervailFolderName $CountervailImageName $Tag
 
 .deploy-job-template:
   extends: .deploy-template
