@@ -1,0 +1,14 @@
+{{- if eq .Values.kind "CronJob" }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "playerbucket-countervail.fullname" . }}
+  labels:
+    {{- include "playerbucket-countervail.labels" . | nindent 4 }}
+spec:
+  schedule: "0 0 * * *"
+  jobTemplate:
+    spec:
+      template:
+        {{- include "countervail.job" . | nindent 8 }}
+{{- end }}

@@ -1,0 +1,13 @@
+{{- if eq .Values.kind "Job" }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "playerbucket-countervail.fullname" . }}-{{ .Release.Time | date "20060102150405"}}
+  labels:
+    {{- include "playerbucket-countervail.labels" . | nindent 4 }}
+spec:
+  ttlSecondsAfterFinished: 86400
+  backoffLimit: 3
+  template:
+    {{- include "countervail.job" . | nindent 4 }}
+{{- end }}
