@@ -404,7 +404,8 @@ deploy-countervail-prod-job:
     - main
   when: manual
   script:
-    - cat << EOF | deploy_k8s $HelmTemplateCountervailFolderName $namespace
+    - |
+      cat << EOF | deploy_k8s $HelmTemplateCountervailFolderName $namespace
         {
           "kind":"job"
         }
