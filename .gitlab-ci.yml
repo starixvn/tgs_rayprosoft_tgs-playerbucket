@@ -394,7 +394,7 @@ deploy-countervail-prod-job:
     namespace: prod
     kube_config: KubeConfig_Raypro_prod
   environment:
-    name: schedule-job-prod
+    name: job-prod
   stage: deploy-prod-job
   needs:
     - push-job-image
