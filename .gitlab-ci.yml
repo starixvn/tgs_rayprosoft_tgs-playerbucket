@@ -395,7 +395,7 @@ deploy-countervail-prod-job:
     kube_config: KubeConfig_Raypro_prod
   environment:
     name: job-prod
-  stage: deploy-prod-job
+  stage: deploy-prod
   needs:
     - push-job-image
     - job: push-job-k8s-template
