@@ -406,6 +406,6 @@ deploy-countervail-prod-job:
   script:
     - cat << EOF | deploy_k8s $HelmTemplateCountervailFolderName $namespace
         {
-          "kind": "job"
+          "kind":"job"
         }
       EOF
