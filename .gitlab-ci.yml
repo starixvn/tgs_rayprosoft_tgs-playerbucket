@@ -387,3 +387,25 @@ deploy-countervail-prod:
   when: manual
   script:
     - deploy_k8s $HelmTemplateCountervailFolderName $namespace
+
+deploy-countervail-prod-job:
+  extends: .deploy-job-template
+  variables:
+    namespace: prod
+    kube_config: KubeConfig_Raypro_prod
+  environment:
+    name: schedule-job-prod
+  stage: deploy-prod-job
+  needs:
+    - push-job-image
+    - job: push-job-k8s-template
+      artifacts: true
+  only:
+    - main
+  when: manual
+  script:
+    - cat << EOF | deploy_k8s $HelmTemplateCountervailFolderName $namespace
+        {
+          "kind": "job"
+        }
+      EOF
