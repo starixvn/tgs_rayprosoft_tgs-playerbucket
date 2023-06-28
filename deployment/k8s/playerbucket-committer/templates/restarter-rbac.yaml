@@ -1,0 +1,49 @@
+{{- if .Values.restart.enabled -}}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.restart.serviceAccount }}
+  labels:
+    {{- include "playerbucket-committer.labels" . | nindent 4 }}
+  {{- with .Values.restart.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "playerbucket-committer.fullname" . }}-restart
+  labels:
+    {{- include "playerbucket-committer.labels" . | nindent 4 }}
+rules:
+  - apiGroups: 
+      - apps
+      - extensions
+    resources: 
+      - deployments
+    resourceNames: 
+      - {{ include "playerbucket-committer.fullname" . }}
+    verbs: 
+      - get
+      - patch
+      - list
+      - watch 
+    # "list" and "watch" are only needed
+    # if you want to use `rollout status`
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "playerbucket-committer.fullname" . }}-restart
+  labels:
+    {{- include "playerbucket-committer.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "playerbucket-committer.fullname" . }}-restart
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.restart.serviceAccount }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}

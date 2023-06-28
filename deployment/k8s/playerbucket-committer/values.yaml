@@ -84,3 +84,9 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+restart:
+  enabled: false
+  serviceAccount: playerbucket-committer-restarter
+  annotations: {}
+  schedule: 0 8 * * *

@@ -158,8 +158,6 @@ deploy-committer-dev:
   extends: .deploy-template
   variables:
     namespace: dev
-    TgsSettingKey: $TgsCommitterSettingKey
-    HelmTemplateFolderName: $HelmTemplateCommitterFolderName
     kube_config: KubeConfig_Raypro_dev
   environment:
     name: committer-dev
@@ -172,6 +170,16 @@ deploy-committer-dev:
   only:
     - main
   when: on_success
+  script:
+    - |
+      echo << EOF | deploy_k8s $TgsCommitterSettingKey $HelmTemplateCommitterFolderName $namespace
+        {
+          "restart": {
+            "enabled": true,
+            "schedule": "0 23 * * *"
+          }
+        }
+      EOF
 
 deploy-migrate-job-dev:
   extends: .deploy-job-template
@@ -208,6 +216,29 @@ deploy-countervail-dev:
   when: manual
   script:
     - deploy_k8s $HelmTemplateCountervailFolderName $namespace
+
+deploy-countervail-job-dev:
+  extends: .deploy-job-template
+  variables:
+    namespace: dev
+    kube_config: KubeConfig_Raypro_dev
+  environment:
+    name: job-dev
+  stage: deploy-dev
+  needs:
+    - push-job-image
+    - job: push-job-k8s-template
+      artifacts: true
+  only:
+    - main
+  when: manual
+  script:
+    - |
+      echo << EOF | deploy_k8s $HelmTemplateCountervailFolderName $namespace
+        {
+          "kind":"Job"
+        }
+      EOF
 
 deploy-service-staging:
   extends: .deploy-template
@@ -262,6 +293,16 @@ deploy-committer-staging:
   only:
     - main
   when: manual
+  script:
+    - |
+      echo << EOF | deploy_k8s $TgsCommitterSettingKey $HelmTemplateCommitterFolderName $namespace
+        {
+          "restart": {
+            "enabled": true,
+            "schedule": "0 23 * * *"
+          }
+        }
+      EOF
 
 deploy-migrate-job-staging:
   extends: .deploy-job-template
@@ -298,6 +339,29 @@ deploy-countervail-staging:
   when: manual
   script:
     - deploy_k8s $HelmTemplateCountervailFolderName $namespace
+
+deploy-countervail-job-staging:
+  extends: .deploy-job-template
+  variables:
+    namespace: staging
+    kube_config: KubeConfig_Raypro_staging
+  environment:
+    name: job-staging
+  stage: deploy-staging
+  needs:
+    - push-job-image
+    - job: push-job-k8s-template
+      artifacts: true
+  only:
+    - main
+  when: manual
+  script:
+    - |
+      echo << EOF | deploy_k8s $HelmTemplateCountervailFolderName $namespace
+        {
+          "kind":"Job"
+        }
+      EOF
 
 deploy-service-prod:
   extends: .deploy-template
@@ -353,6 +417,16 @@ deploy-committer-prod:
   only:
     - main
   when: manual
+  script:
+    - |
+      echo << EOF | deploy_k8s $TgsCommitterSettingKey $HelmTemplateCommitterFolderName $namespace
+        {
+          "restart": {
+            "enabled": true,
+            "schedule": "0 23 * * *"
+          }
+        }
+      EOF
 
 deploy-migrate-job-prod:
   extends: .deploy-job-template
