@@ -100,6 +100,8 @@ push-job-k8s-template:
       EOF
         )
 
+        echo $valueConfig $extendSettings
+
         echo $valueConfig $extendSettings | jq -s 'reduce .[] as $item ({}; . * $item)' \
           | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
           -n ${ns:$namespace} \
@@ -407,6 +409,6 @@ deploy-countervail-prod-job:
     - |
       cat << EOF | deploy_k8s $HelmTemplateCountervailFolderName $namespace
         {
-          "kind":"job"
+          "kind":"Job"
         }
       EOF
