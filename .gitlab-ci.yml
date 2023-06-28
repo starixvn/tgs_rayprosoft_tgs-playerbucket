@@ -170,6 +170,15 @@ deploy-committer-dev:
   when: on_success
   script:
     - |
+      cat << EOF
+        {
+          "restart": {
+            "enabled": true,
+            "schedule": "0 23 * * *"
+          }
+        }
+      EOF
+    - |
       cat << EOF | deploy_k8s $TgsCommitterSettingKey $HelmTemplateCommitterFolderName $namespace
         {
           "restart": {
