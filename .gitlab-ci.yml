@@ -174,7 +174,7 @@ deploy-committer-dev:
         {
           "restart": {
             "enabled": true,
-            "schedule": '0 23 * * *'
+            "schedule": "0 23 \* \* \*"
           }
         }
       EOF
@@ -297,7 +297,7 @@ deploy-committer-staging:
         {
           "restart": {
             "enabled": true,
-            "schedule": '0 23 * * *'
+            "schedule": "0 23 \* \* \*"
           }
         }
       EOF
@@ -421,7 +421,7 @@ deploy-committer-prod:
         {
           "restart": {
             "enabled": true,
-            "schedule": '0 23 * * *'
+            "schedule": "0 23 \* \* \*"
           }
         }
       EOF
