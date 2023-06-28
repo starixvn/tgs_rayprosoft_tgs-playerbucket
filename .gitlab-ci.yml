@@ -100,8 +100,6 @@ push-job-k8s-template:
       EOF
         )
 
-        echo $valueConfig $extendSettings
-
         echo $valueConfig $extendSettings | jq -s 'reduce .[] as $item ({}; . * $item)' \
           | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
           -n ${ns:$namespace} \
@@ -172,7 +170,7 @@ deploy-committer-dev:
   when: on_success
   script:
     - |
-      echo << EOF | deploy_k8s $TgsCommitterSettingKey $HelmTemplateCommitterFolderName $namespace
+      cat << EOF | deploy_k8s $TgsCommitterSettingKey $HelmTemplateCommitterFolderName $namespace
         {
           "restart": {
             "enabled": true,
@@ -295,7 +293,7 @@ deploy-committer-staging:
   when: manual
   script:
     - |
-      echo << EOF | deploy_k8s $TgsCommitterSettingKey $HelmTemplateCommitterFolderName $namespace
+      cat << EOF | deploy_k8s $TgsCommitterSettingKey $HelmTemplateCommitterFolderName $namespace
         {
           "restart": {
             "enabled": true,
@@ -419,7 +417,7 @@ deploy-committer-prod:
   when: manual
   script:
     - |
-      echo << EOF | deploy_k8s $TgsCommitterSettingKey $HelmTemplateCommitterFolderName $namespace
+      cat << EOF | deploy_k8s $TgsCommitterSettingKey $HelmTemplateCommitterFolderName $namespace
         {
           "restart": {
             "enabled": true,
