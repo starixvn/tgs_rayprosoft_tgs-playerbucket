@@ -1,0 +1,28 @@
+{{- if .Values.restart.enabled -}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "playerbucket-committer.fullname" . }}-restart
+spec:
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 2
+  concurrencyPolicy: Forbid
+  schedule: '{{ .Values.restart.schedule }}'
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 600
+      template:
+        spec:
+          serviceAccountName: {{ .Values.restart.serviceAccount }}
+          restartPolicy: Never
+          containers:
+            - name: kubectl
+              image: bitnami/kubectl
+              command:
+                - bash
+                - -c
+                - >-
+                  kubectl rollout restart deployment/{{ include "playerbucket-committer.fullname" . }} &&
+                  kubectl rollout status deployment/{{ include "playerbucket-committer.fullname" . }}
+{{- end }}
