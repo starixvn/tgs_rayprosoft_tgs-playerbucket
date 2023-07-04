@@ -1,0 +1,6 @@
+{
+    "dotnet.defaultSolution": "Tgs.PlayerBucketService.sln",
+    "yaml.customTags": [
+        "!reference sequence" 
+    ]
+}

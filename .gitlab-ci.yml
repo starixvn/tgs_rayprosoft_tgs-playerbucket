@@ -132,6 +132,16 @@ deploy-service-dev:
   only:
     - main
   when: on_success
+  script:
+    - |
+      cat << EOF | deploy_k8s $TgsCommitterSettingKey $HelmTemplateCommitterFolderName $namespace
+        {
+          "restart": {
+            "enabled": true,
+            "schedule": "0 23 * * *"
+          }
+        }
+      EOF
 
 deploy-worker-dev:
   extends: .deploy-template
@@ -255,6 +265,16 @@ deploy-service-staging:
   only:
     - main
   when: manual
+  script:
+    - |
+      cat << EOF | deploy_k8s $TgsCommitterSettingKey $HelmTemplateCommitterFolderName $namespace
+        {
+          "restart": {
+            "enabled": true,
+            "schedule": "0 23 * * *"
+          }
+        }
+      EOF
 
 deploy-worker-staging:
   extends: .deploy-template
@@ -378,6 +398,16 @@ deploy-service-prod:
   only:
     - main
   when: manual
+  script:
+    - |
+      cat << EOF | deploy_k8s $TgsCommitterSettingKey $HelmTemplateCommitterFolderName $namespace
+        {
+          "restart": {
+            "enabled": true,
+            "schedule": "0 23 * * *"
+          }
+        }
+      EOF
 
 deploy-worker-prod:
   extends: .deploy-template
