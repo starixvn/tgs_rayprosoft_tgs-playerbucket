@@ -118,8 +118,6 @@ deploy-service-dev:
   extends: .deploy-template
   variables:
     namespace: dev
-    TgsSettingKey: $TgsServiceSettingKey
-    HelmTemplateFolderName: $HelmTemplateServiceFolderName
     kube_config: KubeConfig_Raypro_dev
   environment:
     name: service-dev
@@ -134,7 +132,7 @@ deploy-service-dev:
   when: on_success
   script:
     - |
-      cat << EOF | deploy_k8s $TgsCommitterSettingKey $HelmTemplateCommitterFolderName $namespace
+      cat << EOF | deploy_k8s $TgsServiceSettingKey $HelmTemplateServiceFolderName $namespace
         {
           "restart": {
             "enabled": true,
@@ -252,8 +250,6 @@ deploy-service-staging:
   extends: .deploy-template
   variables:
     namespace: staging
-    TgsSettingKey: $TgsServiceSettingKey
-    HelmTemplateFolderName: $HelmTemplateServiceFolderName
     kube_config: KubeConfig_Raypro_staging
   environment:
     name: service-staging
@@ -267,7 +263,7 @@ deploy-service-staging:
   when: manual
   script:
     - |
-      cat << EOF | deploy_k8s $TgsCommitterSettingKey $HelmTemplateCommitterFolderName $namespace
+      cat << EOF | deploy_k8s $TgsServiceSettingKey $HelmTemplateServiceFolderName $namespace
         {
           "restart": {
             "enabled": true,
@@ -385,8 +381,6 @@ deploy-service-prod:
   extends: .deploy-template
   variables:
     namespace: prod
-    TgsSettingKey: $TgsServiceSettingKey
-    HelmTemplateFolderName: $HelmTemplateServiceFolderName
     kube_config: KubeConfig_Raypro_prod
   environment:
     name: service-prod
@@ -400,7 +394,7 @@ deploy-service-prod:
   when: manual
   script:
     - |
-      cat << EOF | deploy_k8s $TgsCommitterSettingKey $HelmTemplateCommitterFolderName $namespace
+      cat << EOF | deploy_k8s $TgsServiceSettingKey $HelmTemplateServiceFolderName $namespace
         {
           "restart": {
             "enabled": true,
