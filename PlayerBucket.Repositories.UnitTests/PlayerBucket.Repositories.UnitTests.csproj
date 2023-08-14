@@ -28,4 +28,16 @@
     <ProjectReference Include="..\PlayerBucket.Repositories\PlayerBucket.Repositories.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EditorConfigFiles Remove="D:\Users\Phoenix\source\repos\Tgs.PlayerBucketService\PlayerBucket.Repositories.UnitTests\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="D:\Users\Phoenix\source\repos\Tgs.PlayerBucketService\PlayerBucket.Repositories.UnitTests\.editorconfig" />
+  </ItemGroup>
+
 </Project>

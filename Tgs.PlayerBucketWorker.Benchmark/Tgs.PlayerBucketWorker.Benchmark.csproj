@@ -22,5 +22,11 @@
   <ItemGroup>
     <ProjectReference Include="..\PlayerBucket.Client\PlayerBucket.Client.csproj" />
     <ProjectReference Include="..\PlayerBucket.Common\PlayerBucket.Common.csproj" />
+  </ItemGroup>    
+  <ItemGroup>
+    <EditorConfigFiles Remove="D:\Users\Phoenix\source\repos\Tgs.PlayerBucketService\Tgs.PlayerBucketWorker.Benchmark\.editorconfig" />
+  </ItemGroup>    
+  <ItemGroup>
+    <None Include="D:\Users\Phoenix\source\repos\Tgs.PlayerBucketService\Tgs.PlayerBucketWorker.Benchmark\.editorconfig" />
   </ItemGroup>  
 </Project>

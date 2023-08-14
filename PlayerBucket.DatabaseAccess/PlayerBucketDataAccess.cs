@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Tgs.PlayerBuckets.DatabaseAccess.Entities;
 
 namespace Tgs.PlayerBuckets.DatabaseAccess;
@@ -92,7 +93,7 @@ internal class PlayerBucketDataAccess
 				cancellationToken).ConfigureAwait(false)).Entity;
 
 	public async ValueTask SaveChangesAsync(CancellationToken cancellationToken = default)
-		=> await _dbContext.SaveChangesAsync(cancellationToken);
+		=> await _dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
 	public void RejectChanges()
 	{
@@ -197,4 +198,19 @@ internal class PlayerBucketDataAccess
 			})
 			.ToAsyncEnumerable()
 			.Select(info => (info.Id, info.PlayerCode));
+
+	public async ValueTask SetBrandBucketTypesAsync(Guid brandId, IEnumerable<string> bucketTypes, CancellationToken cancellationToken = default)
+	{
+		var row = await _dbContext.BrandBucketTypes
+			.FindAsync(new object?[] { brandId }, cancellationToken: cancellationToken)
+			.ConfigureAwait(false)
+			?? (await _dbContext.BrandBucketTypes
+				.AddAsync(new BrandBucketType
+				{
+					BrandId = brandId
+				}, cancellationToken)
+				.ConfigureAwait(false)).Entity;
+
+		row.BucketTypes = JsonSerializer.Serialize(bucketTypes);
+	}
 }

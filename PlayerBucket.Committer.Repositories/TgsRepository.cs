@@ -82,7 +82,9 @@ internal class TgsRepository : ITgsRepository
 
 	public async ValueTask UpdatePlayerBucketAsync(BucketInfo bucketInfo, CancellationToken cancellationToken = default)
 	{
-		var playerBucket = await _playerBucketDataAccess.GetOrAddPlayerBucketAsync(bucketInfo.Id, cancellationToken);
+		var playerBucket = await _playerBucketDataAccess.GetOrAddPlayerBucketAsync(
+			bucketInfo.Id,
+			cancellationToken).ConfigureAwait(false);
 
 		playerBucket.PlayerCode = bucketInfo.PlayerCode;
 		playerBucket.BucketType = (short)bucketInfo.Type;

@@ -206,4 +206,18 @@ internal class TgsRepository : ITgsRepository
 					: JsonDocument.Parse(row.GameBalanceReturn),
 				Enum.Parse<CleanFlowStatus>(row.Status),
 				row.CreatedOn));
+
+	public async ValueTask SetBrandBucketTypesAsync(
+		Guid brandId,
+		IEnumerable<string> bucketTypes,
+		CancellationToken cancellationToken = default)
+	{
+		await _playerBucketDataAccess.SetBrandBucketTypesAsync(
+			brandId,
+			bucketTypes,
+			cancellationToken).ConfigureAwait(false);
+
+		await _playerBucketDataAccess.SaveChangesAsync(
+			cancellationToken).ConfigureAwait(false);
+	}
 }

@@ -17,7 +17,12 @@
    ],
    "SelectedHandlebarsLanguage": 0,
    "SelectedToBeGenerated": 0,
+   "T4TemplatePath": null,
    "Tables": [
+      {
+         "Name": "dbo.brand_bucket_types",
+         "ObjectType": 0
+      },
       {
          "Name": "dbo.player_bucket_clean_event_source",
          "ObjectType": 0
@@ -56,6 +61,7 @@
    "UseNodaTime": false,
    "UseNullableReferences": true,
    "UseSchemaFolders": true,
+   "UseSchemaNamespaces": false,
    "UseSpatial": false,
    "UseT4": false
 }
