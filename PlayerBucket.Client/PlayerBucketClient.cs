@@ -276,4 +276,24 @@ internal class PlayerBucketClient : IPlayerBucketClient
 			.AsTask()
 			.ToAsyncEnumerable()
 			.SelectMany(arr => arr.ToAsyncEnumerable());
+
+	public async ValueTask SetBrandBucketTypesAsync(Guid brandId, IEnumerable<string> bucketTypes, CancellationToken cancellationToken = default)
+	{
+		var response = await _httpClient.PutAsJsonAsync(
+			$"/api/brand/{brandId}",
+			bucketTypes,
+			PlayerBucketUtility.SerializerOptions,
+			cancellationToken)
+			.ConfigureAwait(false);
+
+		_ = response.EnsureSuccessStatusCode();
+	}
+
+	public IAsyncEnumerable<string> GetBrandBucketTypesAsync(Guid brandId, CancellationToken cancellationToken = default)
+		=> _httpClient.GetFromJsonAsync<IAsyncEnumerable<string>>(
+			$"/api/brand/{brandId}",
+			cancellationToken)
+			.ToAsyncEnumerable()
+			.Where(bucketTypes => bucketTypes is not null)
+			.SelectMany(bucketTypes => bucketTypes!);
 }
