@@ -18,4 +18,14 @@ public class BrandController : ControllerBase
 
 		return commandService.ExecuteAsync(command, HttpContext.RequestAborted);
 	}
+
+	[HttpGet("{brandId:Guid}", Name = "GetBrandBucketTypes")]
+	public IAsyncEnumerable<string> GetBrandBucketTypesAsync(
+		[FromServices] IQueryService<GetBrandBucketTypesQuery, string> queryService,
+		Guid brandId)
+	{
+		var query = new GetBrandBucketTypesQuery(brandId);
+
+		return queryService.QueryAsync(query, HttpContext.RequestAborted);
+	}
 }

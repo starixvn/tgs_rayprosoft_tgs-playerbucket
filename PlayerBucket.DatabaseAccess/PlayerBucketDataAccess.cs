@@ -213,4 +213,14 @@ internal class PlayerBucketDataAccess
 
 		row.BucketTypes = JsonSerializer.Serialize(bucketTypes);
 	}
+
+	public IAsyncEnumerable<string> GetBrandBucketTypesAsync(Guid brandId, CancellationToken cancellationToken = default)
+		=> _dbContext.BrandBucketTypes
+			.FindAsync(new object?[] { brandId }, cancellationToken: cancellationToken)
+			.AsTask()
+			.ToAsyncEnumerable()
+			.Where(row => row is not null)
+			.Select(row => JsonSerializer.Deserialize<IAsyncEnumerable<string>>(row!.BucketTypes))
+			.Where(bucketTypes => bucketTypes is not null)
+			.SelectMany(bucketTypes => bucketTypes!);
 }

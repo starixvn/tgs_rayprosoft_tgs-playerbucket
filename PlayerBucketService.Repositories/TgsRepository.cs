@@ -220,4 +220,7 @@ internal class TgsRepository : ITgsRepository
 		await _playerBucketDataAccess.SaveChangesAsync(
 			cancellationToken).ConfigureAwait(false);
 	}
+
+	public IAsyncEnumerable<string> GetBrandBucketTypesAsync(Guid brandId, CancellationToken cancellationToken = default)
+		=> _playerBucketDataAccess.GetBrandBucketTypesAsync(brandId, cancellationToken);
 }

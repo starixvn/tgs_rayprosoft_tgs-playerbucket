@@ -22,13 +22,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AsyncFixer" Version="1.6.0">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
+		<PackageReference Include="AsyncMethodNameFixer" Version="2.3.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
-		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.18.1" />
-		<PackageReference Include="StackExchange.Redis" Version="2.6.96" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />
+		<PackageReference Include="StackExchange.Redis" Version="2.6.122" />
 		<PackageReference Include="System.Interactive.Async" Version="6.0.1" />
 	</ItemGroup>
 
