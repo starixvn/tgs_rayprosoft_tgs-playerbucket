@@ -35,21 +35,13 @@ unit-test:
 
 push-nuget:
   extends: .push-nuget-template
-  before_script:
-    - !reference [.push-nuget-template, before_script]
-    - |
-      function push_package() {
-        local projectFolder=$1
-        local project=$2
-
-        dotnet pack -c $BuildConfiguration "${project:=$projectFolder/$projectFolder.csproj}" --no-restore
-        dotnet nuget push "$projectFolder/bin/$BuildConfiguration/*.nupkg" -s "raypro-baget" -k $NugetApiKey --skip-duplicate
-      }
   script:
     - push_package "PlayerBucket.Client"
+    - push_package "PlayerBucketType.Client"
   artifacts:
     paths:
       - PlayerBucket.Client/bin/$BuildConfiguration/*.nupkg
+      - PlayerBucketType.Client/bin/$BuildConfiguration/*.nupkg
 
 push-docker-image:
   extends: .push-docker-image-template
@@ -492,7 +484,7 @@ deploy-countervail-prod:
   script:
     - deploy_k8s $HelmTemplateCountervailFolderName $namespace
 
-deploy-countervail-prod-job:
+deploy-countervail-job-prod:
   extends: .deploy-job-template
   variables:
     namespace: prod

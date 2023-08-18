@@ -5,6 +5,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>Tgs.PlayerBucket.Client</RootNamespace>
+    <PackageId>PlayerBucketType.Client</PackageId>
+    <Title>遊戲類型封裝的PlayerBucket Client函式庫</Title>
+    <Version>0.0.1</Version>
+    <Authors>Raypro</Authors>
+    <PackageProjectUrl>https://gitlab.com/rayprosoft/tgs-playerbucket</PackageProjectUrl>
+    <PackageTags>Tgs PlayerBucket Bucket</PackageTags>
+    <RepositoryUrl>https://gitlab.com/rayprosoft/tgs-playerbucket.git</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
