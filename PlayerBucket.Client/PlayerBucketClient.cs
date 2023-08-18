@@ -198,8 +198,35 @@ internal class PlayerBucketClient : IPlayerBucketClient
 			.Do(response => response.EnsureSuccessStatusCode())
 			.Where(response => response.StatusCode == System.Net.HttpStatusCode.OK)
 			.SelectMany(response => response.Content
-				.ReadFromJsonAsync<CleanBucketForm>(PlayerBucketUtility.SerializerOptions, cancellationToken)
+				.ReadFromJsonAsync<BucketCleanFormV1>(PlayerBucketUtility.SerializerOptions, cancellationToken)
 				.ToAsyncEnumerable())
+			.Where(form => form is not null)
+			.Select(form => form!)
+			.Select(form => new CleanBucketForm(
+				form.Id,
+				form.PlayerCode,
+				form.WalletId,
+				form.BrandId,
+				form.CurrentBalance,
+				new[]
+				{
+					new KeyValuePair<string?, ReadBucketResult>(
+						null,
+						new ReadBucketResult(form.CurrentBucketAmount, form.BucketAnchorId))
+				},
+				form.DepositFormId,
+				form.ClearWageringRequirementBalance,
+				form.CleaningBalance,
+				form.CleaningBucketAmount is null
+					? null
+					: new[]
+					{
+						new KeyValuePair<string?, ReadBucketResult>(
+							null,
+							new ReadBucketResult(form.CleaningBucketAmount!.Value, null))
+					},
+				form.Status,
+				form.CreatedOn))
 			.FirstOrDefaultAsync(cancellationToken)
 			.ConfigureAwait(false);
 

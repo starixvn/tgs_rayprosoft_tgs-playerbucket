@@ -29,13 +29,13 @@ public class BucketCleanFormController : ControllerBase
 				PlayerCode = form.PlayerCode,
 				BrandId = form.BrandId,
 				WalletId = form.WalletId,
-				BucketAnchorId = form.BucketAnchorId,
+				BucketAnchorId = form.CurrentBucketAmounts.First().Value.AnchorBucketId!.Value,
 				CurrentBalance = form.CurrentBalance,
-				CurrentBucketAmount = form.CurrentBucketAmount,
+				CurrentBucketAmount = form.CurrentBucketAmounts.First().Value.Amount,
 				DepositFormId = form.DepositFormId,
 				ClearWageringRequirementBalance = form.ClearWageringRequirementBalance,
 				CleaningBalance = form.CleaningBalance,
-				CleaningBucketAmount = form.CleaningBucketAmount,
+				CleaningBucketAmount = form.CleaningBucketAmounts?.First().Value.Amount,
 				Status = form.Status,
 				CreatedOn = form.CreatedOn
 			});
