@@ -60,4 +60,8 @@ public interface IPlayerBucketClient
 		string playerCode,
 		CleanFlowStatus? flowStatus = null,
 		CancellationToken cancellationToken = default);
+
+	ValueTask SetBrandBucketTypesAsync(Guid brandId, IEnumerable<string> bucketTypes, CancellationToken cancellationToken = default);
+
+	IAsyncEnumerable<string> GetBrandBucketTypesAsync(Guid brandId, CancellationToken cancellationToken = default);
 }

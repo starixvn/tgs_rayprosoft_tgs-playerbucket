@@ -71,7 +71,7 @@ var bucketScenario = Scenario.Create("Bucket Test",
 				10000M,
 				BucketType.Deposit,
 				Guid.NewGuid().ToString(),
-				null).AsTask()).ToArray()).WaitAsync(TimeSpan.FromSeconds(10D));
+				null).AsTask()).ToArray()).WaitAsync(TimeSpan.FromSeconds(10D)).ConfigureAwait(false);
 		}
 	})
 	.WithoutWarmUp()

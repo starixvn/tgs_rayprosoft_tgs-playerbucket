@@ -38,7 +38,9 @@ logger.LogInformation("AllCreateBuckets");
 
 await foreach (var info in redisConnMgr.GetAllCreateBucketsAsync())
 {
-	_ = await httpClient.PutAsync($"/api/bucket/flush/{info.PlayerCode}/{info.Id}", null);
+	_ = await httpClient.PutAsync(
+		$"/api/bucket/flush/{info.PlayerCode}/{info.Id}",
+		null).ConfigureAwait(false);
 	logger.LogInformation("Process {playerCode}, {id}", info.PlayerCode, info.Id);
 }
 
@@ -46,6 +48,8 @@ logger.LogInformation("AllBucketEvents");
 await foreach (var (id, playerCode) in dataAccess.QueryPlayerBucketsForFlushAsync(
 	  redisConnMgr.GetAllBucketIdsAsync().ToEnumerable()))
 {
-	_ = await httpClient.PutAsync($"/api/bucket/flush/{playerCode}/{id}", null);
+	_ = await httpClient.PutAsync(
+		$"/api/bucket/flush/{playerCode}/{id}",
+		null).ConfigureAwait(false);
 	logger.LogInformation("Process {playerCode}, {id}", playerCode, id);
 }

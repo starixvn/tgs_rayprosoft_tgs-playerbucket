@@ -39,7 +39,7 @@ internal class BucketChangedObserver : BackgroundService
 						{
 							await Task.Yield();
 
-							await PublishEventAsync(evt);
+							await PublishEventAsync(evt).ConfigureAwait(false);
 						}))
 						.Concat()
 						.Catch((Exception ex) =>

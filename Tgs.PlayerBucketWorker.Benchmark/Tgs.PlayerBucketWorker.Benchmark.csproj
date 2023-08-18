@@ -13,14 +13,21 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>    
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.13.5" />
-    <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.13.5" />
+    <PackageReference Include="AsyncMethodNameFixer" Version="2.3.0" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.7" />
+    <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.13.7" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
-    <PackageReference Include="Tgs.MessageQueue.Nats" Version="2.3.0" />
+    <PackageReference Include="Tgs.MessageQueue.Nats" Version="2.3.1" />
   </ItemGroup>    
   <ItemGroup>
     <ProjectReference Include="..\PlayerBucket.Client\PlayerBucket.Client.csproj" />
     <ProjectReference Include="..\PlayerBucket.Common\PlayerBucket.Common.csproj" />
+  </ItemGroup>    
+  <ItemGroup>
+    <EditorConfigFiles Remove="D:\Users\Phoenix\source\repos\Tgs.PlayerBucketService\Tgs.PlayerBucketWorker.Benchmark\.editorconfig" />
+  </ItemGroup>    
+  <ItemGroup>
+    <None Include="D:\Users\Phoenix\source\repos\Tgs.PlayerBucketService\Tgs.PlayerBucketWorker.Benchmark\.editorconfig" />
   </ItemGroup>  
 </Project>

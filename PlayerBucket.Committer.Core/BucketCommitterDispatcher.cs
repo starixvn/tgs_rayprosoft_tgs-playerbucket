@@ -72,7 +72,8 @@ internal class BucketCommitterDispatcher : BackgroundService
 								{
 									await Task.Yield();
 
-									await using var scope = _serviceProvider.CreateAsyncScope();
+									var scope = _serviceProvider.CreateAsyncScope();
+									await using var _ = scope.ConfigureAwait(false);
 
 									var serviceCoordinator = scope.ServiceProvider.GetRequiredService<IServiceCoordinator>();
 									var distributedResMgr = scope.ServiceProvider.GetRequiredService<IDistributedResourceManager>();
@@ -141,7 +142,8 @@ internal class BucketCommitterDispatcher : BackgroundService
 								{
 									await Task.Yield();
 
-									await using var scope = _serviceProvider.CreateAsyncScope();
+									var scope = _serviceProvider.CreateAsyncScope();
+									await using var _ = scope.ConfigureAwait(false);
 
 									var serviceCoordinator = scope.ServiceProvider.GetRequiredService<IServiceCoordinator>();
 									var distributedResMgr = scope.ServiceProvider.GetRequiredService<IDistributedResourceManager>();

@@ -14,6 +14,8 @@ public partial class TgsContext : DbContext
     {
     }
 
+    public virtual DbSet<BrandBucketType> BrandBucketTypes { get; set; }
+
     public virtual DbSet<PlayerBucket> PlayerBuckets { get; set; }
 
     public virtual DbSet<PlayerBucketCleanEventSource> PlayerBucketCleanEventSources { get; set; }
@@ -30,6 +32,7 @@ public partial class TgsContext : DbContext
             .HasPostgresExtension("ltree")
             .HasPostgresExtension("pg_trgm");
 
+            modelBuilder.ApplyConfiguration(new Configurations.BrandBucketTypeConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketCleanEventSourceConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketCleanFormConfiguration());
