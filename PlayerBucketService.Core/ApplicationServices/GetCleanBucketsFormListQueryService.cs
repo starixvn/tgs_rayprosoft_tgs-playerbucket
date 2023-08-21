@@ -22,21 +22,11 @@ internal class GetCleanBucketsFormListQueryService : IQueryService<GetCleanBucke
 				form.WalletId,
 				form.BrandId,
 				form.CurrentBalance,
-				new[] {
-					new KeyValuePair<string?, ReadBucketResult>(
-						null,
-						new ReadBucketResult(form.CurrentBucketAmount, form.BucketAnchorId))
-				},
+				form.CurrentBucketAmounts,
 				form.DepositFormId,
 				form.ClearWageringRequirementBalance,
 				form.CleaningBalance,
-				form.CleaningBucketAmount is null
-					? null
-					: new[] {
-						new KeyValuePair<string?, ReadBucketResult>(
-							null,
-							new ReadBucketResult(form.CleaningBucketAmount!.Value, null))
-					},
+				form.CleaningBucketAmounts,
 				form.Status,
 				form.CreatedOn));
 }

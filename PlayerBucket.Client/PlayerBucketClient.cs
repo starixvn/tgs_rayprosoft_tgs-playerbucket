@@ -210,7 +210,7 @@ internal class PlayerBucketClient : IPlayerBucketClient
 				form.CurrentBalance,
 				new[]
 				{
-					new KeyValuePair<string?, ReadBucketResult>(
+					new CleanFormBucketResult(
 						null,
 						new ReadBucketResult(form.CurrentBucketAmount, form.BucketAnchorId))
 				},
@@ -221,7 +221,7 @@ internal class PlayerBucketClient : IPlayerBucketClient
 					? null
 					: new[]
 					{
-						new KeyValuePair<string?, ReadBucketResult>(
+						new CleanFormBucketResult(
 							null,
 							new ReadBucketResult(form.CleaningBucketAmount!.Value, null))
 					},

@@ -5,10 +5,10 @@ public record CleanBucketForm(
 	Guid WalletId,
 	Guid BrandId,
 	decimal CurrentBalance,
-	IEnumerable<KeyValuePair<string?, ReadBucketResult>> CurrentBucketAmounts,
+	IEnumerable<CleanFormBucketResult> CurrentBucketAmounts,
 	Guid DepositFormId,
 	decimal ClearWageringRequirementBalance,
 	decimal? CleaningBalance,
-	IEnumerable<KeyValuePair<string?, ReadBucketResult>>? CleaningBucketAmounts,
+	IEnumerable<CleanFormBucketResult>? CleaningBucketAmounts,
 	CleanFlowStatus Status,
 	DateTime CreatedOn);

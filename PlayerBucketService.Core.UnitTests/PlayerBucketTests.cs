@@ -118,9 +118,15 @@ public class PlayerBucketTests
 			command.PlayerCode,
 			command.BrandId,
 			command.WalletId,
-			command.BucketAnchorId,
 			command.CurrentBalance,
-			command.CurrentBucketAmount,
+			CurrentBucketAmounts = new[]
+			{
+				new CleanFormBucketResult(
+					null,
+					new ReadBucketResult(
+						command.CurrentBucketAmount,
+						command.BucketAnchorId))
+			},
 			command.DepositFormId,
 			command.ClearWageringRequirementBalance
 		};
@@ -172,8 +178,12 @@ public class PlayerBucketTests
 			Guid.NewGuid(),
 			Guid.NewGuid(),
 			0M,
-			1000M,
-			Guid.NewGuid(),
+			new[]
+			{
+				new CleanFormBucketResult(
+					null,
+					new ReadBucketResult(1000M, Guid.NewGuid()))
+			},
 			Guid.NewGuid(),
 			0M,
 			null,
@@ -185,18 +195,27 @@ public class PlayerBucketTests
 		_ = fakeTgsRepository.GetCleanPlayerBucketFormAsync(Arg.Is(command.FormId))
 			.Returns(form);
 
+		var expectedForm = (form with
+		{
+			Status = CleanFlowStatus.Completed,
+			CleaningBalance = command.CleaningBalance,
+			CleaningBucketAmounts = new[]
+			{
+				new CleanFormBucketResult(
+					null,
+					new ReadBucketResult(
+						command.CleaningBucketAmount,
+						null))
+			}
+		}).ToExpectedObject(ctx => ctx.IgnoreEqualsOverride());
+
 		// Act
 		await sut.ExecuteAsync(command);
 
 		// Assert
 		_ = fakeTgsRepository.Received(1)
 			.UpsertCleanPlayerBucketFormAsync(
-				Arg.Is(form with
-				{
-					Status = CleanFlowStatus.Completed,
-					CleaningBalance = command.CleaningBalance,
-					CleaningBucketAmount = command.CleaningBucketAmount
-				}),
+				Arg.Is<CleanPlayerBucketForm>(argForm => expectedForm.Matches(argForm)),
 				Arg.Is(form));
 	}
 
@@ -216,8 +235,12 @@ public class PlayerBucketTests
 			Guid.NewGuid(),
 			Guid.NewGuid(),
 			0M,
-			1000M,
-			Guid.NewGuid(),
+			new[]
+			{
+				new CleanFormBucketResult(
+					null,
+					  new ReadBucketResult(1000M, Guid.NewGuid()))
+			},
 			Guid.NewGuid(),
 			0M,
 			null,
@@ -229,18 +252,27 @@ public class PlayerBucketTests
 		_ = fakeTgsRepository.GetCleanPlayerBucketFormAsync(Arg.Is(command.FormId))
 			.Returns(form);
 
+		var expectedForm = (form with
+		{
+			Status = CleanFlowStatus.Rejected,
+			CleaningBalance = command.CleaningBalance,
+			CleaningBucketAmounts = new[]
+			{
+				new CleanFormBucketResult(
+					null,
+					new ReadBucketResult(
+						command.CleaningBucketAmount,
+						null))
+			}
+		}).ToExpectedObject(ctx => ctx.IgnoreEqualsOverride());
+
 		// Act
 		await sut.ExecuteAsync(command);
 
 		// Assert
 		_ = fakeTgsRepository.Received(1)
 			.UpsertCleanPlayerBucketFormAsync(
-				Arg.Is(form with
-				{
-					Status = CleanFlowStatus.Rejected,
-					CleaningBalance = command.CleaningBalance,
-					CleaningBucketAmount = command.CleaningBucketAmount
-				}),
+				Arg.Is<CleanPlayerBucketForm>(argForm => expectedForm.Matches(argForm)),
 				Arg.Is(form));
 	}
 

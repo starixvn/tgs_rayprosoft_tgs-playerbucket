@@ -20,7 +20,11 @@ public partial class TgsContext : DbContext
 
     public virtual DbSet<PlayerBucketCleanEventSource> PlayerBucketCleanEventSources { get; set; }
 
+    public virtual DbSet<PlayerBucketCleanEventSource2> PlayerBucketCleanEventSource2s { get; set; }
+
     public virtual DbSet<PlayerBucketCleanForm> PlayerBucketCleanForms { get; set; }
+
+    public virtual DbSet<PlayerBucketCleanForms2> PlayerBucketCleanForms2s { get; set; }
 
     public virtual DbSet<PlayerBucketEventSource> PlayerBucketEventSources { get; set; }
 
@@ -35,7 +39,9 @@ public partial class TgsContext : DbContext
             modelBuilder.ApplyConfiguration(new Configurations.BrandBucketTypeConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketCleanEventSourceConfiguration());
+            modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketCleanEventSource2Configuration());
             modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketCleanFormConfiguration());
+            modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketCleanForms2Configuration());
             modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketEventSourceConfiguration());
             modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketMigrationConfiguration());
         OnModelCreatingPartial(modelBuilder);

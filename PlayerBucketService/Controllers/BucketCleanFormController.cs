@@ -29,13 +29,13 @@ public class BucketCleanFormController : ControllerBase
 				PlayerCode = form.PlayerCode,
 				BrandId = form.BrandId,
 				WalletId = form.WalletId,
-				BucketAnchorId = form.CurrentBucketAmounts.First().Value.AnchorBucketId!.Value,
+				BucketAnchorId = form.CurrentBucketAmounts.First().Result.AnchorBucketId!.Value,
 				CurrentBalance = form.CurrentBalance,
-				CurrentBucketAmount = form.CurrentBucketAmounts.First().Value.Amount,
+				CurrentBucketAmount = form.CurrentBucketAmounts.First().Result.Amount,
 				DepositFormId = form.DepositFormId,
 				ClearWageringRequirementBalance = form.ClearWageringRequirementBalance,
 				CleaningBalance = form.CleaningBalance,
-				CleaningBucketAmount = form.CleaningBucketAmounts?.First().Value.Amount,
+				CleaningBucketAmount = form.CleaningBucketAmounts?.First().Result.Amount,
 				Status = form.Status,
 				CreatedOn = form.CreatedOn
 			});
@@ -88,13 +88,23 @@ public class BucketCleanFormController : ControllerBase
 				PlayerCode = form.PlayerCode,
 				BrandId = form.BrandId,
 				WalletId = form.WalletId,
-				BucketAnchorId = form.BucketAnchorId,
+				BucketAnchorId = form.CurrentBucketAmounts
+					.First(item => item.BucketType is null)
+					.Result
+					.AnchorBucketId
+					!.Value,
 				CurrentBalance = form.CurrentBalance,
-				CurrentBucketAmount = form.CurrentBucketAmount,
+				CurrentBucketAmount = form.CurrentBucketAmounts
+					.First(item => item.BucketType is null)
+					.Result
+					.Amount,
 				DepositFormId = form.DepositFormId,
 				ClearWageringRequirementBalance = form.ClearWageringRequirementBalance,
 				CleaningBalance = form.CleaningBalance,
-				CleaningBucketAmount = form.CleaningBucketAmount,
+				CleaningBucketAmount = form.CleaningBucketAmounts
+					?.FirstOrDefault(item => item.BucketType is null)
+					?.Result
+					.Amount,
 				Status = form.Status,
 				CreatedOn = form.CreatedOn
 			};

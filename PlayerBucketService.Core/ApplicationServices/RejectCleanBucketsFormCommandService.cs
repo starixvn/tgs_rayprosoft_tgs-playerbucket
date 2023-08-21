@@ -24,7 +24,11 @@ internal class RejectCleanBucketsFormCommandService : ICommandService<RejectClea
 		{
 			Status = CleanFlowStatus.Rejected,
 			CleaningBalance = command.CleaningBalance,
-			CleaningBucketAmount = command.CleaningBucketAmount,
+			CleaningBucketAmounts = new[]{
+				new CleanFormBucketResult(
+					null,
+					new ReadBucketResult(command.CleaningBucketAmount, null))
+			},
 			GameBalanceReturn = command.GameBalanceReturn
 		};
 

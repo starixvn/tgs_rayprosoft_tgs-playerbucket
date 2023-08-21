@@ -442,7 +442,7 @@ public class PlayerBucketApiTests
             row.CurrentBalance,
             new[]
             {
-                new KeyValuePair<string?, ReadBucketResult>(
+                new CleanFormBucketResult(
                     null,
                     new ReadBucketResult(row.CurrentBucketAmount,  row.BucketAnchorId))
             },

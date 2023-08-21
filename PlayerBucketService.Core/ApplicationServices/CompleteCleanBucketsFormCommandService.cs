@@ -24,7 +24,12 @@ internal class CompleteCleanBucketsFormCommandService : ICommandService<Complete
 		{
 			Status = CleanFlowStatus.Completed,
 			CleaningBalance = command.CleaningBalance,
-			CleaningBucketAmount = command.CleaningBucketAmount,
+			CleaningBucketAmounts = new[]
+			{
+				new CleanFormBucketResult(
+					null,
+					new ReadBucketResult(command.CleaningBucketAmount, null))
+			},
 			GameBalanceReturn = command.GameBalanceReturn
 		};
 

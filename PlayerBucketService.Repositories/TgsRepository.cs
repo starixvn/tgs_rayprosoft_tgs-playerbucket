@@ -127,12 +127,21 @@ internal class TgsRepository : ITgsRepository
 			Id = form.Id,
 			BrandId = form.BrandId,
 			WalletId = form.WalletId,
-			BucketAnchorId = form.BucketAnchorId,
+			BucketAnchorId = form.CurrentBucketAmounts
+				.First(item => item.BucketType is null)
+				.Result
+				.AnchorBucketId!.Value,
 			CleaningBalance = form.CleaningBalance,
-			CleaningBucketAmount = form.CleaningBucketAmount,
+			CleaningBucketAmount = form.CleaningBucketAmounts
+				?.FirstOrDefault(item => item.BucketType is null)
+				?.Result
+				.Amount,
 			CreatedOn = form.CreatedOn,
 			CurrentBalance = form.CurrentBalance,
-			CurrentBucketAmount = form.CurrentBucketAmount,
+			CurrentBucketAmount = form.CurrentBucketAmounts
+				.First(item => item.BucketType is null)
+				.Result
+				.Amount,
 			DepositFormId = form.DepositFormId,
 			PlayerCode = form.PlayerCode,
 			ClearWageringRequirementBalance = form.ClearWageringRequirementBalance,
@@ -168,12 +177,25 @@ internal class TgsRepository : ITgsRepository
 				row.BrandId,
 				row.WalletId,
 				row.CurrentBalance,
-				row.CurrentBucketAmount,
-				row.BucketAnchorId,
+				new[]
+				{
+					new CleanFormBucketResult(
+						null,
+						new ReadBucketResult(row.CurrentBucketAmount, row.BucketAnchorId))
+				},
 				row.DepositFormId,
 				row.ClearWageringRequirementBalance,
 				row.CleaningBalance,
-				row.CleaningBucketAmount,
+				row.CleaningBucketAmount is null
+					? null
+					: new[]
+					{
+						new CleanFormBucketResult(
+							null,
+							  new ReadBucketResult(
+								  row.CleaningBucketAmount.Value,
+								  null))
+					},
 				string.IsNullOrWhiteSpace(row.GameBalanceReturn)
 					? null
 					: JsonDocument.Parse(row.GameBalanceReturn),
@@ -195,12 +217,23 @@ internal class TgsRepository : ITgsRepository
 				row.BrandId,
 				row.WalletId,
 				row.CurrentBalance,
-				row.CurrentBucketAmount,
-				row.BucketAnchorId,
+				new[]
+				{
+					new CleanFormBucketResult(
+						null,
+						new ReadBucketResult(row.CurrentBucketAmount, row.BucketAnchorId))
+				},
 				row.DepositFormId,
 				row.ClearWageringRequirementBalance,
 				row.CleaningBalance,
-				row.CleaningBucketAmount,
+				row.CleaningBucketAmount is null
+					? null
+					: new[]
+					{
+						new CleanFormBucketResult(
+							null,
+							new ReadBucketResult(row.CleaningBucketAmount.Value, null))
+					},
 				string.IsNullOrWhiteSpace(row.GameBalanceReturn)
 					? null
 					: JsonDocument.Parse(row.GameBalanceReturn),
