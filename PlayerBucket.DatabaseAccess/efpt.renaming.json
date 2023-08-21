@@ -1,0 +1,18 @@
+﻿[
+   {
+      "SchemaName": "dbo",
+      "Tables": [
+         {
+            "Columns": [ ],
+            "Name": "player_bucket_clean_event_source2",
+            "NewName": "PlayerBucketCleanEventSourceV2"
+         },
+         {
+            "Columns": [ ],
+            "Name": "player_bucket_clean_forms2",
+            "NewName": "PlayerBucketCleanFormV2"
+         }
+      ],
+      "UseSchemaName": false
+   }
+]

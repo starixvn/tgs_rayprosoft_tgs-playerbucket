@@ -9,9 +9,9 @@ using Tgs.PlayerBuckets.DatabaseAccess.Entities;
 
 namespace Tgs.PlayerBuckets.DatabaseAccess.Entities.Configurations
 {
-    public partial class PlayerBucketCleanForms2Configuration : IEntityTypeConfiguration<PlayerBucketCleanForms2>
+    public partial class PlayerBucketCleanFormV2Configuration : IEntityTypeConfiguration<PlayerBucketCleanFormV2>
     {
-        public void Configure(EntityTypeBuilder<PlayerBucketCleanForms2> entity)
+        public void Configure(EntityTypeBuilder<PlayerBucketCleanFormV2> entity)
         {
             entity.HasKey(e => e.Id).HasName("pk_player_bucket_clean_forms2");
 
@@ -49,6 +49,6 @@ namespace Tgs.PlayerBuckets.DatabaseAccess.Entities.Configurations
             OnConfigurePartial(entity);
         }
 
-        partial void OnConfigurePartial(EntityTypeBuilder<PlayerBucketCleanForms2> entity);
+        partial void OnConfigurePartial(EntityTypeBuilder<PlayerBucketCleanFormV2> entity);
     }
 }

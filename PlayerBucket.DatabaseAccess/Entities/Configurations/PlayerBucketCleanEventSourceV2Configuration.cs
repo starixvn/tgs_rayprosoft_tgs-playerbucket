@@ -9,9 +9,9 @@ using Tgs.PlayerBuckets.DatabaseAccess.Entities;
 
 namespace Tgs.PlayerBuckets.DatabaseAccess.Entities.Configurations
 {
-    public partial class PlayerBucketCleanEventSource2Configuration : IEntityTypeConfiguration<PlayerBucketCleanEventSource2>
+    public partial class PlayerBucketCleanEventSourceV2Configuration : IEntityTypeConfiguration<PlayerBucketCleanEventSourceV2>
     {
-        public void Configure(EntityTypeBuilder<PlayerBucketCleanEventSource2> entity)
+        public void Configure(EntityTypeBuilder<PlayerBucketCleanEventSourceV2> entity)
         {
             entity.HasKey(e => e.Id).HasName("pk_player_bucket_clean_event_source2");
 
@@ -29,6 +29,6 @@ namespace Tgs.PlayerBuckets.DatabaseAccess.Entities.Configurations
             OnConfigurePartial(entity);
         }
 
-        partial void OnConfigurePartial(EntityTypeBuilder<PlayerBucketCleanEventSource2> entity);
+        partial void OnConfigurePartial(EntityTypeBuilder<PlayerBucketCleanEventSourceV2> entity);
     }
 }

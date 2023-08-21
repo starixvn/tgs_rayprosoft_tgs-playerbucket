@@ -131,21 +131,21 @@ internal class PlayerBucketDataAccess
 			},
 			cancellationToken).ConfigureAwait(false);
 
-	public async ValueTask UpsertPlayerBucketCleanFormAsync(PlayerBucketCleanForm formRow, CancellationToken cancellationToken = default)
+	public async ValueTask UpsertPlayerBucketCleanFormAsync(PlayerBucketCleanFormV2 formRow, CancellationToken cancellationToken = default)
 	{
-		var existsRow = await _dbContext.PlayerBucketCleanForms.FindAsync(
+		var existsRow = await _dbContext.PlayerBucketCleanFormV2s.FindAsync(
 			new object?[] { formRow.Id },
 			cancellationToken: cancellationToken).ConfigureAwait(false);
 
 		if (existsRow is not null)
 		{
 			existsRow.CleaningBalance = formRow.CleaningBalance;
-			existsRow.CleaningBucketAmount = formRow.CleaningBucketAmount;
+			existsRow.CleaningBucketAmounts = formRow.CleaningBucketAmounts;
 			existsRow.GameBalanceReturn = formRow.GameBalanceReturn;
 			existsRow.Status = formRow.Status;
 		}
 		else
-			_ = await _dbContext.PlayerBucketCleanForms.AddAsync(
+			_ = await _dbContext.PlayerBucketCleanFormV2s.AddAsync(
 				formRow,
 				cancellationToken).ConfigureAwait(false);
 	}
@@ -156,9 +156,9 @@ internal class PlayerBucketDataAccess
 			cancellationToken: cancellationToken);
 
 	public async ValueTask InsertPlayerBucketCleanEventSourceAsync(
-		PlayerBucketCleanEventSource eventSource,
+		PlayerBucketCleanEventSourceV2 eventSource,
 		CancellationToken cancellationToken = default)
-		=> await _dbContext.PlayerBucketCleanEventSources.AddAsync(
+		=> await _dbContext.PlayerBucketCleanEventSourceV2s.AddAsync(
 			eventSource,
 			cancellationToken).ConfigureAwait(false);
 

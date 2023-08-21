@@ -384,16 +384,23 @@ public class PlayerBucketApiTests
             cleanOrder.BrandId,
             cleanOrder.WalletId,
             cleanOrder.CurrentBalance,
-            cleanOrder.CurrentBucketAmount,
-            cleanOrder.BucketAnchorId,
             cleanOrder.DepositFormId,
-            cleanOrder.ClearWageringRequirementBalance
+            cleanOrder.ClearWageringRequirementBalance,
+            CurrentBucketAmounts = JsonSerializer.Serialize(
+                new[] {
+                    new CleanFormBucketResult(
+                        null,
+                        new ReadBucketResult(
+                            cleanOrder.CurrentBucketAmount,
+                            cleanOrder.BucketAnchorId))
+                },
+                PlayerBucketUtility.SerializerOptions)
         };
 
         // Act
         await sut.RequestCleanBucketsAsync(playerCode, cleanOrder);
 
-        var row = await dbContext.PlayerBucketCleanForms.SingleAsync();
+        var row = await dbContext.PlayerBucketCleanFormV2s.SingleAsync();
 
         // Assert
         expected.ToExpectedObject().ShouldMatch(row);

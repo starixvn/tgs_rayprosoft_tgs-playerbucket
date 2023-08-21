@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Tgs.PlayerBuckets.DatabaseAccess.Entities;
 
-public partial class PlayerBucketCleanEventSource2
+public partial class PlayerBucketCleanEventSourceV2
 {
     public Guid Id { get; set; }
 

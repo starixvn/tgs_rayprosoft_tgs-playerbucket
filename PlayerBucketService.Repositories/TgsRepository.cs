@@ -109,7 +109,7 @@ internal class TgsRepository : ITgsRepository
 			.GenerateAsync(cancellationToken)
 			.ConfigureAwait(false);
 
-		var eventSource = new PlayerBucketCleanEventSource
+		var eventSource = new PlayerBucketCleanEventSourceV2
 		{
 			Id = eventId,
 			FormId = form.Id,
@@ -122,26 +122,18 @@ internal class TgsRepository : ITgsRepository
 			eventSource,
 			cancellationToken).ConfigureAwait(false);
 
-		var row = new PlayerBucketCleanForm
+		var row = new PlayerBucketCleanFormV2
 		{
 			Id = form.Id,
 			BrandId = form.BrandId,
 			WalletId = form.WalletId,
-			BucketAnchorId = form.CurrentBucketAmounts
-				.First(item => item.BucketType is null)
-				.Result
-				.AnchorBucketId!.Value,
 			CleaningBalance = form.CleaningBalance,
-			CleaningBucketAmount = form.CleaningBucketAmounts
-				?.FirstOrDefault(item => item.BucketType is null)
-				?.Result
-				.Amount,
+			CleaningBucketAmounts = form.CleaningBucketAmounts is null
+				? null
+				: JsonSerializer.Serialize(form.CleaningBucketAmounts, PlayerBucketUtility.SerializerOptions),
 			CreatedOn = form.CreatedOn,
 			CurrentBalance = form.CurrentBalance,
-			CurrentBucketAmount = form.CurrentBucketAmounts
-				.First(item => item.BucketType is null)
-				.Result
-				.Amount,
+			CurrentBucketAmounts = JsonSerializer.Serialize(form.CurrentBucketAmounts, PlayerBucketUtility.SerializerOptions),
 			DepositFormId = form.DepositFormId,
 			PlayerCode = form.PlayerCode,
 			ClearWageringRequirementBalance = form.ClearWageringRequirementBalance,
