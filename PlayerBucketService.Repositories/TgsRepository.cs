@@ -248,4 +248,36 @@ internal class TgsRepository : ITgsRepository
 
 	public IAsyncEnumerable<string> GetBrandBucketTypesAsync(Guid brandId, CancellationToken cancellationToken = default)
 		=> _playerBucketDataAccess.GetBrandBucketTypesAsync(brandId, cancellationToken);
+
+	public async ValueTask<CleanPlayerBucketForm?> GetCleanPlayerBucketFormV2Async(Guid formId, CancellationToken cancellationToken = default)
+	{
+		var row = await _playerBucketDataAccess.FindPlayerBucketCleanFormV2Async(
+			formId,
+			cancellationToken).ConfigureAwait(false);
+
+		return row is null
+			? null
+			: new CleanPlayerBucketForm(
+				row.Id,
+				row.PlayerCode,
+				row.BrandId,
+				row.WalletId,
+				row.CurrentBalance,
+				JsonSerializer.Deserialize<IEnumerable<CleanFormBucketResult>>(
+					row.CurrentBucketAmounts,
+					PlayerBucketUtility.SerializerOptions)!,
+				row.DepositFormId,
+				row.ClearWageringRequirementBalance,
+				row.CleaningBalance,
+				row.CleaningBucketAmounts is null
+					? null
+					: JsonSerializer.Deserialize<IEnumerable<CleanFormBucketResult>>(
+						row.CleaningBucketAmounts,
+						PlayerBucketUtility.SerializerOptions),
+				string.IsNullOrWhiteSpace(row.GameBalanceReturn)
+					? null
+					: JsonDocument.Parse(row.GameBalanceReturn),
+				Enum.Parse<CleanFlowStatus>(row.Status),
+				row.CreatedOn);
+	}
 }

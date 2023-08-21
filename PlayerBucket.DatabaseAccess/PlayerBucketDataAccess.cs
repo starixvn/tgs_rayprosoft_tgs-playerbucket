@@ -155,6 +155,11 @@ internal class PlayerBucketDataAccess
 			new object?[] { formId },
 			cancellationToken: cancellationToken);
 
+	public ValueTask<PlayerBucketCleanFormV2?> FindPlayerBucketCleanFormV2Async(Guid formId, CancellationToken cancellationToken = default)
+		=> _dbContext.PlayerBucketCleanFormV2s.FindAsync(
+			new object?[] { formId },
+			cancellationToken: cancellationToken);
+
 	public async ValueTask InsertPlayerBucketCleanEventSourceAsync(
 		PlayerBucketCleanEventSourceV2 eventSource,
 		CancellationToken cancellationToken = default)

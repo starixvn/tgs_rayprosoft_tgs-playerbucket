@@ -192,7 +192,7 @@ public class PlayerBucketTests
 			CleanFlowStatus.Create,
 			DateTime.UtcNow);
 
-		_ = fakeTgsRepository.GetCleanPlayerBucketFormAsync(Arg.Is(command.FormId))
+		_ = fakeTgsRepository.GetCleanPlayerBucketFormV2Async(Arg.Is(command.FormId))
 			.Returns(form);
 
 		var expectedForm = (form with
@@ -249,7 +249,7 @@ public class PlayerBucketTests
 			CleanFlowStatus.Create,
 			DateTime.UtcNow);
 
-		_ = fakeTgsRepository.GetCleanPlayerBucketFormAsync(Arg.Is(command.FormId))
+		_ = fakeTgsRepository.GetCleanPlayerBucketFormV2Async(Arg.Is(command.FormId))
 			.Returns(form);
 
 		var expectedForm = (form with

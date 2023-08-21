@@ -13,7 +13,7 @@ internal class CompleteCleanBucketsFormCommandService : ICommandService<Complete
 
 	public async ValueTask ExecuteAsync(CompleteCleanBucketsFormCommand command, CancellationToken cancellationToken = default)
 	{
-		var form = await _tgsRepository.GetCleanPlayerBucketFormAsync(
+		var form = await _tgsRepository.GetCleanPlayerBucketFormV2Async(
 			command.FormId,
 			cancellationToken).ConfigureAwait(false);
 
