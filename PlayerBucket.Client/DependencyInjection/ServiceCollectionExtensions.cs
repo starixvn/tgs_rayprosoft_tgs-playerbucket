@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Tgs.PlayerBucket.Clients;
 using Tgs.Service.PlayerBuckets;
 
-namespace Tgs.PlayerBucket.Clients.DependencyInjection;
+namespace Microsoft.Extensions.DependencyInjection;
 
 public static class ServiceCollectionExtensions
 {

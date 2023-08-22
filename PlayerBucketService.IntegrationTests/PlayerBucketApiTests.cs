@@ -412,10 +412,12 @@ public class PlayerBucketApiTests
         // Arrange
         await using var web = PlayerBucketServiceTestHost.Instance
             .WithWebHostBuilder(hostBuilder => hostBuilder
-                .ConfigureLogging(logging => logging.AddXUnit(TestOutputHelper)));
+                .ConfigureLogging(logging => logging.AddXUnit(TestOutputHelper))
+                .ConfigureServices(services => services
+                    .AddHttpClientLoggingHandler()));
 
         var fakeClientMessageSender = Substitute.For<IMessageSender>();
-        var httpClient = web.CreateClient();
+        var httpClient = web.CreateDefaultClient(web.Services.ResolveLoggingHandler<PlayerBucketClient>());
         var sut = new PlayerBucketClient(httpClient, fakeClientMessageSender);
 
         var dbContext = web.Services.GetRequiredService<TgsContext>();

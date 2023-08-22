@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Mvc;
 using PlayerBucketService.ViewModels;
 using Tgs.Service.PlayerBuckets;
 using Tgs.Service.PlayerBuckets.ApplicationServices;
@@ -7,12 +8,15 @@ using Tgs.WebApi.Toolkits;
 
 namespace PlayerBucketService.Controllers;
 
+[ApiVersion("1.0")]
+[ApiVersion("2.0")]
 [Route("api/bucket/clean-form")]
 [ApiController]
+[ControllerName("BucketCleanForm")]
 public class BucketCleanFormController : ControllerBase
 {
-	[HttpGet("{playerCode}/{flowStatus}", Name = "GetCleanBucketsFormListByFlowStatus")]
-	[HttpGet("{playerCode}", Name = "GetCleanBucketsFormList")]
+	[HttpGet("{playerCode}/{flowStatus}", Name = "GetCleanBucketsFormListByFlowStatus", Order = 1001)]
+	[HttpGet("{playerCode}", Name = "GetCleanBucketsFormList", Order = 1000)]
 	public IAsyncEnumerable<CleanBucketsFormViewModel> GetCleanBucketsFormListAsync(
 		[FromServices] IQueryService<GetCleanBucketsFormListQuery, CleanBucketForm> queryService,
 		string playerCode,
@@ -41,26 +45,6 @@ public class BucketCleanFormController : ControllerBase
 			});
 	}
 
-	[HttpPut("{playerCode}", Name = "RequestCleanBuckets")]
-	[SuccessStatusCode(201, "Created apply")]
-	public ValueTask<Guid> RequestCleanBucketsAsync(
-		[FromServices] IGetService<ApplyCleanBucketsFormCommand, Guid> applyService,
-		string playerCode,
-		[FromBody] CleanBucketsOrderViewModel orderModel)
-	{
-		var command = new ApplyCleanBucketsFormCommand(
-			playerCode,
-			orderModel.BrandId,
-			orderModel.WalletId,
-			orderModel.BucketAnchorId,
-			orderModel.CurrentBalance,
-			orderModel.CurrentBucketAmount,
-			orderModel.DepositFormId,
-			orderModel.ClearWageringRequirementBalance);
-
-		return applyService.GetAsync(command, HttpContext.RequestAborted);
-	}
-
 	/// <summary>
 	/// Gets the clean buckets form asynchronous.
 	/// </summary>
@@ -69,8 +53,9 @@ public class BucketCleanFormController : ControllerBase
 	/// <returns></returns>
 	/// <response code="200">Find form</response>
 	/// <response code="204">Not found</response>
-	[HttpGet("{formId:Guid}", Name = "GetCleanBucketsForm")]
-	public async Task<CleanBucketsFormViewModel?> GetCleanBucketsFormAsync(
+	[MapToApiVersion("1.0")]
+	[HttpGet("{formId:Guid}", Name = "GetCleanBucketsForm", Order = 10)]
+	public async Task<CleanBucketsFormViewModel?> GetCleanBucketsFormV1Async(
 		[FromServices] IGetService<GetCleanPlayerBucketsFormQuery, CleanPlayerBucketForm?> getService,
 		Guid formId)
 	{
@@ -110,7 +95,27 @@ public class BucketCleanFormController : ControllerBase
 			};
 	}
 
-	[HttpPost("{formId}:complete", Name = "CompleteCleanBucketsForm")]
+	[HttpPut("{playerCode}", Name = "RequestCleanBuckets")]
+	[SuccessStatusCode(201, "Created apply")]
+	public ValueTask<Guid> RequestCleanBucketsAsync(
+		[FromServices] IGetService<ApplyCleanBucketsFormCommand, Guid> applyService,
+		string playerCode,
+		[FromBody] CleanBucketsOrderViewModel orderModel)
+	{
+		var command = new ApplyCleanBucketsFormCommand(
+			playerCode,
+			orderModel.BrandId,
+			orderModel.WalletId,
+			orderModel.BucketAnchorId,
+			orderModel.CurrentBalance,
+			orderModel.CurrentBucketAmount,
+			orderModel.DepositFormId,
+			orderModel.ClearWageringRequirementBalance);
+
+		return applyService.GetAsync(command, HttpContext.RequestAborted);
+	}
+
+	[HttpPost("{formId:Guid}:complete", Name = "CompleteCleanBucketsForm")]
 	public ValueTask CompleteCleanBucketsFormAsync(
 		[FromServices] ICommandService<CompleteCleanBucketsFormCommand> completeService,
 		Guid formId,
@@ -125,7 +130,7 @@ public class BucketCleanFormController : ControllerBase
 		return completeService.ExecuteAsync(command, HttpContext.RequestAborted);
 	}
 
-	[HttpPost("{formId}:reject", Name = "RejectCleanBucketsForm")]
+	[HttpPost("{formId:Guid}:reject", Name = "RejectCleanBucketsForm")]
 	public ValueTask RejectCleanBucketsFormAsync(
 		[FromServices] ICommandService<RejectCleanBucketsFormCommand> rejectService,
 		Guid formId,

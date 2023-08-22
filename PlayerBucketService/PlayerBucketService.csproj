@@ -11,6 +11,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="7.0.1" />
 		<PackageReference Include="AsyncMethodNameFixer" Version="2.3.0" />
 		<PackageReference Include="FluentdForward.OpenTelemetry.MessagePack" Version="0.3.1" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />

@@ -14,9 +14,7 @@ public class CleanBucketsFormV2ViewModel
 
 	public required decimal CurrentBalance { get; set; }
 
-	public required decimal CurrentBucketAmount { get; set; }
-
-	public required IEnumerable<ReadBucketResultViewModel> CurrentBucketAmounts { get; set; }
+	public required IEnumerable<CleanBucketResultViewModel> CurrentBucketAmounts { get; set; }
 
 	public required Guid DepositFormId { get; set; }
 
@@ -24,7 +22,7 @@ public class CleanBucketsFormV2ViewModel
 
 	public decimal? CleaningBalance { get; set; }
 
-	public IEnumerable<ReadBucketResultViewModel>? CleaningBucketAmounts { get; set; }
+	public IEnumerable<CleanBucketResultViewModel>? CleaningBucketAmounts { get; set; }
 
 	public required CleanFlowStatus Status { get; set; }
 
