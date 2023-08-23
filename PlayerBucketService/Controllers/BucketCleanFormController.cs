@@ -98,10 +98,10 @@ public class BucketCleanFormController : ControllerBase
 	[MapToApiVersion("2.0")]
 	[HttpGet("{formId:Guid}", Name = "GetCleanBucketsForm")]
 	public async Task<CleanBucketsFormV2ViewModel?> GetCleanBucketsFormAsync(
-		[FromServices] IGetService<GetCleanPlayerBucketsFormQuery, CleanPlayerBucketForm?> getService,
+		[FromServices] IGetService<GetCleanPlayerBucketsFormV2Query, CleanPlayerBucketForm?> getService,
 		Guid formId)
 	{
-		var query = new GetCleanPlayerBucketsFormQuery(formId);
+		var query = new GetCleanPlayerBucketsFormV2Query(formId);
 
 		var form = await getService.GetAsync(
 			query,

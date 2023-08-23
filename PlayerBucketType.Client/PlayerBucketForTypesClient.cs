@@ -2,7 +2,7 @@
 
 namespace Tgs.PlayerBucket.Client;
 
-internal class PlayerBucketForTypesClient
+internal class PlayerBucketForTypesClient : IPlayerBucketForTypesClient
 {
 	private readonly IPlayerBucketClient _playerBucketClient;
 

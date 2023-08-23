@@ -422,24 +422,30 @@ public class PlayerBucketApiTests
 
         var dbContext = web.Services.GetRequiredService<TgsContext>();
 
-        var row = new PlayerBucketCleanForm
+        var anchorId = Guid.NewGuid();
+        var row = new PlayerBucketCleanFormV2
         {
             Id = Guid.NewGuid(),
             BrandId = Guid.NewGuid(),
             WalletId = Guid.NewGuid(),
-            BucketAnchorId = Guid.NewGuid(),
             PlayerCode = "test1",
             CurrentBalance = 0M,
-            CurrentBucketAmount = 1000M,
+            CurrentBucketAmounts = JsonSerializer.Serialize(
+                new[] {
+                    new CleanFormBucketResult(
+                        null,
+                        new ReadBucketResult(1000M, anchorId))
+                },
+                PlayerBucketUtility.SerializerOptions),
             CleaningBalance = null,
-            CleaningBucketAmount = null,
+            CleaningBucketAmounts = null,
             DepositFormId = Guid.NewGuid(),
             ClearWageringRequirementBalance = 5M,
             Status = CleanFlowStatus.Create.ToString(),
             CreatedOn = DateTime.UtcNow
         };
 
-        _ = await dbContext.PlayerBucketCleanForms.AddAsync(row);
+        _ = await dbContext.PlayerBucketCleanFormV2s.AddAsync(row);
 
         _ = await dbContext.SaveChangesAsync();
 
@@ -453,7 +459,7 @@ public class PlayerBucketApiTests
             {
                 new CleanFormBucketResult(
                     null,
-                    new ReadBucketResult(row.CurrentBucketAmount,  row.BucketAnchorId))
+                    new ReadBucketResult(1000M,  anchorId))
             },
             row.DepositFormId,
             row.ClearWageringRequirementBalance,
@@ -467,6 +473,7 @@ public class PlayerBucketApiTests
 
         // Assert
         expected.ToExpectedObject(ctx => ctx
+            .ArrayMemberShouldMatch(from => from.CurrentBucketAmounts)
             .IgnoreEqualsOverride()).ShouldEqual(actual);
     }
 

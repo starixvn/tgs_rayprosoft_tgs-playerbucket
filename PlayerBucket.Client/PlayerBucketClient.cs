@@ -193,40 +193,15 @@ internal class PlayerBucketClient : IPlayerBucketClient
 			.SingleOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
 	public async ValueTask<CleanBucketForm?> GetCleanBucketFormAsync(Guid formId, CancellationToken cancellationToken = default)
-		=> await _httpClient.GetAsync($"api/bucket/clean-form/{formId}", cancellationToken)
+		=> await _httpClient.GetAsync($"api/bucket/clean-form/{formId}?api-version=2.0", cancellationToken)
 			.ToAsyncEnumerable()
 			.Do(response => response.EnsureSuccessStatusCode())
 			.Where(response => response.StatusCode == System.Net.HttpStatusCode.OK)
 			.SelectMany(response => response.Content
-				.ReadFromJsonAsync<BucketCleanFormV1>(PlayerBucketUtility.SerializerOptions, cancellationToken)
+				.ReadFromJsonAsync<CleanBucketForm>(PlayerBucketUtility.SerializerOptions, cancellationToken)
 				.ToAsyncEnumerable())
 			.Where(form => form is not null)
 			.Select(form => form!)
-			.Select(form => new CleanBucketForm(
-				form.Id,
-				form.PlayerCode,
-				form.WalletId,
-				form.BrandId,
-				form.CurrentBalance,
-				new[]
-				{
-					new CleanFormBucketResult(
-						null,
-						new ReadBucketResult(form.CurrentBucketAmount, form.BucketAnchorId))
-				},
-				form.DepositFormId,
-				form.ClearWageringRequirementBalance,
-				form.CleaningBalance,
-				form.CleaningBucketAmount is null
-					? null
-					: new[]
-					{
-						new CleanFormBucketResult(
-							null,
-							new ReadBucketResult(form.CleaningBucketAmount!.Value, null))
-					},
-				form.Status,
-				form.CreatedOn))
 			.FirstOrDefaultAsync(cancellationToken)
 			.ConfigureAwait(false);
 
