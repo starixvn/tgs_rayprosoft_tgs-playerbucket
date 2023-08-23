@@ -158,7 +158,7 @@ public class PlayerBucketTests
 
 		// Assert
 		_ = fakeTgsRepository.Received(1)
-			.GetCleanPlayerBucketFormAsync(Arg.Is(query.FormId));
+			.GetCleanPlayerBucketFormV2Async(Arg.Is(query.FormId));
 	}
 
 	[Fact]
@@ -309,7 +309,7 @@ public class PlayerBucketTests
 
 		// Assert
 		_ = fakeTgsRepository.Received(1)
-			.QueryCleanPlayerBucketFormsAsync(
+			.QueryCleanPlayerBucketFormsV2Async(
 				Arg.Is(query.PlayerCode),
 				Arg.Is(default(CleanFlowStatus?)));
 	}
