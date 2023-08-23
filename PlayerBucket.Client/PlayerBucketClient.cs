@@ -193,13 +193,15 @@ internal class PlayerBucketClient : IPlayerBucketClient
 			.SingleOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
 	public async ValueTask<CleanBucketForm?> GetCleanBucketFormAsync(Guid formId, CancellationToken cancellationToken = default)
-		=> await _httpClient.GetAsync($"api/bucket/clean-form/{formId}", cancellationToken)
+		=> await _httpClient.GetAsync($"api/bucket/clean-form/{formId}?api-version=2.0", cancellationToken)
 			.ToAsyncEnumerable()
 			.Do(response => response.EnsureSuccessStatusCode())
 			.Where(response => response.StatusCode == System.Net.HttpStatusCode.OK)
 			.SelectMany(response => response.Content
 				.ReadFromJsonAsync<CleanBucketForm>(PlayerBucketUtility.SerializerOptions, cancellationToken)
 				.ToAsyncEnumerable())
+			.Where(form => form is not null)
+			.Select(form => form!)
 			.FirstOrDefaultAsync(cancellationToken)
 			.ConfigureAwait(false);
 
@@ -262,8 +264,8 @@ internal class PlayerBucketClient : IPlayerBucketClient
 		CancellationToken cancellationToken = default)
 		=> _httpClient.GetAsync(
 			flowStatus is null
-				? $"/api/bucket/clean-form/{playerCode}"
-				: $"/api/bucket/clean-form/{playerCode}/{flowStatus}",
+				? $"/api/bucket/clean-form/{playerCode}?api-version=2.0"
+				: $"/api/bucket/clean-form/{playerCode}/{flowStatus}?api-version=2.0",
 			cancellationToken)
 			.ToAsyncEnumerable()
 			.Do(response => response.EnsureSuccessStatusCode())

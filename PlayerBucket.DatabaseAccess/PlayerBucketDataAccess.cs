@@ -131,21 +131,21 @@ internal class PlayerBucketDataAccess
 			},
 			cancellationToken).ConfigureAwait(false);
 
-	public async ValueTask UpsertPlayerBucketCleanFormAsync(PlayerBucketCleanForm formRow, CancellationToken cancellationToken = default)
+	public async ValueTask UpsertPlayerBucketCleanFormAsync(PlayerBucketCleanFormV2 formRow, CancellationToken cancellationToken = default)
 	{
-		var existsRow = await _dbContext.PlayerBucketCleanForms.FindAsync(
+		var existsRow = await _dbContext.PlayerBucketCleanFormV2s.FindAsync(
 			new object?[] { formRow.Id },
 			cancellationToken: cancellationToken).ConfigureAwait(false);
 
 		if (existsRow is not null)
 		{
 			existsRow.CleaningBalance = formRow.CleaningBalance;
-			existsRow.CleaningBucketAmount = formRow.CleaningBucketAmount;
+			existsRow.CleaningBucketAmounts = formRow.CleaningBucketAmounts;
 			existsRow.GameBalanceReturn = formRow.GameBalanceReturn;
 			existsRow.Status = formRow.Status;
 		}
 		else
-			_ = await _dbContext.PlayerBucketCleanForms.AddAsync(
+			_ = await _dbContext.PlayerBucketCleanFormV2s.AddAsync(
 				formRow,
 				cancellationToken).ConfigureAwait(false);
 	}
@@ -155,10 +155,15 @@ internal class PlayerBucketDataAccess
 			new object?[] { formId },
 			cancellationToken: cancellationToken);
 
+	public ValueTask<PlayerBucketCleanFormV2?> FindPlayerBucketCleanFormV2Async(Guid formId, CancellationToken cancellationToken = default)
+		=> _dbContext.PlayerBucketCleanFormV2s.FindAsync(
+			new object?[] { formId },
+			cancellationToken: cancellationToken);
+
 	public async ValueTask InsertPlayerBucketCleanEventSourceAsync(
-		PlayerBucketCleanEventSource eventSource,
+		PlayerBucketCleanEventSourceV2 eventSource,
 		CancellationToken cancellationToken = default)
-		=> await _dbContext.PlayerBucketCleanEventSources.AddAsync(
+		=> await _dbContext.PlayerBucketCleanEventSourceV2s.AddAsync(
 			eventSource,
 			cancellationToken).ConfigureAwait(false);
 
@@ -178,6 +183,31 @@ internal class PlayerBucketDataAccess
 				.ToAsyncEnumerable()
 				.Do(_ => cancellationToken.ThrowIfCancellationRequested())
 			: _dbContext.PlayerBucketCleanForms.AsQueryable()
+				.Where(row => row.PlayerCode == playerCode
+					&& row.CreatedOn > fromTime
+					&& row.Status == flowStatus)
+				.OrderByDescending(row => row.CreatedOn)
+				.Take(20)
+				.ToAsyncEnumerable()
+				.Do(_ => cancellationToken.ThrowIfCancellationRequested());
+	}
+
+	public IAsyncEnumerable<PlayerBucketCleanFormV2> QueryPlayerBucketCleanFormsV2Async(
+		string playerCode,
+		string? flowStatus,
+		CancellationToken cancellationToken = default)
+	{
+		var fromTime = DateTime.UtcNow.AddDays(-30D);
+
+		return string.IsNullOrWhiteSpace(flowStatus)
+			? _dbContext.PlayerBucketCleanFormV2s.AsQueryable()
+				.Where(row => row.PlayerCode == playerCode
+					&& row.CreatedOn > fromTime)
+				.OrderByDescending(row => row.CreatedOn)
+				.Take(20)
+				.ToAsyncEnumerable()
+				.Do(_ => cancellationToken.ThrowIfCancellationRequested())
+			: _dbContext.PlayerBucketCleanFormV2s.AsQueryable()
 				.Where(row => row.PlayerCode == playerCode
 					&& row.CreatedOn > fromTime
 					&& row.Status == flowStatus)

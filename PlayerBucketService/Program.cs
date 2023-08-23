@@ -2,12 +2,14 @@
 using FluentdForward.OpenTelemetry.MessagePack;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Npgsql;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using Tgs.PlayerBucket.Clients.DependencyInjection;
+using PlayerBucketService;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +36,9 @@ builder.Logging
 	});
 
 builder.Services
+	.AddApiVersioning(versionOptions => versionOptions.AssumeDefaultVersionWhenUnspecified = true)
+	.AddApiExplorer(options => options.GroupNameFormat = "'v'VVV")
+	.Services
 	.AddRouting(options => options.LowercaseUrls = true)
 	.AddControllers()
 	.AddMvcOptions(mvcOptions => mvcOptions.AddWebApiToolkitFilters())
@@ -58,14 +63,16 @@ builder.Services
 	.AddNatsGlobPatternExchange("*");
 
 builder.Services
-	.AddSwaggerGen(c =>
+	.AddSwaggerGen(genOptions =>
 	{
-		c.ApplyWebApiToolkitSupport();
+		genOptions.OperationFilter<SwaggerDefaultValues>();
+		genOptions.ApplyWebApiToolkitSupport();
 
 		var xmlFileNames = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.xml");
 		foreach (var xmlFileName in xmlFileNames)
-			c.IncludeXmlComments(xmlFileName);
-	});
+			genOptions.IncludeXmlComments(xmlFileName);
+	})
+	.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
 builder.Services
 	.AddHealthChecks();
@@ -105,6 +112,17 @@ app.MapSwagger();
 app.MapProfileViewer();
 app.MapHealthChecks("/healthz");
 
-app.UseSwaggerUI();
+app.UseSwaggerUI(uiOptions =>
+{
+	var descriptions = app.DescribeApiVersions();
+
+	// build a swagger endpoint for each discovered API version
+	foreach (var description in descriptions)
+	{
+		var url = $"/swagger/{description.GroupName}/swagger.yaml";
+		var name = description.GroupName.ToUpperInvariant();
+		uiOptions.SwaggerEndpoint(url, name);
+	}
+});
 
 app.Run();

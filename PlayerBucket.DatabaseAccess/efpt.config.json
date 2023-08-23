@@ -28,7 +28,15 @@
          "ObjectType": 0
       },
       {
+         "Name": "dbo.player_bucket_clean_event_source2",
+         "ObjectType": 0
+      },
+      {
          "Name": "dbo.player_bucket_clean_forms",
+         "ObjectType": 0
+      },
+      {
+         "Name": "dbo.player_bucket_clean_forms2",
          "ObjectType": 0
       },
       {

@@ -118,9 +118,15 @@ public class PlayerBucketTests
 			command.PlayerCode,
 			command.BrandId,
 			command.WalletId,
-			command.BucketAnchorId,
 			command.CurrentBalance,
-			command.CurrentBucketAmount,
+			CurrentBucketAmounts = new[]
+			{
+				new CleanFormBucketResult(
+					null,
+					new ReadBucketResult(
+						command.CurrentBucketAmount,
+						command.BucketAnchorId))
+			},
 			command.DepositFormId,
 			command.ClearWageringRequirementBalance
 		};
@@ -156,6 +162,24 @@ public class PlayerBucketTests
 	}
 
 	[Fact]
+	public async Task 取得清除流水申請單內容第二版()
+	{
+		// Arrange
+		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+		var sut = new GetCleanPlayerBucketsFormQueryService(fakeTgsRepository);
+
+		var query = new GetCleanPlayerBucketsFormV2Query(Guid.NewGuid());
+
+		// Act
+		_ = await sut.GetAsync(query);
+
+		// Assert
+		_ = fakeTgsRepository.Received(1)
+			.GetCleanPlayerBucketFormV2Async(Arg.Is(query.FormId));
+	}
+
+	[Fact]
 	public async Task 完成清除流水申請單()
 	{
 		// Arrange
@@ -172,8 +196,12 @@ public class PlayerBucketTests
 			Guid.NewGuid(),
 			Guid.NewGuid(),
 			0M,
-			1000M,
-			Guid.NewGuid(),
+			new[]
+			{
+				new CleanFormBucketResult(
+					null,
+					new ReadBucketResult(1000M, Guid.NewGuid()))
+			},
 			Guid.NewGuid(),
 			0M,
 			null,
@@ -182,8 +210,22 @@ public class PlayerBucketTests
 			CleanFlowStatus.Create,
 			DateTime.UtcNow);
 
-		_ = fakeTgsRepository.GetCleanPlayerBucketFormAsync(Arg.Is(command.FormId))
+		_ = fakeTgsRepository.GetCleanPlayerBucketFormV2Async(Arg.Is(command.FormId))
 			.Returns(form);
+
+		var expectedForm = (form with
+		{
+			Status = CleanFlowStatus.Completed,
+			CleaningBalance = command.CleaningBalance,
+			CleaningBucketAmounts = new[]
+			{
+				new CleanFormBucketResult(
+					null,
+					new ReadBucketResult(
+						command.CleaningBucketAmount,
+						null))
+			}
+		}).ToExpectedObject(ctx => ctx.IgnoreEqualsOverride());
 
 		// Act
 		await sut.ExecuteAsync(command);
@@ -191,12 +233,7 @@ public class PlayerBucketTests
 		// Assert
 		_ = fakeTgsRepository.Received(1)
 			.UpsertCleanPlayerBucketFormAsync(
-				Arg.Is(form with
-				{
-					Status = CleanFlowStatus.Completed,
-					CleaningBalance = command.CleaningBalance,
-					CleaningBucketAmount = command.CleaningBucketAmount
-				}),
+				Arg.Is<CleanPlayerBucketForm>(argForm => expectedForm.Matches(argForm)),
 				Arg.Is(form));
 	}
 
@@ -216,8 +253,12 @@ public class PlayerBucketTests
 			Guid.NewGuid(),
 			Guid.NewGuid(),
 			0M,
-			1000M,
-			Guid.NewGuid(),
+			new[]
+			{
+				new CleanFormBucketResult(
+					null,
+					  new ReadBucketResult(1000M, Guid.NewGuid()))
+			},
 			Guid.NewGuid(),
 			0M,
 			null,
@@ -226,8 +267,22 @@ public class PlayerBucketTests
 			CleanFlowStatus.Create,
 			DateTime.UtcNow);
 
-		_ = fakeTgsRepository.GetCleanPlayerBucketFormAsync(Arg.Is(command.FormId))
+		_ = fakeTgsRepository.GetCleanPlayerBucketFormV2Async(Arg.Is(command.FormId))
 			.Returns(form);
+
+		var expectedForm = (form with
+		{
+			Status = CleanFlowStatus.Rejected,
+			CleaningBalance = command.CleaningBalance,
+			CleaningBucketAmounts = new[]
+			{
+				new CleanFormBucketResult(
+					null,
+					new ReadBucketResult(
+						command.CleaningBucketAmount,
+						null))
+			}
+		}).ToExpectedObject(ctx => ctx.IgnoreEqualsOverride());
 
 		// Act
 		await sut.ExecuteAsync(command);
@@ -235,12 +290,7 @@ public class PlayerBucketTests
 		// Assert
 		_ = fakeTgsRepository.Received(1)
 			.UpsertCleanPlayerBucketFormAsync(
-				Arg.Is(form with
-				{
-					Status = CleanFlowStatus.Rejected,
-					CleaningBalance = command.CleaningBalance,
-					CleaningBucketAmount = command.CleaningBucketAmount
-				}),
+				Arg.Is<CleanPlayerBucketForm>(argForm => expectedForm.Matches(argForm)),
 				Arg.Is(form));
 	}
 
@@ -260,6 +310,26 @@ public class PlayerBucketTests
 		// Assert
 		_ = fakeTgsRepository.Received(1)
 			.QueryCleanPlayerBucketFormsAsync(
+				Arg.Is(query.PlayerCode),
+				Arg.Is(default(CleanFlowStatus?)));
+	}
+
+	[Fact]
+	public async Task 依照PlayerCode查詢清除流水申請單列表第二版()
+	{
+		// Arrange
+		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+		var sut = new GetCleanBucketsFormListQueryService(fakeTgsRepository);
+
+		var query = new GetCleanBucketsFormListV2Query("test1", null);
+
+		// Act
+		_ = await sut.QueryAsync(query).ToArrayAsync();
+
+		// Assert
+		_ = fakeTgsRepository.Received(1)
+			.QueryCleanPlayerBucketFormsV2Async(
 				Arg.Is(query.PlayerCode),
 				Arg.Is(default(CleanFlowStatus?)));
 	}

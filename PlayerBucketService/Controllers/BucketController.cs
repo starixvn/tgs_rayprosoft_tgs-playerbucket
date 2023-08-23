@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Mvc;
 using PlayerBucketService.ViewModels;
 using Tgs.Service.PlayerBuckets;
 using Tgs.Service.PlayerBuckets.ApplicationServices;
@@ -6,6 +7,7 @@ using Tgs.ServiceUtility;
 
 namespace PlayerBucketService.Controllers;
 
+[ApiVersionNeutral]
 [Route("api/[controller]")]
 [ApiController]
 public class BucketController : ControllerBase

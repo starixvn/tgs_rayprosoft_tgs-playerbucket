@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Mvc;
 using PlayerBucketService.ViewModels;
 using Tgs.Service.PlayerBuckets;
 using Tgs.Service.PlayerBuckets.ApplicationServices;
@@ -7,13 +8,17 @@ using Tgs.WebApi.Toolkits;
 
 namespace PlayerBucketService.Controllers;
 
+[ApiVersion("1.0")]
+[ApiVersion("2.0")]
 [Route("api/bucket/clean-form")]
 [ApiController]
+[ControllerName("BucketCleanForm")]
 public class BucketCleanFormController : ControllerBase
 {
 	[HttpGet("{playerCode}/{flowStatus}", Name = "GetCleanBucketsFormListByFlowStatus")]
 	[HttpGet("{playerCode}", Name = "GetCleanBucketsFormList")]
-	public IAsyncEnumerable<CleanBucketsFormViewModel> GetCleanBucketsFormListAsync(
+	[MapToApiVersion("1.0")]
+	public IAsyncEnumerable<CleanBucketsFormViewModel> GetCleanBucketsFormListV1Async(
 		[FromServices] IQueryService<GetCleanBucketsFormListQuery, CleanBucketForm> queryService,
 		string playerCode,
 		string? flowStatus)
@@ -29,16 +34,163 @@ public class BucketCleanFormController : ControllerBase
 				PlayerCode = form.PlayerCode,
 				BrandId = form.BrandId,
 				WalletId = form.WalletId,
-				BucketAnchorId = form.BucketAnchorId,
+				BucketAnchorId = form.CurrentBucketAmounts.First().Result.AnchorBucketId!.Value,
 				CurrentBalance = form.CurrentBalance,
-				CurrentBucketAmount = form.CurrentBucketAmount,
+				CurrentBucketAmount = form.CurrentBucketAmounts.First().Result.Amount,
 				DepositFormId = form.DepositFormId,
 				ClearWageringRequirementBalance = form.ClearWageringRequirementBalance,
 				CleaningBalance = form.CleaningBalance,
-				CleaningBucketAmount = form.CleaningBucketAmount,
+				CleaningBucketAmount = form.CleaningBucketAmounts?.First().Result.Amount,
 				Status = form.Status,
 				CreatedOn = form.CreatedOn
 			});
+	}
+
+	[HttpGet("{playerCode}/{flowStatus}", Name = "GetCleanBucketsFormListByFlowStatus")]
+	[HttpGet("{playerCode}", Name = "GetCleanBucketsFormList")]
+	[MapToApiVersion("2.0")]
+	public IAsyncEnumerable<CleanBucketsFormV2ViewModel> GetCleanBucketsFormListAsync(
+		[FromServices] IQueryService<GetCleanBucketsFormListV2Query, CleanBucketForm> queryService,
+		string playerCode,
+		string? flowStatus)
+	{
+		var query = new GetCleanBucketsFormListV2Query(
+			playerCode,
+			string.IsNullOrWhiteSpace(flowStatus) ? null : Enum.Parse<CleanFlowStatus>(flowStatus));
+
+		return queryService.QueryAsync(query, HttpContext.RequestAborted)
+			.Select(form => new CleanBucketsFormV2ViewModel
+			{
+				Id = form.Id,
+				PlayerCode = form.PlayerCode,
+				BrandId = form.BrandId,
+				WalletId = form.WalletId,
+				CurrentBalance = form.CurrentBalance,
+				CurrentBucketAmounts = form.CurrentBucketAmounts
+					.Select(result => new CleanBucketResultViewModel
+					{
+						BucketType = result.BucketType,
+						ReadBucketResult = new ReadBucketResultViewModel
+						{
+							BucketAmount = result.Result.Amount,
+							AnchorBucketId = result.Result.AnchorBucketId
+						}
+					}),
+				DepositFormId = form.DepositFormId,
+				ClearWageringRequirementBalance = form.ClearWageringRequirementBalance,
+				CleaningBalance = form.CleaningBalance,
+				CleaningBucketAmounts = form.CleaningBucketAmounts
+					?.Select(result => new CleanBucketResultViewModel
+					{
+						BucketType = result.BucketType,
+						ReadBucketResult = new ReadBucketResultViewModel
+						{
+							BucketAmount = result.Result.Amount,
+							AnchorBucketId = result.Result.AnchorBucketId
+						}
+					}),
+				Status = form.Status,
+				CreatedOn = form.CreatedOn
+			});
+	}
+
+	/// <summary>
+	/// Gets the clean buckets form asynchronous.
+	/// </summary>
+	/// <param name="getService">The get service.</param>
+	/// <param name="formId">The form identifier.</param>
+	/// <returns></returns>
+	/// <response code="200">Find form</response>
+	/// <response code="204">Not found</response>
+	[MapToApiVersion("1.0")]
+	[HttpGet("{formId:Guid}", Name = "GetCleanBucketsForm", Order = 10)]
+	public async Task<CleanBucketsFormViewModel?> GetCleanBucketsFormV1Async(
+		[FromServices] IGetService<GetCleanPlayerBucketsFormQuery, CleanPlayerBucketForm?> getService,
+		Guid formId)
+	{
+		var query = new GetCleanPlayerBucketsFormQuery(formId);
+
+		var form = await getService.GetAsync(
+			query,
+			HttpContext.RequestAborted).ConfigureAwait(false);
+
+		return form is null
+			? null
+			: new CleanBucketsFormViewModel
+			{
+				Id = form.Id,
+				PlayerCode = form.PlayerCode,
+				BrandId = form.BrandId,
+				WalletId = form.WalletId,
+				BucketAnchorId = form.CurrentBucketAmounts
+					.First(item => item.BucketType is null)
+					.Result
+					.AnchorBucketId
+					!.Value,
+				CurrentBalance = form.CurrentBalance,
+				CurrentBucketAmount = form.CurrentBucketAmounts
+					.First(item => item.BucketType is null)
+					.Result
+					.Amount,
+				DepositFormId = form.DepositFormId,
+				ClearWageringRequirementBalance = form.ClearWageringRequirementBalance,
+				CleaningBalance = form.CleaningBalance,
+				CleaningBucketAmount = form.CleaningBucketAmounts
+					?.FirstOrDefault(item => item.BucketType is null)
+					?.Result
+					.Amount,
+				Status = form.Status,
+				CreatedOn = form.CreatedOn
+			};
+	}
+
+	[MapToApiVersion("2.0")]
+	[HttpGet("{formId:Guid}", Name = "GetCleanBucketsForm")]
+	public async Task<CleanBucketsFormV2ViewModel?> GetCleanBucketsFormAsync(
+		[FromServices] IGetService<GetCleanPlayerBucketsFormV2Query, CleanPlayerBucketForm?> getService,
+		Guid formId)
+	{
+		var query = new GetCleanPlayerBucketsFormV2Query(formId);
+
+		var form = await getService.GetAsync(
+			query,
+			HttpContext.RequestAborted).ConfigureAwait(false);
+
+		return form is null
+			? null
+			: new CleanBucketsFormV2ViewModel
+			{
+				Id = form.Id,
+				PlayerCode = form.PlayerCode,
+				BrandId = form.BrandId,
+				WalletId = form.WalletId,
+				CurrentBalance = form.CurrentBalance,
+				CurrentBucketAmounts = form.CurrentBucketAmounts
+					.Select(result => new CleanBucketResultViewModel
+					{
+						BucketType = result.BucketType,
+						ReadBucketResult = new ReadBucketResultViewModel
+						{
+							BucketAmount = result.Result.Amount,
+							AnchorBucketId = result.Result.AnchorBucketId
+						}
+					}),
+				DepositFormId = form.DepositFormId,
+				ClearWageringRequirementBalance = form.ClearWageringRequirementBalance,
+				CleaningBalance = form.CleaningBalance,
+				CleaningBucketAmounts = form.CleaningBucketAmounts
+					?.Select(result => new CleanBucketResultViewModel
+					{
+						BucketType = result.BucketType,
+						ReadBucketResult = new ReadBucketResultViewModel
+						{
+							BucketAmount = result.Result.Amount,
+							AnchorBucketId = result.Result.AnchorBucketId
+						}
+					}),
+				Status = form.Status,
+				CreatedOn = form.CreatedOn
+			};
 	}
 
 	[HttpPut("{playerCode}", Name = "RequestCleanBuckets")]
@@ -61,46 +213,7 @@ public class BucketCleanFormController : ControllerBase
 		return applyService.GetAsync(command, HttpContext.RequestAborted);
 	}
 
-	/// <summary>
-	/// Gets the clean buckets form asynchronous.
-	/// </summary>
-	/// <param name="getService">The get service.</param>
-	/// <param name="formId">The form identifier.</param>
-	/// <returns></returns>
-	/// <response code="200">Find form</response>
-	/// <response code="204">Not found</response>
-	[HttpGet("{formId:Guid}", Name = "GetCleanBucketsForm")]
-	public async Task<CleanBucketsFormViewModel?> GetCleanBucketsFormAsync(
-		[FromServices] IGetService<GetCleanPlayerBucketsFormQuery, CleanPlayerBucketForm?> getService,
-		Guid formId)
-	{
-		var query = new GetCleanPlayerBucketsFormQuery(formId);
-
-		var form = await getService.GetAsync(
-			query,
-			HttpContext.RequestAborted).ConfigureAwait(false);
-
-		return form is null
-			? null
-			: new CleanBucketsFormViewModel
-			{
-				Id = form.Id,
-				PlayerCode = form.PlayerCode,
-				BrandId = form.BrandId,
-				WalletId = form.WalletId,
-				BucketAnchorId = form.BucketAnchorId,
-				CurrentBalance = form.CurrentBalance,
-				CurrentBucketAmount = form.CurrentBucketAmount,
-				DepositFormId = form.DepositFormId,
-				ClearWageringRequirementBalance = form.ClearWageringRequirementBalance,
-				CleaningBalance = form.CleaningBalance,
-				CleaningBucketAmount = form.CleaningBucketAmount,
-				Status = form.Status,
-				CreatedOn = form.CreatedOn
-			};
-	}
-
-	[HttpPost("{formId}:complete", Name = "CompleteCleanBucketsForm")]
+	[HttpPost("{formId:Guid}:complete", Name = "CompleteCleanBucketsForm")]
 	public ValueTask CompleteCleanBucketsFormAsync(
 		[FromServices] ICommandService<CompleteCleanBucketsFormCommand> completeService,
 		Guid formId,
@@ -115,7 +228,7 @@ public class BucketCleanFormController : ControllerBase
 		return completeService.ExecuteAsync(command, HttpContext.RequestAborted);
 	}
 
-	[HttpPost("{formId}:reject", Name = "RejectCleanBucketsForm")]
+	[HttpPost("{formId:Guid}:reject", Name = "RejectCleanBucketsForm")]
 	public ValueTask RejectCleanBucketsFormAsync(
 		[FromServices] ICommandService<RejectCleanBucketsFormCommand> rejectService,
 		Guid formId,

@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Mvc;
 using Tgs.Service.PlayerBuckets.ApplicationServices;
 using Tgs.ServiceUtility;
 
 namespace PlayerBucketService.Controllers;
 
+[ApiVersionNeutral]
 [Route("api/[controller]")]
 [ApiController]
 public class BrandController : ControllerBase

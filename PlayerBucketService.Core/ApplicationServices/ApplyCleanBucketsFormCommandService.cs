@@ -31,8 +31,12 @@ internal class ApplyCleanBucketsFormCommandService : IGetService<ApplyCleanBucke
 			command.BrandId,
 			command.WalletId,
 			command.CurrentBalance,
-			command.CurrentBucketAmount,
-			command.BucketAnchorId,
+			new[]
+			{
+				new CleanFormBucketResult(
+					null,
+					new ReadBucketResult(command.CurrentBucketAmount, command.BucketAnchorId))
+			},
 			command.DepositFormId,
 			command.ClearWageringRequirementBalance,
 			null,

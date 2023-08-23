@@ -13,7 +13,7 @@ internal class CompleteCleanBucketsFormCommandService : ICommandService<Complete
 
 	public async ValueTask ExecuteAsync(CompleteCleanBucketsFormCommand command, CancellationToken cancellationToken = default)
 	{
-		var form = await _tgsRepository.GetCleanPlayerBucketFormAsync(
+		var form = await _tgsRepository.GetCleanPlayerBucketFormV2Async(
 			command.FormId,
 			cancellationToken).ConfigureAwait(false);
 
@@ -24,7 +24,12 @@ internal class CompleteCleanBucketsFormCommandService : ICommandService<Complete
 		{
 			Status = CleanFlowStatus.Completed,
 			CleaningBalance = command.CleaningBalance,
-			CleaningBucketAmount = command.CleaningBucketAmount,
+			CleaningBucketAmounts = new[]
+			{
+				new CleanFormBucketResult(
+					null,
+					new ReadBucketResult(command.CleaningBucketAmount, null))
+			},
 			GameBalanceReturn = command.GameBalanceReturn
 		};
 

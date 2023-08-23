@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NBomber.CSharp;
-using Tgs.PlayerBucket.Clients.DependencyInjection;
 using Tgs.Service.PlayerBuckets;
 
 var builder = Host.CreateDefaultBuilder(args)

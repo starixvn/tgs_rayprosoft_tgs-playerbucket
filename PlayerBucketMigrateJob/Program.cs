@@ -3,7 +3,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PlayerBucketMigrateJob.Entities;
-using Tgs.PlayerBucket.Clients.DependencyInjection;
 using Tgs.Service.PlayerBuckets;
 
 var builder = Host.CreateDefaultBuilder(args);

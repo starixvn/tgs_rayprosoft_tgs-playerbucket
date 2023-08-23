@@ -109,7 +109,7 @@ internal class TgsRepository : ITgsRepository
 			.GenerateAsync(cancellationToken)
 			.ConfigureAwait(false);
 
-		var eventSource = new PlayerBucketCleanEventSource
+		var eventSource = new PlayerBucketCleanEventSourceV2
 		{
 			Id = eventId,
 			FormId = form.Id,
@@ -122,17 +122,18 @@ internal class TgsRepository : ITgsRepository
 			eventSource,
 			cancellationToken).ConfigureAwait(false);
 
-		var row = new PlayerBucketCleanForm
+		var row = new PlayerBucketCleanFormV2
 		{
 			Id = form.Id,
 			BrandId = form.BrandId,
 			WalletId = form.WalletId,
-			BucketAnchorId = form.BucketAnchorId,
 			CleaningBalance = form.CleaningBalance,
-			CleaningBucketAmount = form.CleaningBucketAmount,
+			CleaningBucketAmounts = form.CleaningBucketAmounts is null
+				? null
+				: JsonSerializer.Serialize(form.CleaningBucketAmounts, PlayerBucketUtility.SerializerOptions),
 			CreatedOn = form.CreatedOn,
 			CurrentBalance = form.CurrentBalance,
-			CurrentBucketAmount = form.CurrentBucketAmount,
+			CurrentBucketAmounts = JsonSerializer.Serialize(form.CurrentBucketAmounts, PlayerBucketUtility.SerializerOptions),
 			DepositFormId = form.DepositFormId,
 			PlayerCode = form.PlayerCode,
 			ClearWageringRequirementBalance = form.ClearWageringRequirementBalance,
@@ -168,12 +169,25 @@ internal class TgsRepository : ITgsRepository
 				row.BrandId,
 				row.WalletId,
 				row.CurrentBalance,
-				row.CurrentBucketAmount,
-				row.BucketAnchorId,
+				new[]
+				{
+					new CleanFormBucketResult(
+						null,
+						new ReadBucketResult(row.CurrentBucketAmount, row.BucketAnchorId))
+				},
 				row.DepositFormId,
 				row.ClearWageringRequirementBalance,
 				row.CleaningBalance,
-				row.CleaningBucketAmount,
+				row.CleaningBucketAmount is null
+					? null
+					: new[]
+					{
+						new CleanFormBucketResult(
+							null,
+							  new ReadBucketResult(
+								  row.CleaningBucketAmount.Value,
+								  null))
+					},
 				string.IsNullOrWhiteSpace(row.GameBalanceReturn)
 					? null
 					: JsonDocument.Parse(row.GameBalanceReturn),
@@ -195,12 +209,23 @@ internal class TgsRepository : ITgsRepository
 				row.BrandId,
 				row.WalletId,
 				row.CurrentBalance,
-				row.CurrentBucketAmount,
-				row.BucketAnchorId,
+				new[]
+				{
+					new CleanFormBucketResult(
+						null,
+						new ReadBucketResult(row.CurrentBucketAmount, row.BucketAnchorId))
+				},
 				row.DepositFormId,
 				row.ClearWageringRequirementBalance,
 				row.CleaningBalance,
-				row.CleaningBucketAmount,
+				row.CleaningBucketAmount is null
+					? null
+					: new[]
+					{
+						new CleanFormBucketResult(
+							null,
+							new ReadBucketResult(row.CleaningBucketAmount.Value, null))
+					},
 				string.IsNullOrWhiteSpace(row.GameBalanceReturn)
 					? null
 					: JsonDocument.Parse(row.GameBalanceReturn),
@@ -223,4 +248,67 @@ internal class TgsRepository : ITgsRepository
 
 	public IAsyncEnumerable<string> GetBrandBucketTypesAsync(Guid brandId, CancellationToken cancellationToken = default)
 		=> _playerBucketDataAccess.GetBrandBucketTypesAsync(brandId, cancellationToken);
+
+	public async ValueTask<CleanPlayerBucketForm?> GetCleanPlayerBucketFormV2Async(Guid formId, CancellationToken cancellationToken = default)
+	{
+		var row = await _playerBucketDataAccess.FindPlayerBucketCleanFormV2Async(
+			formId,
+			cancellationToken).ConfigureAwait(false);
+
+		return row is null
+			? null
+			: new CleanPlayerBucketForm(
+				row.Id,
+				row.PlayerCode,
+				row.BrandId,
+				row.WalletId,
+				row.CurrentBalance,
+				JsonSerializer.Deserialize<IEnumerable<CleanFormBucketResult>>(
+					row.CurrentBucketAmounts,
+					PlayerBucketUtility.SerializerOptions)!,
+				row.DepositFormId,
+				row.ClearWageringRequirementBalance,
+				row.CleaningBalance,
+				row.CleaningBucketAmounts is null
+					? null
+					: JsonSerializer.Deserialize<IEnumerable<CleanFormBucketResult>>(
+						row.CleaningBucketAmounts,
+						PlayerBucketUtility.SerializerOptions),
+				string.IsNullOrWhiteSpace(row.GameBalanceReturn)
+					? null
+					: JsonDocument.Parse(row.GameBalanceReturn),
+				Enum.Parse<CleanFlowStatus>(row.Status),
+				row.CreatedOn);
+	}
+
+	public IAsyncEnumerable<CleanPlayerBucketForm> QueryCleanPlayerBucketFormsV2Async(
+		string playerCode,
+		CleanFlowStatus? flowStatus,
+		CancellationToken cancellationToken = default)
+		=> _playerBucketDataAccess.QueryPlayerBucketCleanFormsV2Async(
+			playerCode,
+			flowStatus?.ToString(),
+			cancellationToken)
+			.Select(row => new CleanPlayerBucketForm(
+				row.Id,
+				row.PlayerCode,
+				row.BrandId,
+				row.WalletId,
+				row.CurrentBalance,
+				JsonSerializer.Deserialize<IEnumerable<CleanFormBucketResult>>(
+					row.CurrentBucketAmounts,
+					PlayerBucketUtility.SerializerOptions)!,
+				row.DepositFormId,
+				row.ClearWageringRequirementBalance,
+				row.CleaningBalance,
+				row.CleaningBucketAmounts is null
+					? null
+					: JsonSerializer.Deserialize<IEnumerable<CleanFormBucketResult>>(
+						row.CleaningBucketAmounts,
+						PlayerBucketUtility.SerializerOptions),
+				string.IsNullOrWhiteSpace(row.GameBalanceReturn)
+					? null
+					: JsonDocument.Parse(row.GameBalanceReturn),
+				Enum.Parse<CleanFlowStatus>(row.Status),
+				row.CreatedOn));
 }

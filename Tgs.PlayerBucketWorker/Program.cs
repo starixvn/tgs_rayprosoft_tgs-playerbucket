@@ -7,7 +7,6 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Tgs.MessageQueue.MongoDB.Configuration;
-using Tgs.PlayerBucket.Clients.DependencyInjection;
 using Tgs.PlayerBucketWorker;
 using Tgs.PlayerBucketWorker.MessageQueue;
 using Tgs.Service.PlayerBuckets;
