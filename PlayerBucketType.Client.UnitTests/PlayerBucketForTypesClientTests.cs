@@ -125,4 +125,49 @@ public class PlayerBucketForTypesClientTests
 		_ = fakePlayerBucketClient.Received(3)
 			.ReadBucketsAsync(Arg.Any<string>());
 	}
+
+	[Fact]
+	public async Task 清除所有水桶含遊戲類型()
+	{
+		// Arrange
+		var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+
+		var sut = new PlayerBucketForTypesClient(fakePlayerBucketClient);
+
+		var playerCode = "test1";
+		var allBucketAnchorIds = new[]
+		{
+			(BucketType: default(string), AnchorBucketId: Guid.NewGuid()),
+			(BucketType: "Game1", AnchorBucketId: Guid.NewGuid()),
+			(BucketType: "Game2", AnchorBucketId: Guid.NewGuid())
+		};
+		// Act
+		await sut.CleanBucketsForBucketTypesAsync(playerCode, allBucketAnchorIds, null, null);
+
+		// Assert
+		_ = fakePlayerBucketClient.Received(1)
+			.CleanBucketsAsync(
+				Arg.Is(playerCode),
+				Arg.Is(allBucketAnchorIds[0].AnchorBucketId),
+				Arg.Is(default(string)),
+				Arg.Is(default(string)));
+		_ = fakePlayerBucketClient.Received(1)
+			.CleanBucketsAsync(
+				Arg.Is($"{playerCode}:{allBucketAnchorIds[1].BucketType}"),
+				Arg.Is(allBucketAnchorIds[1].AnchorBucketId),
+				Arg.Is(default(string)),
+				Arg.Is(default(string)));
+		_ = fakePlayerBucketClient.Received(1)
+			.CleanBucketsAsync(
+				Arg.Is($"{playerCode}:{allBucketAnchorIds[2].BucketType}"),
+				Arg.Is(allBucketAnchorIds[2].AnchorBucketId),
+				Arg.Is(default(string)),
+				Arg.Is(default(string)));
+		_ = fakePlayerBucketClient.Received(3)
+			.CleanBucketsAsync(
+				Arg.Any<string>(),
+				Arg.Any<Guid>(),
+				Arg.Is(default(string)),
+				Arg.Is(default(string)));
+	}
 }

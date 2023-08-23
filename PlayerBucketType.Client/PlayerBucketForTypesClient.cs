@@ -102,4 +102,27 @@ internal class PlayerBucketForTypesClient : IPlayerBucketForTypesClient
 						.ToAsyncEnumerable()
 						.Select(result => (BucketName: bucketName, Result: result)))));
 	}
+
+	public async ValueTask CleanBucketsForBucketTypesAsync(
+		string playerCode,
+		IEnumerable<(string? BucketType, Guid AnchorBucketId)> anchorBucketIdsByType,
+		string? externalId,
+		string? remark,
+		CancellationToken cancellationToken = default)
+		=> await Task.WhenAll(anchorBucketIdsByType
+			.Select(kv => kv.BucketType is null
+				? _playerBucketClient.CleanBucketsAsync(
+					playerCode,
+					kv.AnchorBucketId,
+					externalId,
+					remark,
+					cancellationToken)
+				: _playerBucketClient.CleanBucketsAsync(
+					$"{playerCode}:{kv.BucketType}",
+					kv.AnchorBucketId,
+					externalId,
+					remark,
+					cancellationToken))
+			.Select(vt => vt.AsTask())
+			.ToArray()).ConfigureAwait(false);
 }
