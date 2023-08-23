@@ -14,7 +14,7 @@ internal class GetCleanPlayerBucketsFormQueryService
 	}
 
 	public ValueTask<CleanPlayerBucketForm?> GetAsync(GetCleanPlayerBucketsFormQuery query, CancellationToken cancellationToken = default)
-		=> _tgsRepository.GetCleanPlayerBucketFormAsync(query.FormId, cancellationToken);
+		=> _tgsRepository.GetCleanPlayerBucketFormV2Async(query.FormId, cancellationToken);
 
 	public ValueTask<CleanPlayerBucketForm?> GetAsync(GetCleanPlayerBucketsFormV2Query query, CancellationToken cancellationToken = default)
 		=> _tgsRepository.GetCleanPlayerBucketFormV2Async(query.FormId, cancellationToken);

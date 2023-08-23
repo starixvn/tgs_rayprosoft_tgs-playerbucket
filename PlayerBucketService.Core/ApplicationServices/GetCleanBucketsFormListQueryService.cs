@@ -14,7 +14,7 @@ internal class GetCleanBucketsFormListQueryService
 	}
 
 	public IAsyncEnumerable<CleanBucketForm> QueryAsync(GetCleanBucketsFormListQuery query, CancellationToken cancellationToken = default)
-		=> _tgsRepository.QueryCleanPlayerBucketFormsAsync(
+		=> _tgsRepository.QueryCleanPlayerBucketFormsV2Async(
 			query.PlayerCode,
 			query.FlowStatus,
 			cancellationToken)
