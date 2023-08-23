@@ -15,9 +15,10 @@ namespace PlayerBucketService.Controllers;
 [ControllerName("BucketCleanForm")]
 public class BucketCleanFormController : ControllerBase
 {
-	[HttpGet("{playerCode}/{flowStatus}", Name = "GetCleanBucketsFormListByFlowStatus", Order = 1001)]
-	[HttpGet("{playerCode}", Name = "GetCleanBucketsFormList", Order = 1000)]
-	public IAsyncEnumerable<CleanBucketsFormViewModel> GetCleanBucketsFormListAsync(
+	[HttpGet("{playerCode}/{flowStatus}", Name = "GetCleanBucketsFormListByFlowStatus")]
+	[HttpGet("{playerCode}", Name = "GetCleanBucketsFormList")]
+	[MapToApiVersion("1.0")]
+	public IAsyncEnumerable<CleanBucketsFormViewModel> GetCleanBucketsFormListV1Async(
 		[FromServices] IQueryService<GetCleanBucketsFormListQuery, CleanBucketForm> queryService,
 		string playerCode,
 		string? flowStatus)
@@ -40,6 +41,54 @@ public class BucketCleanFormController : ControllerBase
 				ClearWageringRequirementBalance = form.ClearWageringRequirementBalance,
 				CleaningBalance = form.CleaningBalance,
 				CleaningBucketAmount = form.CleaningBucketAmounts?.First().Result.Amount,
+				Status = form.Status,
+				CreatedOn = form.CreatedOn
+			});
+	}
+
+	[HttpGet("{playerCode}/{flowStatus}", Name = "GetCleanBucketsFormListByFlowStatus")]
+	[HttpGet("{playerCode}", Name = "GetCleanBucketsFormList")]
+	[MapToApiVersion("2.0")]
+	public IAsyncEnumerable<CleanBucketsFormV2ViewModel> GetCleanBucketsFormListAsync(
+		[FromServices] IQueryService<GetCleanBucketsFormListV2Query, CleanBucketForm> queryService,
+		string playerCode,
+		string? flowStatus)
+	{
+		var query = new GetCleanBucketsFormListV2Query(
+			playerCode,
+			string.IsNullOrWhiteSpace(flowStatus) ? null : Enum.Parse<CleanFlowStatus>(flowStatus));
+
+		return queryService.QueryAsync(query, HttpContext.RequestAborted)
+			.Select(form => new CleanBucketsFormV2ViewModel
+			{
+				Id = form.Id,
+				PlayerCode = form.PlayerCode,
+				BrandId = form.BrandId,
+				WalletId = form.WalletId,
+				CurrentBalance = form.CurrentBalance,
+				CurrentBucketAmounts = form.CurrentBucketAmounts
+					.Select(result => new CleanBucketResultViewModel
+					{
+						BucketType = result.BucketType,
+						ReadBucketResult = new ReadBucketResultViewModel
+						{
+							BucketAmount = result.Result.Amount,
+							AnchorBucketId = result.Result.AnchorBucketId
+						}
+					}),
+				DepositFormId = form.DepositFormId,
+				ClearWageringRequirementBalance = form.ClearWageringRequirementBalance,
+				CleaningBalance = form.CleaningBalance,
+				CleaningBucketAmounts = form.CleaningBucketAmounts
+					?.Select(result => new CleanBucketResultViewModel
+					{
+						BucketType = result.BucketType,
+						ReadBucketResult = new ReadBucketResultViewModel
+						{
+							BucketAmount = result.Result.Amount,
+							AnchorBucketId = result.Result.AnchorBucketId
+						}
+					}),
 				Status = form.Status,
 				CreatedOn = form.CreatedOn
 			});
@@ -123,7 +172,7 @@ public class BucketCleanFormController : ControllerBase
 						ReadBucketResult = new ReadBucketResultViewModel
 						{
 							BucketAmount = result.Result.Amount,
-							AnchorBucketId = result.Result.AnchorBucketId!.Value
+							AnchorBucketId = result.Result.AnchorBucketId
 						}
 					}),
 				DepositFormId = form.DepositFormId,
@@ -136,7 +185,7 @@ public class BucketCleanFormController : ControllerBase
 						ReadBucketResult = new ReadBucketResultViewModel
 						{
 							BucketAmount = result.Result.Amount,
-							AnchorBucketId = result.Result.AnchorBucketId!.Value
+							AnchorBucketId = result.Result.AnchorBucketId
 						}
 					}),
 				Status = form.Status,

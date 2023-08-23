@@ -162,6 +162,24 @@ public class PlayerBucketTests
 	}
 
 	[Fact]
+	public async Task 取得清除流水申請單內容第二版()
+	{
+		// Arrange
+		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+		var sut = new GetCleanPlayerBucketsFormQueryService(fakeTgsRepository);
+
+		var query = new GetCleanPlayerBucketsFormV2Query(Guid.NewGuid());
+
+		// Act
+		_ = await sut.GetAsync(query);
+
+		// Assert
+		_ = fakeTgsRepository.Received(1)
+			.GetCleanPlayerBucketFormV2Async(Arg.Is(query.FormId));
+	}
+
+	[Fact]
 	public async Task 完成清除流水申請單()
 	{
 		// Arrange
@@ -292,6 +310,26 @@ public class PlayerBucketTests
 		// Assert
 		_ = fakeTgsRepository.Received(1)
 			.QueryCleanPlayerBucketFormsAsync(
+				Arg.Is(query.PlayerCode),
+				Arg.Is(default(CleanFlowStatus?)));
+	}
+
+	[Fact]
+	public async Task 依照PlayerCode查詢清除流水申請單列表第二版()
+	{
+		// Arrange
+		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+
+		var sut = new GetCleanBucketsFormListQueryService(fakeTgsRepository);
+
+		var query = new GetCleanBucketsFormListV2Query("test1", null);
+
+		// Act
+		_ = await sut.QueryAsync(query).ToArrayAsync();
+
+		// Assert
+		_ = fakeTgsRepository.Received(1)
+			.QueryCleanPlayerBucketFormsV2Async(
 				Arg.Is(query.PlayerCode),
 				Arg.Is(default(CleanFlowStatus?)));
 	}

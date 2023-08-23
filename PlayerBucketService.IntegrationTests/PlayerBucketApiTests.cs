@@ -825,41 +825,55 @@ public class PlayerBucketApiTests
 
         var dbContext = web.Services.GetRequiredService<TgsContext>();
 
-        var row1 = new PlayerBucketCleanForm
+        var row1 = new PlayerBucketCleanFormV2
         {
             Id = form1Id,
             BrandId = Guid.NewGuid(),
             WalletId = Guid.NewGuid(),
-            BucketAnchorId = Guid.NewGuid(),
             PlayerCode = "test1",
             CurrentBalance = 0M,
-            CurrentBucketAmount = 1000M,
+            CurrentBucketAmounts = JsonSerializer.Serialize(
+                new[]
+                {
+                    new CleanFormBucketResult(
+                        null,
+                        new ReadBucketResult(
+                            1000M, Guid.NewGuid()))
+                },
+                PlayerBucketUtility.SerializerOptions),
             ClearWageringRequirementBalance = 5M,
             CleaningBalance = null,
-            CleaningBucketAmount = null,
+            CleaningBucketAmounts = null,
             DepositFormId = Guid.NewGuid(),
             Status = CleanFlowStatus.Create.ToString(),
             CreatedOn = DateTime.UtcNow.AddDays(-1D)
         };
 
-        var row2 = new PlayerBucketCleanForm
+        var row2 = new PlayerBucketCleanFormV2
         {
             Id = form2Id,
             BrandId = Guid.NewGuid(),
             WalletId = Guid.NewGuid(),
-            BucketAnchorId = Guid.NewGuid(),
             PlayerCode = "test1",
             CurrentBalance = 0M,
-            CurrentBucketAmount = 1000M,
+            CurrentBucketAmounts = JsonSerializer.Serialize(
+                new[]
+                {
+                    new CleanFormBucketResult(
+                        null,
+                        new ReadBucketResult(
+                            1000M, Guid.NewGuid()))
+                },
+                PlayerBucketUtility.SerializerOptions),
             ClearWageringRequirementBalance = 5M,
             CleaningBalance = null,
-            CleaningBucketAmount = null,
+            CleaningBucketAmounts = null,
             DepositFormId = Guid.NewGuid(),
             Status = CleanFlowStatus.Create.ToString(),
             CreatedOn = DateTime.UtcNow
         };
 
-        await dbContext.PlayerBucketCleanForms.AddRangeAsync(row1, row2);
+        await dbContext.PlayerBucketCleanFormV2s.AddRangeAsync(row1, row2);
 
         _ = await dbContext.SaveChangesAsync();
 
@@ -889,41 +903,55 @@ public class PlayerBucketApiTests
 
         var dbContext = web.Services.GetRequiredService<TgsContext>();
 
-        var row1 = new PlayerBucketCleanForm
+        var row1 = new PlayerBucketCleanFormV2
         {
             Id = form1Id,
             BrandId = Guid.NewGuid(),
             WalletId = Guid.NewGuid(),
-            BucketAnchorId = Guid.NewGuid(),
             PlayerCode = "test1",
             CurrentBalance = 0M,
-            CurrentBucketAmount = 1000M,
+            CurrentBucketAmounts = JsonSerializer.Serialize(
+                new[]
+                {
+                    new CleanFormBucketResult(
+                        null,
+                        new ReadBucketResult(
+                            1000M, Guid.NewGuid()))
+                },
+                PlayerBucketUtility.SerializerOptions),
             ClearWageringRequirementBalance = 5M,
             CleaningBalance = null,
-            CleaningBucketAmount = null,
+            CleaningBucketAmounts = null,
             DepositFormId = Guid.NewGuid(),
             Status = CleanFlowStatus.Create.ToString(),
             CreatedOn = DateTime.UtcNow.AddDays(-30D)
         };
 
-        var row2 = new PlayerBucketCleanForm
+        var row2 = new PlayerBucketCleanFormV2
         {
             Id = form2Id,
             BrandId = Guid.NewGuid(),
             WalletId = Guid.NewGuid(),
-            BucketAnchorId = Guid.NewGuid(),
             PlayerCode = "test1",
             CurrentBalance = 0M,
-            CurrentBucketAmount = 1000M,
+            CurrentBucketAmounts = JsonSerializer.Serialize(
+                new[]
+                {
+                    new CleanFormBucketResult(
+                        null,
+                        new ReadBucketResult(
+                            1000M, Guid.NewGuid()))
+                },
+                PlayerBucketUtility.SerializerOptions),
             ClearWageringRequirementBalance = 5M,
             CleaningBalance = null,
-            CleaningBucketAmount = null,
+            CleaningBucketAmounts = null,
             DepositFormId = Guid.NewGuid(),
             Status = CleanFlowStatus.Create.ToString(),
             CreatedOn = DateTime.UtcNow
         };
 
-        await dbContext.PlayerBucketCleanForms.AddRangeAsync(row1, row2);
+        await dbContext.PlayerBucketCleanFormV2s.AddRangeAsync(row1, row2);
 
         _ = await dbContext.SaveChangesAsync();
 
@@ -951,23 +979,30 @@ public class PlayerBucketApiTests
 
         var dbContext = web.Services.GetRequiredService<TgsContext>();
 
-        static IEnumerable<PlayerBucketCleanForm> GenerateForms(int count)
+        static IEnumerable<PlayerBucketCleanFormV2> GenerateForms(int count)
         {
             var generateCount = count;
             while (generateCount-- > 0)
             {
-                yield return new PlayerBucketCleanForm
+                yield return new PlayerBucketCleanFormV2
                 {
                     Id = Guid.NewGuid(),
                     BrandId = Guid.NewGuid(),
                     WalletId = Guid.NewGuid(),
-                    BucketAnchorId = Guid.NewGuid(),
                     PlayerCode = "test1",
                     CurrentBalance = 0M,
-                    CurrentBucketAmount = 1000M,
+                    CurrentBucketAmounts = JsonSerializer.Serialize(
+                        new[]
+                        {
+                            new CleanFormBucketResult(
+                                null,
+                                new ReadBucketResult(
+                                    1000M, Guid.NewGuid()))
+                        },
+                        PlayerBucketUtility.SerializerOptions),
                     ClearWageringRequirementBalance = 5M,
                     CleaningBalance = null,
-                    CleaningBucketAmount = null,
+                    CleaningBucketAmounts = null,
                     DepositFormId = Guid.NewGuid(),
                     Status = CleanFlowStatus.Create.ToString(),
                     CreatedOn = DateTime.UtcNow
@@ -975,7 +1010,7 @@ public class PlayerBucketApiTests
             }
         }
 
-        await dbContext.PlayerBucketCleanForms.AddRangeAsync(GenerateForms(21));
+        await dbContext.PlayerBucketCleanFormV2s.AddRangeAsync(GenerateForms(21));
 
         _ = await dbContext.SaveChangesAsync();
 
@@ -1004,41 +1039,60 @@ public class PlayerBucketApiTests
 
         var dbContext = web.Services.GetRequiredService<TgsContext>();
 
-        var row1 = new PlayerBucketCleanForm
+        var row1 = new PlayerBucketCleanFormV2
         {
             Id = form1Id,
             BrandId = Guid.NewGuid(),
             WalletId = Guid.NewGuid(),
-            BucketAnchorId = Guid.NewGuid(),
             PlayerCode = "test1",
             CurrentBalance = 0M,
-            CurrentBucketAmount = 1000M,
+            CurrentBucketAmounts = JsonSerializer.Serialize(
+                new[]
+                {
+                    new CleanFormBucketResult(
+                        null,
+                        new ReadBucketResult(1000M, Guid.NewGuid()))
+                },
+                PlayerBucketUtility.SerializerOptions),
             ClearWageringRequirementBalance = 5M,
             CleaningBalance = null,
-            CleaningBucketAmount = null,
+            CleaningBucketAmounts = null,
             DepositFormId = Guid.NewGuid(),
             Status = CleanFlowStatus.Create.ToString(),
             CreatedOn = DateTime.UtcNow.AddDays(-30D)
         };
 
-        var row2 = new PlayerBucketCleanForm
+        var row2 = new PlayerBucketCleanFormV2
         {
             Id = form2Id,
             BrandId = Guid.NewGuid(),
             WalletId = Guid.NewGuid(),
-            BucketAnchorId = Guid.NewGuid(),
             PlayerCode = "test1",
             CurrentBalance = 0M,
-            CurrentBucketAmount = 1000M,
+            CurrentBucketAmounts = JsonSerializer.Serialize(
+                new[]
+                {
+                    new CleanFormBucketResult(
+                        null,
+                        new ReadBucketResult(1000M, Guid.NewGuid()))
+                },
+                PlayerBucketUtility.SerializerOptions),
             ClearWageringRequirementBalance = 5M,
             CleaningBalance = 0M,
-            CleaningBucketAmount = 1000M,
+            CleaningBucketAmounts = JsonSerializer.Serialize(
+                new[]
+                {
+                    new CleanFormBucketResult(
+                        null,
+                        new ReadBucketResult(1000M, null))
+                },
+                PlayerBucketUtility.SerializerOptions),
             DepositFormId = Guid.NewGuid(),
             Status = CleanFlowStatus.Completed.ToString(),
             CreatedOn = DateTime.UtcNow
         };
 
-        await dbContext.PlayerBucketCleanForms.AddRangeAsync(row1, row2);
+        await dbContext.PlayerBucketCleanFormV2s.AddRangeAsync(row1, row2);
 
         _ = await dbContext.SaveChangesAsync();
 

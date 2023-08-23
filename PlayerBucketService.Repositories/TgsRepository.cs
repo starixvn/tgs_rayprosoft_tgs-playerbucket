@@ -280,4 +280,35 @@ internal class TgsRepository : ITgsRepository
 				Enum.Parse<CleanFlowStatus>(row.Status),
 				row.CreatedOn);
 	}
+
+	public IAsyncEnumerable<CleanPlayerBucketForm> QueryCleanPlayerBucketFormsV2Async(
+		string playerCode,
+		CleanFlowStatus? flowStatus,
+		CancellationToken cancellationToken = default)
+		=> _playerBucketDataAccess.QueryPlayerBucketCleanFormsV2Async(
+			playerCode,
+			flowStatus?.ToString(),
+			cancellationToken)
+			.Select(row => new CleanPlayerBucketForm(
+				row.Id,
+				row.PlayerCode,
+				row.BrandId,
+				row.WalletId,
+				row.CurrentBalance,
+				JsonSerializer.Deserialize<IEnumerable<CleanFormBucketResult>>(
+					row.CurrentBucketAmounts,
+					PlayerBucketUtility.SerializerOptions)!,
+				row.DepositFormId,
+				row.ClearWageringRequirementBalance,
+				row.CleaningBalance,
+				row.CleaningBucketAmounts is null
+					? null
+					: JsonSerializer.Deserialize<IEnumerable<CleanFormBucketResult>>(
+						row.CleaningBucketAmounts,
+						PlayerBucketUtility.SerializerOptions),
+				string.IsNullOrWhiteSpace(row.GameBalanceReturn)
+					? null
+					: JsonDocument.Parse(row.GameBalanceReturn),
+				Enum.Parse<CleanFlowStatus>(row.Status),
+				row.CreatedOn));
 }

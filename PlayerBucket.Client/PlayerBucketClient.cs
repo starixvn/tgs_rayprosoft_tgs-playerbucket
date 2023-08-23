@@ -264,8 +264,8 @@ internal class PlayerBucketClient : IPlayerBucketClient
 		CancellationToken cancellationToken = default)
 		=> _httpClient.GetAsync(
 			flowStatus is null
-				? $"/api/bucket/clean-form/{playerCode}"
-				: $"/api/bucket/clean-form/{playerCode}/{flowStatus}",
+				? $"/api/bucket/clean-form/{playerCode}?api-version=2.0"
+				: $"/api/bucket/clean-form/{playerCode}/{flowStatus}?api-version=2.0",
 			cancellationToken)
 			.ToAsyncEnumerable()
 			.Do(response => response.EnsureSuccessStatusCode())

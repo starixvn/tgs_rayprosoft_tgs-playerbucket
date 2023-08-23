@@ -192,6 +192,31 @@ internal class PlayerBucketDataAccess
 				.Do(_ => cancellationToken.ThrowIfCancellationRequested());
 	}
 
+	public IAsyncEnumerable<PlayerBucketCleanFormV2> QueryPlayerBucketCleanFormsV2Async(
+		string playerCode,
+		string? flowStatus,
+		CancellationToken cancellationToken = default)
+	{
+		var fromTime = DateTime.UtcNow.AddDays(-30D);
+
+		return string.IsNullOrWhiteSpace(flowStatus)
+			? _dbContext.PlayerBucketCleanFormV2s.AsQueryable()
+				.Where(row => row.PlayerCode == playerCode
+					&& row.CreatedOn > fromTime)
+				.OrderByDescending(row => row.CreatedOn)
+				.Take(20)
+				.ToAsyncEnumerable()
+				.Do(_ => cancellationToken.ThrowIfCancellationRequested())
+			: _dbContext.PlayerBucketCleanFormV2s.AsQueryable()
+				.Where(row => row.PlayerCode == playerCode
+					&& row.CreatedOn > fromTime
+					&& row.Status == flowStatus)
+				.OrderByDescending(row => row.CreatedOn)
+				.Take(20)
+				.ToAsyncEnumerable()
+				.Do(_ => cancellationToken.ThrowIfCancellationRequested());
+	}
+
 	public IAsyncEnumerable<(Guid Id, string PlayerCode)> QueryPlayerBucketsForFlushAsync(IEnumerable<Guid> bucketIds)
 		=> _dbContext.PlayerBuckets
 			.AsQueryable()
