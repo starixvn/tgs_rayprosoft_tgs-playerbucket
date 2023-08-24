@@ -373,8 +373,14 @@ public class PlayerBucketApiTests
             Guid.NewGuid(),
             Guid.NewGuid(),
             0M,
-            1000M,
-            Guid.NewGuid(),
+            new[]
+            {
+                new CleanFormBucketResult(
+                    null,
+                    new ReadBucketResult(
+                        1000M,
+                        Guid.NewGuid()))
+            },
             Guid.NewGuid(),
             5M);
 
@@ -387,13 +393,7 @@ public class PlayerBucketApiTests
             cleanOrder.DepositFormId,
             cleanOrder.ClearWageringRequirementBalance,
             CurrentBucketAmounts = JsonSerializer.Serialize(
-                new[] {
-                    new CleanFormBucketResult(
-                        null,
-                        new ReadBucketResult(
-                            cleanOrder.CurrentBucketAmount,
-                            cleanOrder.BucketAnchorId))
-                },
+                cleanOrder.CurrentBucketAmounts,
                 PlayerBucketUtility.SerializerOptions)
         };
 
@@ -539,7 +539,17 @@ public class PlayerBucketApiTests
 
         _ = await dbContext.SaveChangesAsync();
 
-        var request = new ReviewCleanBucketRequest<object>(100M, 2000M, new object());
+        var request = new ReviewCleanBucketRequest<object>(
+            100M,
+            new[]
+            {
+                new CleanFormBucketResult(
+                    null,
+                    new ReadBucketResult(
+                        2000M,
+                        Guid.NewGuid()))
+            },
+            new object());
 
         var expected = new PlayerBucketCleanFormV2
         {
@@ -552,12 +562,7 @@ public class PlayerBucketApiTests
             ClearWageringRequirementBalance = row.ClearWageringRequirementBalance,
             CleaningBalance = request.CleaningBalance,
             CleaningBucketAmounts = JsonSerializer.Serialize(
-                new[]
-                {
-                    new CleanFormBucketResult(
-                        null,
-                        new ReadBucketResult(request.CleaningBucketAmount, null))
-                },
+                request.CleaningBucketAmounts,
                 PlayerBucketUtility.SerializerOptions),
             GameBalanceReturn = "{}",
             DepositFormId = row.DepositFormId,
@@ -617,7 +622,17 @@ public class PlayerBucketApiTests
 
         _ = await dbContext.SaveChangesAsync();
 
-        var request = new ReviewCleanBucketRequest<object?>(100M, 2000M, null);
+        var request = new ReviewCleanBucketRequest<object?>(
+            100M,
+            new[]
+            {
+                new CleanFormBucketResult(
+                    null,
+                    new ReadBucketResult(
+                        2000M,
+                        Guid.NewGuid()))
+            },
+            null);
 
         var expected = new PlayerBucketCleanFormV2
         {
@@ -630,13 +645,7 @@ public class PlayerBucketApiTests
             ClearWageringRequirementBalance = row.ClearWageringRequirementBalance,
             CleaningBalance = request.CleaningBalance,
             CleaningBucketAmounts = JsonSerializer.Serialize(
-                new[]{
-                    new CleanFormBucketResult(
-                        null,
-                        new ReadBucketResult(
-                            request.CleaningBucketAmount,
-                            null))
-                },
+                request.CleaningBucketAmounts,
                 PlayerBucketUtility.SerializerOptions),
             GameBalanceReturn = null,
             DepositFormId = row.DepositFormId,
@@ -694,7 +703,17 @@ public class PlayerBucketApiTests
 
         _ = await dbContext.SaveChangesAsync();
 
-        var request = new ReviewCleanBucketRequest<object>(100M, 2000M, new object());
+        var request = new ReviewCleanBucketRequest<object>(
+            100M,
+            new[]
+            {
+                new CleanFormBucketResult(
+                    null,
+                    new ReadBucketResult(
+                        2000M,
+                        Guid.NewGuid()))
+            },
+            new object());
 
         var expected = new PlayerBucketCleanFormV2
         {
@@ -707,14 +726,7 @@ public class PlayerBucketApiTests
             ClearWageringRequirementBalance = row.ClearWageringRequirementBalance,
             CleaningBalance = request.CleaningBalance,
             CleaningBucketAmounts = JsonSerializer.Serialize(
-                new[]
-                {
-                    new CleanFormBucketResult(
-                        null,
-                        new ReadBucketResult(
-                            request.CleaningBucketAmount,
-                            null))
-                },
+                request.CleaningBucketAmounts,
                 PlayerBucketUtility.SerializerOptions),
             GameBalanceReturn = "{}",
             DepositFormId = row.DepositFormId,
@@ -772,7 +784,17 @@ public class PlayerBucketApiTests
 
         _ = await dbContext.SaveChangesAsync();
 
-        var request = new ReviewCleanBucketRequest<object?>(100M, 2000M, null);
+        var request = new ReviewCleanBucketRequest<object?>(
+            100M,
+            new[]
+            {
+                new CleanFormBucketResult(
+                    null,
+                    new ReadBucketResult(
+                        2000M,
+                        Guid.NewGuid()))
+            },
+            null);
 
         var expected = new PlayerBucketCleanFormV2
         {
@@ -785,14 +807,7 @@ public class PlayerBucketApiTests
             ClearWageringRequirementBalance = row.ClearWageringRequirementBalance,
             CleaningBalance = request.CleaningBalance,
             CleaningBucketAmounts = JsonSerializer.Serialize(
-                new[]
-                {
-                    new CleanFormBucketResult(
-                        null,
-                        new ReadBucketResult(
-                            request.CleaningBucketAmount,
-                            null))
-                },
+                request.CleaningBucketAmounts,
                 PlayerBucketUtility.SerializerOptions),
             GameBalanceReturn = null,
             DepositFormId = row.DepositFormId,

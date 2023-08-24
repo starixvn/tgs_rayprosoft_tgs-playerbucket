@@ -3,7 +3,6 @@ public record CleanBucketOrder(
 	Guid BrandId,
 	Guid WalletId,
 	decimal CurrentBalance,
-	decimal CurrentBucketAmount,
-	Guid BucketAnchorId,
+	IEnumerable<CleanFormBucketResult> CurrentBucketAmounts,
 	Guid DepositFormId,
 	decimal ClearWageringRequirementBalance);

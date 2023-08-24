@@ -1,5 +1,5 @@
 ﻿namespace Tgs.Service.PlayerBuckets;
 public record ReviewCleanBucketRequest<TGameBalanceReturn>(
 	decimal CleaningBalance,
-	decimal CleaningBucketAmount,
+	IEnumerable<CleanFormBucketResult> CleaningBucketAmounts,
 	TGameBalanceReturn? GameBalanceReturn);
