@@ -196,7 +196,8 @@ public class BucketCleanFormController : ControllerBase
 
 	[HttpPut("{playerCode}", Name = "RequestCleanBuckets")]
 	[SuccessStatusCode(201, "Created apply")]
-	public ValueTask<Guid> RequestCleanBucketsAsync(
+	[MapToApiVersion("1.0")]
+	public ValueTask<Guid> RequestCleanBucketsV1Async(
 		[FromServices] IGetService<ApplyCleanBucketsFormCommand, Guid> applyService,
 		string playerCode,
 		[FromBody] CleanBucketsOrderViewModel orderModel)
@@ -214,6 +215,31 @@ public class BucketCleanFormController : ControllerBase
 						orderModel.CurrentBucketAmount,
 						orderModel.BucketAnchorId))
 			},
+			orderModel.DepositFormId,
+			orderModel.ClearWageringRequirementBalance);
+
+		return applyService.GetAsync(command, HttpContext.RequestAborted);
+	}
+
+	[HttpPut("{playerCode}", Name = "RequestCleanBuckets")]
+	[SuccessStatusCode(201, "Created apply")]
+	[MapToApiVersion("2.0")]
+	public ValueTask<Guid> RequestCleanBucketsAsync(
+		[FromServices] IGetService<ApplyCleanBucketsFormCommand, Guid> applyService,
+		string playerCode,
+		[FromBody] CleanBucketsOrderV2ViewModel orderModel)
+	{
+		var command = new ApplyCleanBucketsFormCommand(
+			playerCode,
+			orderModel.BrandId,
+			orderModel.WalletId,
+			orderModel.CurrentBalance,
+			orderModel.CurrentBucketAmounts
+				.Select(item => new CleanFormBucketResult(
+					item.BucketType,
+					new ReadBucketResult(
+						item.ReadBucketResult.BucketAmount,
+						item.ReadBucketResult.AnchorBucketId))),
 			orderModel.DepositFormId,
 			orderModel.ClearWageringRequirementBalance);
 
