@@ -102,9 +102,15 @@ public class PlayerBucketTests
 			"test1",
 			Guid.NewGuid(),
 			Guid.NewGuid(),
-			Guid.NewGuid(),
 			0M,
-			1000M,
+			new[]
+			{
+				new CleanFormBucketResult(
+					null,
+					  new ReadBucketResult(
+						  1000M,
+						  Guid.NewGuid()))
+			},
 			Guid.NewGuid(),
 			0M);
 
@@ -119,14 +125,7 @@ public class PlayerBucketTests
 			command.BrandId,
 			command.WalletId,
 			command.CurrentBalance,
-			CurrentBucketAmounts = new[]
-			{
-				new CleanFormBucketResult(
-					null,
-					new ReadBucketResult(
-						command.CurrentBucketAmount,
-						command.BucketAnchorId))
-			},
+			command.CurrentBucketAmounts,
 			command.DepositFormId,
 			command.ClearWageringRequirementBalance
 		};

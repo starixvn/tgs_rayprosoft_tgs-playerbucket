@@ -103,7 +103,7 @@ public class BucketCleanFormController : ControllerBase
 	/// <response code="200">Find form</response>
 	/// <response code="204">Not found</response>
 	[MapToApiVersion("1.0")]
-	[HttpGet("{formId:Guid}", Name = "GetCleanBucketsForm", Order = 10)]
+	[HttpGet("{formId:Guid}", Name = "GetCleanBucketsForm")]
 	public async Task<CleanBucketsFormViewModel?> GetCleanBucketsFormV1Async(
 		[FromServices] IGetService<GetCleanPlayerBucketsFormQuery, CleanPlayerBucketForm?> getService,
 		Guid formId)
@@ -204,9 +204,15 @@ public class BucketCleanFormController : ControllerBase
 			playerCode,
 			orderModel.BrandId,
 			orderModel.WalletId,
-			orderModel.BucketAnchorId,
 			orderModel.CurrentBalance,
-			orderModel.CurrentBucketAmount,
+			new[]
+			{
+				new CleanFormBucketResult(
+					null,
+					new ReadBucketResult(
+						orderModel.CurrentBucketAmount,
+						orderModel.BucketAnchorId))
+			},
 			orderModel.DepositFormId,
 			orderModel.ClearWageringRequirementBalance);
 

@@ -3,8 +3,7 @@ public record ApplyCleanBucketsFormCommand(
 	string PlayerCode,
 	Guid BrandId,
 	Guid WalletId,
-	Guid BucketAnchorId,
 	decimal CurrentBalance,
-	decimal CurrentBucketAmount,
+	IEnumerable<CleanFormBucketResult> CurrentBucketAmounts,
 	Guid DepositFormId,
 	decimal ClearWageringRequirementBalance);
