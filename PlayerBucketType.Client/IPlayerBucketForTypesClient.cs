@@ -2,7 +2,7 @@
 
 namespace Tgs.PlayerBucket.Client;
 
-internal interface IPlayerBucketForTypesClient
+public interface IPlayerBucketForTypesClient
 {
 	ValueTask CreateBucketForBucketTypesAsync(
 		string playerCode,
