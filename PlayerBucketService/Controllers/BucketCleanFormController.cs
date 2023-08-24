@@ -196,7 +196,8 @@ public class BucketCleanFormController : ControllerBase
 
 	[HttpPut("{playerCode}", Name = "RequestCleanBuckets")]
 	[SuccessStatusCode(201, "Created apply")]
-	public ValueTask<Guid> RequestCleanBucketsAsync(
+	[MapToApiVersion("1.0")]
+	public ValueTask<Guid> RequestCleanBucketsV1Async(
 		[FromServices] IGetService<ApplyCleanBucketsFormCommand, Guid> applyService,
 		string playerCode,
 		[FromBody] CleanBucketsOrderViewModel orderModel)
@@ -220,8 +221,34 @@ public class BucketCleanFormController : ControllerBase
 		return applyService.GetAsync(command, HttpContext.RequestAborted);
 	}
 
+	[HttpPut("{playerCode}", Name = "RequestCleanBuckets")]
+	[SuccessStatusCode(201, "Created apply")]
+	[MapToApiVersion("2.0")]
+	public ValueTask<Guid> RequestCleanBucketsAsync(
+		[FromServices] IGetService<ApplyCleanBucketsFormCommand, Guid> applyService,
+		string playerCode,
+		[FromBody] CleanBucketsOrderV2ViewModel orderModel)
+	{
+		var command = new ApplyCleanBucketsFormCommand(
+			playerCode,
+			orderModel.BrandId,
+			orderModel.WalletId,
+			orderModel.CurrentBalance,
+			orderModel.CurrentBucketAmounts
+				.Select(item => new CleanFormBucketResult(
+					item.BucketType,
+					new ReadBucketResult(
+						item.ReadBucketResult.BucketAmount,
+						item.ReadBucketResult.AnchorBucketId))),
+			orderModel.DepositFormId,
+			orderModel.ClearWageringRequirementBalance);
+
+		return applyService.GetAsync(command, HttpContext.RequestAborted);
+	}
+
 	[HttpPost("{formId:Guid}:complete", Name = "CompleteCleanBucketsForm")]
-	public ValueTask CompleteCleanBucketsFormAsync(
+	[MapToApiVersion("1.0")]
+	public ValueTask CompleteCleanBucketsFormV1Async(
 		[FromServices] ICommandService<CompleteCleanBucketsFormCommand> completeService,
 		Guid formId,
 		[FromBody] ReviewCleanBucketsFormViewModel viewModel)
@@ -242,8 +269,30 @@ public class BucketCleanFormController : ControllerBase
 		return completeService.ExecuteAsync(command, HttpContext.RequestAborted);
 	}
 
+	[HttpPost("{formId:Guid}:complete", Name = "CompleteCleanBucketsForm")]
+	[MapToApiVersion("2.0")]
+	public ValueTask CompleteCleanBucketsFormAsync(
+		[FromServices] ICommandService<CompleteCleanBucketsFormCommand> completeService,
+		Guid formId,
+		[FromBody] ReviewCleanBucketsFormV2ViewModel viewModel)
+	{
+		var command = new CompleteCleanBucketsFormCommand(
+			formId,
+			viewModel.CleaningBalance,
+			viewModel.CleaningBucketAmounts
+				.Select(item => new CleanFormBucketResult(
+					item.BucketType,
+					new ReadBucketResult(
+						item.ReadBucketResult.BucketAmount,
+						item.ReadBucketResult.AnchorBucketId))),
+			viewModel.GameBalanceReturn);
+
+		return completeService.ExecuteAsync(command, HttpContext.RequestAborted);
+	}
+
 	[HttpPost("{formId:Guid}:reject", Name = "RejectCleanBucketsForm")]
-	public ValueTask RejectCleanBucketsFormAsync(
+	[MapToApiVersion("1.0")]
+	public ValueTask RejectCleanBucketsFormV1Async(
 		[FromServices] ICommandService<RejectCleanBucketsFormCommand> rejectService,
 		Guid formId,
 		[FromBody] ReviewCleanBucketsFormViewModel viewModel)
@@ -259,6 +308,27 @@ public class BucketCleanFormController : ControllerBase
 						viewModel.CleaningBucketAmount,
 						null))
 			},
+			viewModel.GameBalanceReturn);
+
+		return rejectService.ExecuteAsync(command, HttpContext.RequestAborted);
+	}
+
+	[HttpPost("{formId:Guid}:reject", Name = "RejectCleanBucketsForm")]
+	[MapToApiVersion("2.0")]
+	public ValueTask RejectCleanBucketsFormAsync(
+		[FromServices] ICommandService<RejectCleanBucketsFormCommand> rejectService,
+		Guid formId,
+		[FromBody] ReviewCleanBucketsFormV2ViewModel viewModel)
+	{
+		var command = new RejectCleanBucketsFormCommand(
+			formId,
+			viewModel.CleaningBalance,
+			viewModel.CleaningBucketAmounts
+				.Select(item => new CleanFormBucketResult(
+					item.BucketType,
+					new ReadBucketResult(
+						item.ReadBucketResult.BucketAmount,
+						item.ReadBucketResult.AnchorBucketId))),
 			viewModel.GameBalanceReturn);
 
 		return rejectService.ExecuteAsync(command, HttpContext.RequestAborted);

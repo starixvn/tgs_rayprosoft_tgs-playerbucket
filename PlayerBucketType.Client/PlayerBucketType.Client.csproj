@@ -7,7 +7,7 @@
     <RootNamespace>Tgs.PlayerBucket.Client</RootNamespace>
     <PackageId>PlayerBucketType.Client</PackageId>
     <Title>遊戲類型封裝的PlayerBucket Client函式庫</Title>
-    <Version>0.0.3</Version>
+    <Version>0.0.4</Version>
     <Authors>Raypro</Authors>
     <PackageProjectUrl>https://gitlab.com/rayprosoft/tgs-playerbucket</PackageProjectUrl>
     <PackageTags>Tgs PlayerBucket Bucket</PackageTags>
@@ -15,13 +15,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="PhoenixToolkits.NuGet.BuildTools" Version="0.0.2">
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="System.Interactive" Version="6.0.1" />
     <PackageReference Include="System.Interactive.Async" Version="6.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\PlayerBucket.Client\PlayerBucket.Client.csproj" />
-    <ProjectReference Include="..\PlayerBucket.Common\PlayerBucket.Common.csproj" />
+    <ProjectReference Include="..\PlayerBucket.Common\PlayerBucket.Common.csproj">
+      <PrivateAssets>All</PrivateAssets>
+    </ProjectReference>
   </ItemGroup>
 
 </Project>

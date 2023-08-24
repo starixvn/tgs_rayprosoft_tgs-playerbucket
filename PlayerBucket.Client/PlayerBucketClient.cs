@@ -180,7 +180,7 @@ internal class PlayerBucketClient : IPlayerBucketClient
 
 	public async ValueTask RequestCleanBucketsAsync(string playerCode, CleanBucketOrder order, CancellationToken cancellationToken = default)
 		=> await _httpClient.PutAsJsonAsync(
-			$"api/bucket/clean-form/{playerCode}",
+			$"api/bucket/clean-form/{playerCode}?api-version=2.0",
 			order,
 			PlayerBucketUtility.SerializerOptions,
 			cancellationToken)
@@ -211,11 +211,11 @@ internal class PlayerBucketClient : IPlayerBucketClient
 		CancellationToken cancellationToken = default)
 	{
 		var response = await _httpClient.PostAsJsonAsync(
-			$"api/bucket/clean-form/{formId}:complete",
+			$"api/bucket/clean-form/{formId}:complete?api-version=2.0",
 			new
 			{
 				request.CleaningBalance,
-				request.CleaningBucketAmount,
+				request.CleaningBucketAmounts,
 				request.GameBalanceReturn
 			},
 			PlayerBucketUtility.SerializerOptions,
@@ -231,11 +231,11 @@ internal class PlayerBucketClient : IPlayerBucketClient
 		CancellationToken cancellationToken = default)
 	{
 		var response = await _httpClient.PostAsJsonAsync(
-			$"api/bucket/clean-form/{formId}:reject",
+			$"api/bucket/clean-form/{formId}:reject?api-version=2.0",
 			new
 			{
 				request.CleaningBalance,
-				request.CleaningBucketAmount,
+				request.CleaningBucketAmounts,
 				request.GameBalanceReturn
 			},
 			PlayerBucketUtility.SerializerOptions,
