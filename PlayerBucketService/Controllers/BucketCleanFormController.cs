@@ -251,7 +251,14 @@ public class BucketCleanFormController : ControllerBase
 		var command = new RejectCleanBucketsFormCommand(
 			formId,
 			viewModel.CleaningBalance,
-			viewModel.CleaningBucketAmount,
+			new[]
+			{
+				new CleanFormBucketResult(
+					null,
+					new ReadBucketResult(
+						viewModel.CleaningBucketAmount,
+						null))
+			},
 			viewModel.GameBalanceReturn);
 
 		return rejectService.ExecuteAsync(command, HttpContext.RequestAborted);

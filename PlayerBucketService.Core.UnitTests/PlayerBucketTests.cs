@@ -247,7 +247,18 @@ public class PlayerBucketTests
 
 		var sut = new RejectCleanBucketsFormCommandService(fakeTgsRepository);
 
-		var command = new RejectCleanBucketsFormCommand(Guid.NewGuid(), 100M, 2000M, null);
+		var command = new RejectCleanBucketsFormCommand(
+			Guid.NewGuid(),
+			100M,
+			new[]
+			{
+				new CleanFormBucketResult(
+					null,
+					new ReadBucketResult(
+						2000M,
+						Guid.NewGuid()))
+			},
+			null);
 
 		var form = new CleanPlayerBucketForm(
 			command.FormId,
@@ -276,14 +287,7 @@ public class PlayerBucketTests
 		{
 			Status = CleanFlowStatus.Rejected,
 			CleaningBalance = command.CleaningBalance,
-			CleaningBucketAmounts = new[]
-			{
-				new CleanFormBucketResult(
-					null,
-					new ReadBucketResult(
-						command.CleaningBucketAmount,
-						null))
-			}
+			CleaningBucketAmounts = command.CleaningBucketAmounts,
 		}).ToExpectedObject(ctx => ctx.IgnoreEqualsOverride());
 
 		// Act
