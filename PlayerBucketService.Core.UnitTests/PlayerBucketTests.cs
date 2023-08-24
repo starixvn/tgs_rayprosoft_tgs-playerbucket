@@ -102,9 +102,15 @@ public class PlayerBucketTests
 			"test1",
 			Guid.NewGuid(),
 			Guid.NewGuid(),
-			Guid.NewGuid(),
 			0M,
-			1000M,
+			new[]
+			{
+				new CleanFormBucketResult(
+					null,
+					  new ReadBucketResult(
+						  1000M,
+						  Guid.NewGuid()))
+			},
 			Guid.NewGuid(),
 			0M);
 
@@ -119,14 +125,7 @@ public class PlayerBucketTests
 			command.BrandId,
 			command.WalletId,
 			command.CurrentBalance,
-			CurrentBucketAmounts = new[]
-			{
-				new CleanFormBucketResult(
-					null,
-					new ReadBucketResult(
-						command.CurrentBucketAmount,
-						command.BucketAnchorId))
-			},
+			command.CurrentBucketAmounts,
 			command.DepositFormId,
 			command.ClearWageringRequirementBalance
 		};
@@ -188,7 +187,17 @@ public class PlayerBucketTests
 		var sut = new CompleteCleanBucketsFormCommandService(
 			fakeTgsRepository);
 
-		var command = new CompleteCleanBucketsFormCommand(Guid.NewGuid(), 100M, 2000M, null);
+		var command = new CompleteCleanBucketsFormCommand(
+			Guid.NewGuid(),
+			100M,
+			new[] {
+				new CleanFormBucketResult(
+					null,
+					  new ReadBucketResult(
+						  2000M,
+						  Guid.NewGuid()))
+			},
+			null);
 
 		var form = new CleanPlayerBucketForm(
 			command.FormId,
@@ -217,14 +226,7 @@ public class PlayerBucketTests
 		{
 			Status = CleanFlowStatus.Completed,
 			CleaningBalance = command.CleaningBalance,
-			CleaningBucketAmounts = new[]
-			{
-				new CleanFormBucketResult(
-					null,
-					new ReadBucketResult(
-						command.CleaningBucketAmount,
-						null))
-			}
+			CleaningBucketAmounts = command.CleaningBucketAmounts,
 		}).ToExpectedObject(ctx => ctx.IgnoreEqualsOverride());
 
 		// Act
@@ -245,7 +247,18 @@ public class PlayerBucketTests
 
 		var sut = new RejectCleanBucketsFormCommandService(fakeTgsRepository);
 
-		var command = new RejectCleanBucketsFormCommand(Guid.NewGuid(), 100M, 2000M, null);
+		var command = new RejectCleanBucketsFormCommand(
+			Guid.NewGuid(),
+			100M,
+			new[]
+			{
+				new CleanFormBucketResult(
+					null,
+					new ReadBucketResult(
+						2000M,
+						Guid.NewGuid()))
+			},
+			null);
 
 		var form = new CleanPlayerBucketForm(
 			command.FormId,
@@ -274,14 +287,7 @@ public class PlayerBucketTests
 		{
 			Status = CleanFlowStatus.Rejected,
 			CleaningBalance = command.CleaningBalance,
-			CleaningBucketAmounts = new[]
-			{
-				new CleanFormBucketResult(
-					null,
-					new ReadBucketResult(
-						command.CleaningBucketAmount,
-						null))
-			}
+			CleaningBucketAmounts = command.CleaningBucketAmounts,
 		}).ToExpectedObject(ctx => ctx.IgnoreEqualsOverride());
 
 		// Act
