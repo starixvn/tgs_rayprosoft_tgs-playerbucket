@@ -27,6 +27,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PlayerBucket.Client\PlayerBucket.Client.csproj" />
+    <ProjectReference Include="..\PlayerBucket.Common\PlayerBucket.Common.csproj" />
     <ProjectReference Include="..\PlayerBucketType.Client\PlayerBucketType.Client.csproj" />
   </ItemGroup>
 
