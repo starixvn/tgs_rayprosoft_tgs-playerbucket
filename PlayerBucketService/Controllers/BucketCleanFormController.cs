@@ -1,4 +1,5 @@
-﻿using Asp.Versioning;
+﻿using System.Data;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using PlayerBucketService.ViewModels;
 using Tgs.Service.PlayerBuckets;
@@ -228,7 +229,14 @@ public class BucketCleanFormController : ControllerBase
 		var command = new CompleteCleanBucketsFormCommand(
 			formId,
 			viewModel.CleaningBalance,
-			viewModel.CleaningBucketAmount,
+			new[]
+			{
+				new CleanFormBucketResult(
+					null,
+					new ReadBucketResult(
+						viewModel.CleaningBucketAmount,
+						null))
+			},
 			viewModel.GameBalanceReturn);
 
 		return completeService.ExecuteAsync(command, HttpContext.RequestAborted);
