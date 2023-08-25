@@ -171,7 +171,7 @@ internal class TgsRepository : ITgsRepository
 				row.CurrentBalance,
 				new[]
 				{
-					new CleanFormBucketResult(
+					new TypeBucketResult(
 						null,
 						new ReadBucketResult(row.CurrentBucketAmount, row.BucketAnchorId))
 				},
@@ -182,7 +182,7 @@ internal class TgsRepository : ITgsRepository
 					? null
 					: new[]
 					{
-						new CleanFormBucketResult(
+						new TypeBucketResult(
 							null,
 							  new ReadBucketResult(
 								  row.CleaningBucketAmount.Value,
@@ -211,7 +211,7 @@ internal class TgsRepository : ITgsRepository
 				row.CurrentBalance,
 				new[]
 				{
-					new CleanFormBucketResult(
+					new TypeBucketResult(
 						null,
 						new ReadBucketResult(row.CurrentBucketAmount, row.BucketAnchorId))
 				},
@@ -222,7 +222,7 @@ internal class TgsRepository : ITgsRepository
 					? null
 					: new[]
 					{
-						new CleanFormBucketResult(
+						new TypeBucketResult(
 							null,
 							new ReadBucketResult(row.CleaningBucketAmount.Value, null))
 					},
@@ -263,7 +263,7 @@ internal class TgsRepository : ITgsRepository
 				row.BrandId,
 				row.WalletId,
 				row.CurrentBalance,
-				JsonSerializer.Deserialize<IEnumerable<CleanFormBucketResult>>(
+				JsonSerializer.Deserialize<IEnumerable<TypeBucketResult>>(
 					row.CurrentBucketAmounts,
 					PlayerBucketUtility.SerializerOptions)!,
 				row.DepositFormId,
@@ -271,7 +271,7 @@ internal class TgsRepository : ITgsRepository
 				row.CleaningBalance,
 				row.CleaningBucketAmounts is null
 					? null
-					: JsonSerializer.Deserialize<IEnumerable<CleanFormBucketResult>>(
+					: JsonSerializer.Deserialize<IEnumerable<TypeBucketResult>>(
 						row.CleaningBucketAmounts,
 						PlayerBucketUtility.SerializerOptions),
 				string.IsNullOrWhiteSpace(row.GameBalanceReturn)
@@ -295,7 +295,7 @@ internal class TgsRepository : ITgsRepository
 				row.BrandId,
 				row.WalletId,
 				row.CurrentBalance,
-				JsonSerializer.Deserialize<IEnumerable<CleanFormBucketResult>>(
+				JsonSerializer.Deserialize<IEnumerable<TypeBucketResult>>(
 					row.CurrentBucketAmounts,
 					PlayerBucketUtility.SerializerOptions)!,
 				row.DepositFormId,
@@ -303,7 +303,7 @@ internal class TgsRepository : ITgsRepository
 				row.CleaningBalance,
 				row.CleaningBucketAmounts is null
 					? null
-					: JsonSerializer.Deserialize<IEnumerable<CleanFormBucketResult>>(
+					: JsonSerializer.Deserialize<IEnumerable<TypeBucketResult>>(
 						row.CleaningBucketAmounts,
 						PlayerBucketUtility.SerializerOptions),
 				string.IsNullOrWhiteSpace(row.GameBalanceReturn)

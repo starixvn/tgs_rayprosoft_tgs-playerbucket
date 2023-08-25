@@ -1,4 +1,4 @@
 ﻿namespace Tgs.Service.PlayerBuckets;
-public record CleanFormBucketResult(
+public record TypeBucketResult(
 	string? BucketType,
 	ReadBucketResult Result);
