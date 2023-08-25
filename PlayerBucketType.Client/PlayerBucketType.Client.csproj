@@ -7,7 +7,7 @@
     <RootNamespace>Tgs.PlayerBucket.Client</RootNamespace>
     <PackageId>Tgs.PlayerBucketType.Client</PackageId>
     <Title>遊戲類型封裝的PlayerBucket Client函式庫</Title>
-    <Version>0.0.6</Version>
+    <Version>0.0.7</Version>
     <Authors>Raypro</Authors>
     <PackageProjectUrl>https://gitlab.com/rayprosoft/tgs-playerbucket</PackageProjectUrl>
     <PackageTags>Tgs PlayerBucket Bucket</PackageTags>
