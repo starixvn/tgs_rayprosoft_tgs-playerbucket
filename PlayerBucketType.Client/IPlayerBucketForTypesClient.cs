@@ -22,7 +22,7 @@ public interface IPlayerBucketForTypesClient
 		IEnumerable<string>? bucketTypes = null,
 		CancellationToken cancellationToken = default);
 
-	IAsyncEnumerable<(string BucketName, ReadBucketResult Result)> ReadBucketsForBucketTypesAsync(
+	IAsyncEnumerable<TypeBucketResult> ReadBucketsForBucketTypesAsync(
 		string playerCode,
 		IEnumerable<string>? bucketTypes = null,
 		CancellationToken cancellationToken = default);
