@@ -4,6 +4,6 @@ public record ApplyCleanBucketsFormCommand(
 	Guid BrandId,
 	Guid WalletId,
 	decimal CurrentBalance,
-	IEnumerable<CleanFormBucketResult> CurrentBucketAmounts,
+	IEnumerable<TypeBucketResult> CurrentBucketAmounts,
 	Guid DepositFormId,
 	decimal ClearWageringRequirementBalance);

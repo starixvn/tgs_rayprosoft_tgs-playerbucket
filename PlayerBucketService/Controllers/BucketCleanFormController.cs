@@ -209,7 +209,7 @@ public class BucketCleanFormController : ControllerBase
 			orderModel.CurrentBalance,
 			new[]
 			{
-				new CleanFormBucketResult(
+				new TypeBucketResult(
 					null,
 					new ReadBucketResult(
 						orderModel.CurrentBucketAmount,
@@ -235,7 +235,7 @@ public class BucketCleanFormController : ControllerBase
 			orderModel.WalletId,
 			orderModel.CurrentBalance,
 			orderModel.CurrentBucketAmounts
-				.Select(item => new CleanFormBucketResult(
+				.Select(item => new TypeBucketResult(
 					item.BucketType,
 					new ReadBucketResult(
 						item.ReadBucketResult.BucketAmount,
@@ -258,7 +258,7 @@ public class BucketCleanFormController : ControllerBase
 			viewModel.CleaningBalance,
 			new[]
 			{
-				new CleanFormBucketResult(
+				new TypeBucketResult(
 					null,
 					new ReadBucketResult(
 						viewModel.CleaningBucketAmount,
@@ -280,7 +280,7 @@ public class BucketCleanFormController : ControllerBase
 			formId,
 			viewModel.CleaningBalance,
 			viewModel.CleaningBucketAmounts
-				.Select(item => new CleanFormBucketResult(
+				.Select(item => new TypeBucketResult(
 					item.BucketType,
 					new ReadBucketResult(
 						item.ReadBucketResult.BucketAmount,
@@ -302,7 +302,7 @@ public class BucketCleanFormController : ControllerBase
 			viewModel.CleaningBalance,
 			new[]
 			{
-				new CleanFormBucketResult(
+				new TypeBucketResult(
 					null,
 					new ReadBucketResult(
 						viewModel.CleaningBucketAmount,
@@ -324,7 +324,7 @@ public class BucketCleanFormController : ControllerBase
 			formId,
 			viewModel.CleaningBalance,
 			viewModel.CleaningBucketAmounts
-				.Select(item => new CleanFormBucketResult(
+				.Select(item => new TypeBucketResult(
 					item.BucketType,
 					new ReadBucketResult(
 						item.ReadBucketResult.BucketAmount,

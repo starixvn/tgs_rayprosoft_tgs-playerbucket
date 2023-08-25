@@ -9,11 +9,11 @@ public record CleanPlayerBucketForm(
 	Guid BrandId,
 	Guid WalletId,
 	decimal CurrentBalance,
-	IEnumerable<CleanFormBucketResult> CurrentBucketAmounts,
+	IEnumerable<TypeBucketResult> CurrentBucketAmounts,
 	Guid DepositFormId,
 	decimal ClearWageringRequirementBalance,
 	decimal? CleaningBalance,
-	IEnumerable<CleanFormBucketResult>? CleaningBucketAmounts,
+	IEnumerable<TypeBucketResult>? CleaningBucketAmounts,
 	JsonDocument? GameBalanceReturn,
 	CleanFlowStatus Status,
 	DateTime CreatedOn)

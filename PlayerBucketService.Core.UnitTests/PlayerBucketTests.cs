@@ -105,7 +105,7 @@ public class PlayerBucketTests
 			0M,
 			new[]
 			{
-				new CleanFormBucketResult(
+				new TypeBucketResult(
 					null,
 					  new ReadBucketResult(
 						  1000M,
@@ -191,7 +191,7 @@ public class PlayerBucketTests
 			Guid.NewGuid(),
 			100M,
 			new[] {
-				new CleanFormBucketResult(
+				new TypeBucketResult(
 					null,
 					  new ReadBucketResult(
 						  2000M,
@@ -207,7 +207,7 @@ public class PlayerBucketTests
 			0M,
 			new[]
 			{
-				new CleanFormBucketResult(
+				new TypeBucketResult(
 					null,
 					new ReadBucketResult(1000M, Guid.NewGuid()))
 			},
@@ -252,7 +252,7 @@ public class PlayerBucketTests
 			100M,
 			new[]
 			{
-				new CleanFormBucketResult(
+				new TypeBucketResult(
 					null,
 					new ReadBucketResult(
 						2000M,
@@ -268,7 +268,7 @@ public class PlayerBucketTests
 			0M,
 			new[]
 			{
-				new CleanFormBucketResult(
+				new TypeBucketResult(
 					null,
 					  new ReadBucketResult(1000M, Guid.NewGuid()))
 			},

@@ -4,5 +4,5 @@ namespace Tgs.Service.PlayerBuckets.ApplicationServices;
 public record RejectCleanBucketsFormCommand(
 	Guid FormId,
 	decimal CleaningBalance,
-	IEnumerable<CleanFormBucketResult> CleaningBucketAmounts,
+	IEnumerable<TypeBucketResult> CleaningBucketAmounts,
 	JsonDocument? GameBalanceReturn);

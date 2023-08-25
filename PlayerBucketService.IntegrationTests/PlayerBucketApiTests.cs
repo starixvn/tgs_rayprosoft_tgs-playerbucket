@@ -375,7 +375,7 @@ public class PlayerBucketApiTests
             0M,
             new[]
             {
-                new CleanFormBucketResult(
+                new TypeBucketResult(
                     null,
                     new ReadBucketResult(
                         1000M,
@@ -432,7 +432,7 @@ public class PlayerBucketApiTests
             CurrentBalance = 0M,
             CurrentBucketAmounts = JsonSerializer.Serialize(
                 new[] {
-                    new CleanFormBucketResult(
+                    new TypeBucketResult(
                         null,
                         new ReadBucketResult(1000M, anchorId))
                 },
@@ -457,7 +457,7 @@ public class PlayerBucketApiTests
             row.CurrentBalance,
             new[]
             {
-                new CleanFormBucketResult(
+                new TypeBucketResult(
                     null,
                     new ReadBucketResult(1000M,  anchorId))
             },
@@ -523,7 +523,7 @@ public class PlayerBucketApiTests
             CurrentBalance = 0M,
             CurrentBucketAmounts = JsonSerializer.Serialize(
                 new[] {
-                    new CleanFormBucketResult(
+                    new TypeBucketResult(
                         null,
                         new ReadBucketResult(1000M, Guid.NewGuid()))
                 }),
@@ -543,7 +543,7 @@ public class PlayerBucketApiTests
             100M,
             new[]
             {
-                new CleanFormBucketResult(
+                new TypeBucketResult(
                     null,
                     new ReadBucketResult(
                         2000M,
@@ -603,7 +603,7 @@ public class PlayerBucketApiTests
             CurrentBucketAmounts = JsonSerializer.Serialize(
                 new[]
                 {
-                    new CleanFormBucketResult(
+                    new TypeBucketResult(
                         null,
                         new ReadBucketResult(
                             1000M,
@@ -626,7 +626,7 @@ public class PlayerBucketApiTests
             100M,
             new[]
             {
-                new CleanFormBucketResult(
+                new TypeBucketResult(
                     null,
                     new ReadBucketResult(
                         2000M,
@@ -686,7 +686,7 @@ public class PlayerBucketApiTests
             CurrentBucketAmounts = JsonSerializer.Serialize(
                 new[]
                 {
-                    new CleanFormBucketResult(
+                    new TypeBucketResult(
                         null,
                         new ReadBucketResult(1000M, Guid.NewGuid()))
                 },
@@ -707,7 +707,7 @@ public class PlayerBucketApiTests
             100M,
             new[]
             {
-                new CleanFormBucketResult(
+                new TypeBucketResult(
                     null,
                     new ReadBucketResult(
                         2000M,
@@ -767,7 +767,7 @@ public class PlayerBucketApiTests
             CurrentBucketAmounts = JsonSerializer.Serialize(
                 new[]
                 {
-                    new CleanFormBucketResult(
+                    new TypeBucketResult(
                         null,
                         new ReadBucketResult(1000M, Guid.NewGuid()))
                 },
@@ -788,7 +788,7 @@ public class PlayerBucketApiTests
             100M,
             new[]
             {
-                new CleanFormBucketResult(
+                new TypeBucketResult(
                     null,
                     new ReadBucketResult(
                         2000M,
@@ -850,7 +850,7 @@ public class PlayerBucketApiTests
             CurrentBucketAmounts = JsonSerializer.Serialize(
                 new[]
                 {
-                    new CleanFormBucketResult(
+                    new TypeBucketResult(
                         null,
                         new ReadBucketResult(
                             1000M, Guid.NewGuid()))
@@ -874,7 +874,7 @@ public class PlayerBucketApiTests
             CurrentBucketAmounts = JsonSerializer.Serialize(
                 new[]
                 {
-                    new CleanFormBucketResult(
+                    new TypeBucketResult(
                         null,
                         new ReadBucketResult(
                             1000M, Guid.NewGuid()))
@@ -928,7 +928,7 @@ public class PlayerBucketApiTests
             CurrentBucketAmounts = JsonSerializer.Serialize(
                 new[]
                 {
-                    new CleanFormBucketResult(
+                    new TypeBucketResult(
                         null,
                         new ReadBucketResult(
                             1000M, Guid.NewGuid()))
@@ -952,7 +952,7 @@ public class PlayerBucketApiTests
             CurrentBucketAmounts = JsonSerializer.Serialize(
                 new[]
                 {
-                    new CleanFormBucketResult(
+                    new TypeBucketResult(
                         null,
                         new ReadBucketResult(
                             1000M, Guid.NewGuid()))
@@ -1009,7 +1009,7 @@ public class PlayerBucketApiTests
                     CurrentBucketAmounts = JsonSerializer.Serialize(
                         new[]
                         {
-                            new CleanFormBucketResult(
+                            new TypeBucketResult(
                                 null,
                                 new ReadBucketResult(
                                     1000M, Guid.NewGuid()))
@@ -1064,7 +1064,7 @@ public class PlayerBucketApiTests
             CurrentBucketAmounts = JsonSerializer.Serialize(
                 new[]
                 {
-                    new CleanFormBucketResult(
+                    new TypeBucketResult(
                         null,
                         new ReadBucketResult(1000M, Guid.NewGuid()))
                 },
@@ -1087,7 +1087,7 @@ public class PlayerBucketApiTests
             CurrentBucketAmounts = JsonSerializer.Serialize(
                 new[]
                 {
-                    new CleanFormBucketResult(
+                    new TypeBucketResult(
                         null,
                         new ReadBucketResult(1000M, Guid.NewGuid()))
                 },
@@ -1097,7 +1097,7 @@ public class PlayerBucketApiTests
             CleaningBucketAmounts = JsonSerializer.Serialize(
                 new[]
                 {
-                    new CleanFormBucketResult(
+                    new TypeBucketResult(
                         null,
                         new ReadBucketResult(1000M, null))
                 },
