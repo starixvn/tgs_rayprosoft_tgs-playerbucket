@@ -112,16 +112,35 @@ public class PlayerBucketForTypesClientTests
 		var playerCode = "test1";
 		var gameTypes = new[] { "Game1", "Game2" };
 
+		var normalResult = new ReadBucketResult(100M, Guid.NewGuid());
+		var game1Result = new ReadBucketResult(200M, Guid.NewGuid());
+		var game2Result = new ReadBucketResult(300M, Guid.NewGuid());
+
+		_ = fakePlayerBucketClient.ReadBucketsAsync(Arg.Is(playerCode))
+			.Returns(normalResult);
+		_ = fakePlayerBucketClient.ReadBucketsAsync(Arg.Is($"{playerCode}:Game1"))
+			.Returns(game1Result);
+		_ = fakePlayerBucketClient.ReadBucketsAsync(Arg.Is($"{playerCode}:Game2"))
+			.Returns(game2Result);
+
+		var expected = new[]
+		{
+			new TypeBucketResult(
+				null,
+				normalResult),
+			new TypeBucketResult(
+				"Game1",
+				game1Result),
+			new TypeBucketResult(
+				"Game2",
+				game2Result)
+		};
+
 		// Act
-		_ = await sut.ReadBucketsForBucketTypesAsync(playerCode, gameTypes).ToArrayAsync();
+		var actual = await sut.ReadBucketsForBucketTypesAsync(playerCode, gameTypes).ToArrayAsync();
 
 		// Assert
-		_ = fakePlayerBucketClient.Received(1)
-			.ReadBucketsAsync(Arg.Is(playerCode));
-		_ = fakePlayerBucketClient.Received(1)
-			.ReadBucketsAsync(Arg.Is($"{playerCode}:Game1"));
-		_ = fakePlayerBucketClient.Received(1)
-			.ReadBucketsAsync(Arg.Is($"{playerCode}:Game2"));
+		Assert.Equal(expected, actual);
 		_ = fakePlayerBucketClient.Received(3)
 			.ReadBucketsAsync(Arg.Any<string>());
 	}

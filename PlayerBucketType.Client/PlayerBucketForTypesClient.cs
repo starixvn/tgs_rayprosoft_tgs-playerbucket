@@ -100,7 +100,7 @@ internal class PlayerBucketForTypesClient : IPlayerBucketForTypesClient
 						.ReadBucketsAsync(bucketName, cancellationToken)
 						.AsTask()
 						.ToAsyncEnumerable()
-						.Select(result => new TypeBucketResult(bucketName, result)))));
+						.Select(result => new TypeBucketResult(bucketType, result)))));
 	}
 
 	public async ValueTask CleanBucketsForBucketTypesAsync(
