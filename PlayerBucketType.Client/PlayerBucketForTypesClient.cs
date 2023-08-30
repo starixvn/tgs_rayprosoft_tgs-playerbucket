@@ -125,4 +125,16 @@ internal class PlayerBucketForTypesClient : IPlayerBucketForTypesClient
 					cancellationToken))
 			.Select(vt => vt.AsTask())
 			.ToArray()).ConfigureAwait(false);
+
+	public IAsyncEnumerable<BucketInfo> GetBucketsByPlayerCodeAsync(
+		string playerCode,
+		string? bucketType = null,
+		CancellationToken cancellationToken = default)
+	{
+		var bucketName = string.IsNullOrEmpty(bucketType)
+			? playerCode
+			: $"{playerCode}:{bucketType}";
+
+		return _playerBucketClient.GetBucketsByPlayerCodeAsync(bucketName, cancellationToken);
+	}
 }
