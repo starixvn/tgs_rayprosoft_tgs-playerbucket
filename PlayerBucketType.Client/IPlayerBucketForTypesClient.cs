@@ -33,4 +33,9 @@ public interface IPlayerBucketForTypesClient
 		string? externalId,
 		string? remark,
 		CancellationToken cancellationToken = default);
+
+	IAsyncEnumerable<BucketInfo> GetBucketsByPlayerCodeAsync(
+		string playerCode,
+		string? bucketType = null,
+		CancellationToken cancellationToken = default);
 }

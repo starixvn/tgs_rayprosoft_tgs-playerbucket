@@ -189,4 +189,23 @@ public class PlayerBucketForTypesClientTests
 				Arg.Is(default(string)),
 				Arg.Is(default(string)));
 	}
+
+	[Fact]
+	public async Task 取得玩家遊戲類型水桶列表()
+	{
+		// Arrange
+		var fakePlayerBucketClient = Substitute.For<IPlayerBucketClient>();
+
+		var sut = new PlayerBucketForTypesClient(fakePlayerBucketClient);
+
+		var playerCode = "test1";
+		var gameType = "Game1";
+
+		// Act
+		_ = await sut.GetBucketsByPlayerCodeAsync(playerCode, gameType).ToArrayAsync();
+
+		// Assert
+		_ = fakePlayerBucketClient.Received(1)
+			.GetBucketsByPlayerCodeAsync(Arg.Is($"{playerCode}:{gameType}"));
+	}
 }
