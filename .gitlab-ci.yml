@@ -232,7 +232,7 @@ deploy-countervail-job-dev:
   when: manual
   script:
     - |
-      echo << EOF | deploy_k8s $HelmTemplateCountervailFolderName $namespace
+      cat << EOF | deploy_k8s $HelmTemplateCountervailFolderName $namespace
         {
           "kind":"Job"
         }
@@ -363,7 +363,7 @@ deploy-countervail-job-staging:
   when: manual
   script:
     - |
-      echo << EOF | deploy_k8s $HelmTemplateCountervailFolderName $namespace
+      cat << EOF | deploy_k8s $HelmTemplateCountervailFolderName $namespace
         {
           "kind":"Job"
         }
