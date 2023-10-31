@@ -14,23 +14,23 @@ extern alias Server;
 
 internal class PlayerBucketServiceTestHost
 {
-	public static WebApplicationFactory<Server::Program> Instance => new WebApplicationFactory<Server::Program>()
-		.WithWebHostBuilder(hostBuilder => hostBuilder
-			.ConfigureAppConfiguration(configBuilder => configBuilder.Sources.Clear())
-			.ConfigureServices(services => services
-				.AddSingleton<IConfigureOptions<OtlpExporterOptions>>(
-					sp => new ConfigureNamedOptions<OtlpExporterOptions>(
-						Options.DefaultName,
-						exporterOptions => exporterOptions.TimeoutMilliseconds = 0))
-				.Replace(ServiceDescriptor.Singleton(sp =>
-				{
-					var dbContextOptionsBuilder = new DbContextOptionsBuilder<TgsContext>();
-					_ = dbContextOptionsBuilder
-						.UseInMemoryDatabase(Guid.NewGuid().ToString())
-						.ConfigureWarnings(x => x.Ignore(
-							InMemoryEventId.TransactionIgnoredWarning));
+    public static WebApplicationFactory<Server::Program> Instance => new WebApplicationFactory<Server::Program>()
+        .WithWebHostBuilder(hostBuilder => hostBuilder
+            .ConfigureAppConfiguration(configBuilder => configBuilder.Sources.Clear())
+            .ConfigureServices(services => services
+                .AddSingleton<IConfigureOptions<OtlpExporterOptions>>(
+                    sp => new ConfigureNamedOptions<OtlpExporterOptions>(
+                        Options.DefaultName,
+                        exporterOptions => exporterOptions.TimeoutMilliseconds = 0))
+                .Replace(ServiceDescriptor.Singleton(sp =>
+                {
+                    var dbContextOptionsBuilder = new DbContextOptionsBuilder<TgsContext>();
+                    _ = dbContextOptionsBuilder
+                        .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                        .ConfigureWarnings(x => x.Ignore(
+                            InMemoryEventId.TransactionIgnoredWarning));
 
-					return new TgsContext(dbContextOptionsBuilder.Options);
-				}))
-				.AddFakeNatsMessageQueue()));
+                    return new TgsContext(dbContextOptionsBuilder.Options);
+                }))
+                .AddFakeNatsMessageQueue()));
 }

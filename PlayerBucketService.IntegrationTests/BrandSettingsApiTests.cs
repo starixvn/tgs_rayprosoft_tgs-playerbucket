@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using Tgs.MessageQueue;
 using Tgs.PlayerBucket.Clients;
 using Tgs.PlayerBuckets.DatabaseAccess.Entities;
+using Valhalla.MessageQueue;
 using Xunit.Abstractions;
 
 namespace PlayerBucketService.IntegrationTests;

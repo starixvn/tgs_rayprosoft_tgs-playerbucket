@@ -6,10 +6,10 @@ using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using Tgs.MessageQueue.MongoDB.Configuration;
 using Tgs.PlayerBucketWorker;
 using Tgs.PlayerBucketWorker.MessageQueue;
 using Tgs.Service.PlayerBuckets;
+using Valhalla.MessageQueue.MongoDB.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -101,6 +101,7 @@ builder.Services
 			.AddEnvironmentVariableDetector())
 		.AddSource("Tgs.*")
 		.AddSource("TGS.*")
+		.AddSource("Valhalla.*")
 		.AddNpgsql()
 		.AddAspNetCoreInstrumentation()
 		.AddEntityFrameworkCoreInstrumentation(options => options.SetDbStatementForText = true)

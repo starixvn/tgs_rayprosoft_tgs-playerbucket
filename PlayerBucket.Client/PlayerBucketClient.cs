@@ -1,8 +1,8 @@
 ﻿using System.Net.Http.Json;
 using Google.Protobuf;
-using Tgs.MessageQueue;
 using Tgs.Service.PlayerBuckets;
 using Tgs.Services.PlayerBucket.Protos;
+using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBucket.Clients;
 

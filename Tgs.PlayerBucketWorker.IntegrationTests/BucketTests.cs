@@ -10,9 +10,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Server::Tgs.PlayerBucketWorker.MessageQueue;
-using Tgs.MessageQueue;
 using Tgs.PlayerBuckets.DatabaseAccess.Entities;
 using Tgs.Service.PlayerBuckets;
+using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBucketWorker.IntegrationTests;
 
@@ -193,7 +193,9 @@ public class BucketTests
 
 		var dbContext = web.Services.GetRequiredService<TgsContext>();
 
-		var actual = await client.ReadBucketsAsync(playerCode).AsTask().WaitAsync(TimeSpan.FromSeconds(1D));
+		var actual = await client.ReadBucketsAsync(playerCode)
+			.AsTask()
+			.WaitAsync(TimeSpan.FromSeconds(1D));
 
 		Assert.AreEqual(0M, actual.Amount);
 	}

@@ -1,10 +1,10 @@
-{
-  "profiles": {
-    "PlayerBucketMigrateJob": {
-      "commandName": "Project"
-    },
-    "Docker": {
-      "commandName": "Docker"
-    }
-  }
+﻿{
+	"profiles": {
+		"PlayerBucketMigrateJob": {
+			"commandName": "Project"
+		},
+		"Docker": {
+			"commandName": "Docker"
+		}
+	}
 }
