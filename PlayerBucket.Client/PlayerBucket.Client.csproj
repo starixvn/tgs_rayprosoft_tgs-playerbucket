@@ -7,7 +7,7 @@
 		<RootNamespace>Tgs.PlayerBucket.Clients</RootNamespace>
 		<PackageId>Tgs.PlayerBucket.Client</PackageId>
 		<Title>Tgs.PlayerBucket.Client</Title>
-		<Version>0.1.1</Version>
+		<Version>1.0.0</Version>
 		<Authors>Raypro</Authors>
 		<PackageProjectUrl>https://gitlab.com/rayprosoft/tgs-playerbucket</PackageProjectUrl>
 		<RepositoryUrl>https://gitlab.com/rayprosoft/tgs-playerbucket.git</RepositoryUrl>
@@ -18,16 +18,16 @@
 		<PackageReference Include="AsyncMethodNameFixer" Version="2.3.0" />
 		<PackageReference Include="JsonPatch.Net" Version="2.1.0" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
+		<PackageReference Include="PhoenixToolkits.MessageQueue" Version="1.0.3" />
 		<PackageReference Include="PhoenixToolkits.Protobuf.ExtendTypes" Version="0.0.6" />
 		<PackageReference Include="System.Interactive.Async" Version="6.0.1" />
-		<PackageReference Include="Tgs.MessageQueue" Version="2.3.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\PlayerBucket.Common\PlayerBucket.Common.csproj">
 			<PrivateAssets>all</PrivateAssets>
 		</ProjectReference>
-		<PackageReference Include="PhoenixToolkits.NuGet.BuildTools" Version="0.0.2">
+		<PackageReference Include="PhoenixToolkits.NuGet.BuildTools" Version="0.0.3">
 			<PrivateAssets>All</PrivateAssets>
 		</PackageReference>
 	</ItemGroup>

@@ -1,49 +1,49 @@
 ﻿{
-   "CodeGenerationMode": 3,
-   "ContextClassName": "TgsContext",
-   "ContextNamespace": "Entities",
-   "DefaultDacpacSchema": null,
-   "FilterSchemas": true,
-   "IncludeConnectionString": false,
-   "ModelNamespace": "Entities",
-   "OutputContextPath": "Entities",
-   "OutputPath": "Entities\\Models",
-   "PreserveCasingWithRegex": true,
-   "ProjectRootNamespace": "PlayerBucketMigrateJob",
-   "Schemas": [
-      {
-         "Name": "dbo"
-      }
-   ],
-   "SelectedHandlebarsLanguage": 0,
-   "SelectedToBeGenerated": 0,
-   "Tables": [
-      {
-         "Name": "dbo.player_bucket_migrations",
-         "ObjectType": 0
-      },
-      {
-         "Name": "dbo.players",
-         "ObjectType": 0
-      }
-   ],
-   "UiHint": "tgs-local",
-   "UseBoolPropertiesWithoutDefaultSql": true,
-   "UseDatabaseNames": false,
-   "UseDbContextSplitting": true,
-   "UseFluentApiOnly": true,
-   "UseHandleBars": false,
-   "UseHierarchyId": false,
-   "UseInflector": true,
-   "UseLegacyPluralizer": false,
-   "UseManyToManyEntity": true,
-   "UseNoConstructor": true,
-   "UseNoDefaultConstructor": true,
-   "UseNoNavigations": true,
-   "UseNoObjectFilter": false,
-   "UseNodaTime": false,
-   "UseNullableReferences": true,
-   "UseSchemaFolders": true,
-   "UseSpatial": false,
-   "UseT4": false
+	"CodeGenerationMode": 3,
+	"ContextClassName": "TgsContext",
+	"ContextNamespace": "Entities",
+	"DefaultDacpacSchema": null,
+	"FilterSchemas": true,
+	"IncludeConnectionString": false,
+	"ModelNamespace": "Entities",
+	"OutputContextPath": "Entities",
+	"OutputPath": "Entities\\Models",
+	"PreserveCasingWithRegex": true,
+	"ProjectRootNamespace": "PlayerBucketMigrateJob",
+	"Schemas": [
+		{
+			"Name": "dbo"
+		}
+	],
+	"SelectedHandlebarsLanguage": 0,
+	"SelectedToBeGenerated": 0,
+	"Tables": [
+		{
+			"Name": "dbo.player_bucket_migrations",
+			"ObjectType": 0
+		},
+		{
+			"Name": "dbo.players",
+			"ObjectType": 0
+		}
+	],
+	"UiHint": "tgs-local",
+	"UseBoolPropertiesWithoutDefaultSql": true,
+	"UseDatabaseNames": false,
+	"UseDbContextSplitting": true,
+	"UseFluentApiOnly": true,
+	"UseHandleBars": false,
+	"UseHierarchyId": false,
+	"UseInflector": true,
+	"UseLegacyPluralizer": false,
+	"UseManyToManyEntity": true,
+	"UseNoConstructor": true,
+	"UseNoDefaultConstructor": true,
+	"UseNoNavigations": true,
+	"UseNoObjectFilter": false,
+	"UseNodaTime": false,
+	"UseNullableReferences": true,
+	"UseSchemaFolders": true,
+	"UseSpatial": false,
+	"UseT4": false
 }

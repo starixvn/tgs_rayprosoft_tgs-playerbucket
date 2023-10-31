@@ -7,9 +7,9 @@ using NATS.Client;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using Server::Tgs.PlayerBucketWorker.MessageQueue;
-using Tgs.MessageQueue;
 using Tgs.Service.PlayerBuckets;
 using Tgs.Services.PlayerBucket.Protos;
+using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBucketWorker.IntegrationTests;
 

@@ -5,7 +5,7 @@ using System.Reactive.Linq;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
-using Tgs.MessageQueue;
+using Valhalla.MessageQueue;
 
 namespace Tgs.Service.PlayerBuckets.Repositories;
 

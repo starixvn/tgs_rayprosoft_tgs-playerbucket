@@ -1,5 +1,5 @@
-﻿using Tgs.MessageQueue;
-using Tgs.Services.PlayerBucket.Protos;
+﻿using Tgs.Services.PlayerBucket.Protos;
+using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBuckets.Committer.MessageQueue;
 

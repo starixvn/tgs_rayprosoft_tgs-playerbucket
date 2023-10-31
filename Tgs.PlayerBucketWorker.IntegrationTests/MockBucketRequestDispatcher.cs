@@ -2,8 +2,8 @@
 
 using Microsoft.Extensions.Logging;
 using Server::Tgs.PlayerBucketWorker.MessageQueue;
-using Tgs.MessageQueue;
 using Tgs.Service.PlayerBuckets;
+using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBucketWorker.IntegrationTests;
 

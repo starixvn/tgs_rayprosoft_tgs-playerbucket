@@ -1,7 +1,7 @@
-﻿using Tgs.MessageQueue;
-using Tgs.Service.PlayerBuckets;
+﻿using Tgs.Service.PlayerBuckets;
 using Tgs.Service.PlayerBuckets.BucketCommands;
 using Tgs.Services.PlayerBucket.Protos;
+using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBucketWorker.MessageQueue;
 

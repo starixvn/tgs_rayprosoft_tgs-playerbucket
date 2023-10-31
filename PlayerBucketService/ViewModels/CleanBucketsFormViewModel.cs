@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Tgs.Service.PlayerBuckets;
+﻿using Tgs.Service.PlayerBuckets;
 
 namespace PlayerBucketService.ViewModels;
 
