@@ -1,4 +1,5 @@
 ﻿using NATS.Client;
+using NATS.Client.Core;
 using Polly;
 using Tgs.Service.PlayerBuckets;
 using Tgs.Services.PlayerBucket.Protos;
@@ -6,7 +7,7 @@ using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBucketWorker.MessageQueue;
 
-public class CreateBucketDispatchProcessor : BucketRequestDispatcher, IMessageProcessor
+public class CreateBucketDispatchProcessor : BucketRequestDispatcher, IMessageProcessor<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>
 {
 	private readonly ILogger<CreateBucketDispatchProcessor> _logger;
 
@@ -19,12 +20,16 @@ public class CreateBucketDispatchProcessor : BucketRequestDispatcher, IMessagePr
 		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	}
 
-	public async ValueTask<ReadOnlyMemory<byte>> HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
+	public async ValueTask<ReadOnlyMemory<byte>> HandleAsync(
+		string subject,
+		ReadOnlyMemory<byte> data,
+		IEnumerable<MessageHeaderValue>? headerValues,
+		CancellationToken cancellationToken = default)
 	{
 		var request = CreateBucketRequest.Parser.ParseFrom(data.Span);
 
 		return await Policy
-		   .Handle<NATSNoRespondersException>()
+		   .Handle<NatsNoRespondersException>()
 		   .RetryAsync(
 				1,
 				async (ex, count) =>
@@ -44,7 +49,7 @@ public class CreateBucketDispatchProcessor : BucketRequestDispatcher, IMessagePr
 
 				   var subject = $"tgs.bucket.worker.create.{bidToken}";
 
-				   var response = await MessageSender.RequestAsync(
+				   var response = await MessageSender.RequestAsync<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>(
 					   subject,
 					   data,
 					   cancellationToken).ConfigureAwait(false);
@@ -58,4 +63,5 @@ public class CreateBucketDispatchProcessor : BucketRequestDispatcher, IMessagePr
 			   },
 			   cancellationToken).ConfigureAwait(false);
 	}
+
 }

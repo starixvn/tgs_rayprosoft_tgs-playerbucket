@@ -4,6 +4,7 @@ extern alias Server;
 using Google.Protobuf;
 using Microsoft.Extensions.Logging.Abstractions;
 using NATS.Client;
+using NATS.Client.Core;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using Server::Tgs.PlayerBucketWorker.MessageQueue;
@@ -32,7 +33,7 @@ public class BidTests
 		_ = fakeDistributedResourceManager.BidAsync(Arg.Is(request.PlayerCode), Arg.Any<string>())
 			.Returns(expected);
 
-		var actual = await sut.HandleAsync(request.ToByteArray());
+		var actual = await sut.HandleAsync("test", request.ToByteArray(), null);
 
 		var response = BidResponse.Parser.ParseFrom(actual.Span);
 
@@ -55,7 +56,7 @@ public class BidTests
 		_ = await sut.InvokeGetBidTokenAsync(playerCode);
 
 		_ = fakeMessageSender.Received(1)
-			.RequestAsync(
+			.RequestAsync<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>(
 				Arg.Is("tgs.bucket.bid"),
 				Arg.Any<ReadOnlyMemory<byte>>());
 	}
@@ -73,9 +74,11 @@ public class BidTests
 
 		var playerCode = "test1";
 
-		_ = fakeMessageSender.RequestAsync(Arg.Is("tgs.bucket.bid"), Arg.Any<ReadOnlyMemory<byte>>())
-			.Throws(new NATSNoRespondersException())
-			.AndDoes(_ => fakeMessageSender.RequestAsync(Arg.Is("tgs.bucket.bid"), Arg.Any<ReadOnlyMemory<byte>>())
+		_ = fakeMessageSender.RequestAsync<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>(Arg.Is("tgs.bucket.bid"), Arg.Any<ReadOnlyMemory<byte>>())
+			.Throws(new NatsNoRespondersException())
+			.AndDoes(_ => fakeMessageSender.RequestAsync<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>(
+				Arg.Is("tgs.bucket.bid"),
+				Arg.Any<ReadOnlyMemory<byte>>())
 				.Returns(new BidResponse
 				{
 					Token = "aaa"
@@ -108,7 +111,7 @@ public class BidTests
 		Assert.AreEqual("aaa", actual);
 
 		_ = fakeMessageSender.DidNotReceive()
-			.RequestAsync(
+			.RequestAsync<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>(
 				Arg.Is("tgs.bucket.bid"),
 				Arg.Any<ReadOnlyMemory<byte>>());
 	}

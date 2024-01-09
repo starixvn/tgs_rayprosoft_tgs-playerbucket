@@ -1,31 +1,32 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UserSecretsId>10b26c3a-327a-427e-9fe8-299b92858085</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<DockerfileBuildArguments>--build-arg "BuildConfiguration=$(Configuration)"</DockerfileBuildArguments>
 		<DockerfileTag Condition="$(DockerfileTag) == ''">pgtgs/bucket-worker</DockerfileTag>
+		<SqlQueryToolsConnectionString />
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="AsyncMethodNameFixer" Version="2.3.0" />
-		<PackageReference Include="FluentdForward.OpenTelemetry.MessagePack" Version="0.3.1" />
-		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />
-		<PackageReference Include="MongoDB.Driver" Version="2.22.0" />
-		<PackageReference Include="Npgsql.OpenTelemetry" Version="7.0.6" />
-		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.6.0" />
-		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.6.0" />
-		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc9.14" />
+		<PackageReference Include="FluentdForward.OpenTelemetry.MessagePack" Version="0.3.4" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6" />
+		<PackageReference Include="MongoDB.Driver" Version="2.23.1" />
+		<PackageReference Include="Npgsql.OpenTelemetry" Version="8.0.1" />
+		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.7.0" />
+		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.7.0" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.7.0" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.0.0-beta.8" />
-		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9.14" />
-		<PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.5.1" />
-		<PackageReference Include="PhoenixToolkits.MessageQueue.MongoDB" Version="1.0.6" />
-		<PackageReference Include="PhoenixToolkits.MessageQueue.Nats" Version="1.0.6" />
-		<PackageReference Include="Polly" Version="8.0.0" />
-		<PackageReference Include="ProfileViewer.OpenTelemetry.Exporter" Version="0.2.1" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.7.0" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.7.0" />
+		<PackageReference Include="PhoenixToolkits.MessageQueue.MongoDB" Version="2.0.0" />
+		<PackageReference Include="PhoenixToolkits.MessageQueue.Nats" Version="2.0.0" />
+		<PackageReference Include="Polly" Version="8.2.1" />
+		<PackageReference Include="ProfileViewer.OpenTelemetry.Exporter" Version="0.3.1" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
 		<PackageReference Include="Tgs.Interceptors" Version="0.2.1" />
 	</ItemGroup>

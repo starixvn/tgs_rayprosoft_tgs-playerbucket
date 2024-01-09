@@ -1,6 +1,7 @@
 ﻿using FluentdForward.OpenTelemetry.MessagePack;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using NATS.Client.Core;
 using Npgsql;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Metrics;
@@ -44,6 +45,12 @@ builder.Services
 	.AddPlayerBucketCommitterRedisRepository(sp => sp.GetRequiredService<RedisConnectionManager>().Database);
 
 builder.Services
+	.AddKeyedSingleton(
+		"Nats",
+		(sp, _) => new NatsConnection(NatsOpts.Default with
+		{
+			Url = builder.Configuration.GetConnectionString("Nats")!
+		}))
 	.AddMessageQueue()
 	.AddMongoMessageQueue(config => config
 		.HandleMongoMessageException((ex, _) =>
@@ -59,14 +66,9 @@ builder.Services
 			ConnectionString = builder.Configuration.GetConnectionString("Mongo")!
 		})
 		.DeclareQueue("bucket_event_requests")
-		.AddHandler<ProcessBucketEventRequestDispatchHandler>("bucket_event_requests", TimeSpan.FromSeconds(10D)))
+		.AddHandler<ReadOnlyMemory<byte>, ProcessBucketEventRequestDispatchHandler>("bucket_event_requests", TimeSpan.FromSeconds(10D)))
 	.AddNatsMessageQueue(config => config
-		.ConfigQueueOptions((options, sp) =>
-		{
-			var configuration = sp.GetRequiredService<IConfiguration>();
-
-			options.Url = configuration.GetConnectionString("Nats")!;
-		})
+		.ConfigureResolveConnection(sp => sp.GetRequiredKeyedService<NatsConnection>("Nats"))
 		.AddProcessor<BidProcessor>("tgs.bucket.commit.bid")
 		.AddHandler<ProcessBucketEventRequestHandler>($"tgs.bucket.commit.batch.{Environment.MachineName}")
 		.AddHandler<SnapshotBucketHandler>($"tgs.bucket.commit.snapshot.{Environment.MachineName}")
@@ -93,7 +95,14 @@ builder.Services
 		.AddSource("TGS.*")
 		.AddSource("Valhalla.*")
 		.AddNpgsql()
-		.AddAspNetCoreInstrumentation()
+		.AddAspNetCoreInstrumentation(options => options.Filter =
+			httpContext => !httpContext.Request.Path.HasValue
+				|| !httpContext.Request.Path.StartsWithSegments("/swagger")
+				&& !httpContext.Request.Path.StartsWithSegments("/healthz")
+				&& !httpContext.Request.Path.StartsWithSegments("/metrics")
+				&& !httpContext.Request.Path.StartsWithSegments("/profiler/")
+				&& !new[] { "html", "ico", "png", "jpg" }.Any(
+					ext => httpContext.Request.Path.Value.EndsWith($".{ext}")))
 		.AddEntityFrameworkCoreInstrumentation(options => options.SetDbStatementForText = true)
 		.AddProfileViewExporter()
 		.AddOtlpExporter())
@@ -104,15 +113,7 @@ builder.Services
 			.AddAspNetCoreInstrumentation()
 			.AddOtlpExporter())
 	.Services
-	.AddProfileViewer()
-	.Configure<AspNetCoreInstrumentationOptions>(options => options.Filter =
-		httpContext => !httpContext.Request.Path.HasValue
-			|| !httpContext.Request.Path.StartsWithSegments("/swagger")
-			&& !httpContext.Request.Path.StartsWithSegments("/healthz")
-			&& !httpContext.Request.Path.StartsWithSegments("/metrics")
-			&& !httpContext.Request.Path.StartsWithSegments("/profiler/")
-			&& !new[] { "html", "ico", "png", "jpg" }.Any(
-				ext => httpContext.Request.Path.Value.EndsWith($".{ext}")));
+	.AddProfileViewer();
 
 builder.Services
 	.AddInterceptionService()

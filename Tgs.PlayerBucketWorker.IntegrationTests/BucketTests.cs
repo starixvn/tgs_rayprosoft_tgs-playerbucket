@@ -1,6 +1,7 @@
 ﻿extern alias Client;
 extern alias Server;
 
+using System.Data;
 using Client::Tgs.PlayerBucket.Clients;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -50,7 +51,7 @@ public class BucketTests
 					}))
 					.Replace(ServiceDescriptor.Singleton(fakeBucketEventRepository))));
 
-		_ = fakeClientMessageSender.RequestAsync(
+		_ = fakeClientMessageSender.RequestAsync<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>(
 			Arg.Is("tgs.bucket.create"),
 			Arg.Any<ReadOnlyMemory<byte>>())
 			.Returns(callInfo =>
@@ -59,7 +60,7 @@ public class BucketTests
 
 				var processor = ActivatorUtilities.CreateInstance<CreateBucketProcessor>(web.Services);
 
-				return processor.HandleAsync(data);
+				return processor.HandleAsync("test", data, null);
 			});
 
 		var dbContext = web.Services.GetRequiredService<TgsContext>();
@@ -105,28 +106,30 @@ public class BucketTests
 					}))
 					.Replace(ServiceDescriptor.Singleton(fakeBucketEventRepository))));
 
-		_ = fakeClientMessageSender.RequestAsync(
+		_ = fakeClientMessageSender.RequestAsync<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>(
 			Arg.Is("tgs.bucket.create"),
-			Arg.Any<ReadOnlyMemory<byte>>())
+			Arg.Any<ReadOnlyMemory<byte>>(),
+			Arg.Any<CancellationToken>())
 			.Returns(callInfo =>
 			{
 				var data = callInfo.Arg<ReadOnlyMemory<byte>>();
 
 				var processor = ActivatorUtilities.CreateInstance<CreateBucketProcessor>(web.Services);
 
-				return processor.HandleAsync(data);
+				return processor.HandleAsync("test", data, null);
 			});
 
 		_ = fakeClientMessageSender.SendAsync(
 			Arg.Is("tgs.bucket.fill"),
-			Arg.Any<ReadOnlyMemory<byte>>())
+			Arg.Any<byte[]>(),
+			Arg.Any<CancellationToken>())
 			.Returns(callInfo =>
 			{
-				var data = callInfo.Arg<ReadOnlyMemory<byte>>();
+				var data = callInfo.Arg<byte[]>();
 
 				var processor = ActivatorUtilities.CreateInstance<FillInBucketHandler>(web.Services);
 
-				return processor.HandleAsync(data);
+				return processor.HandleAsync("test", data, null);
 			});
 
 		var expected = new FillInBucketInfo(
@@ -179,7 +182,7 @@ public class BucketTests
 					}))
 					.Replace(ServiceDescriptor.Singleton(fakeBucketEventRepository))));
 
-		_ = fakeClientMessageSender.RequestAsync(
+		_ = fakeClientMessageSender.RequestAsync<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>(
 			Arg.Is("tgs.bucket.amount"),
 			Arg.Any<ReadOnlyMemory<byte>>())
 			.Returns(callInfo =>
@@ -188,7 +191,7 @@ public class BucketTests
 
 				var processor = ActivatorUtilities.CreateInstance<GetBucketAmountProcessor>(web.Services);
 
-				return processor.HandleAsync(data);
+				return processor.HandleAsync("test", data, null);
 			});
 
 		var dbContext = web.Services.GetRequiredService<TgsContext>();
@@ -229,7 +232,7 @@ public class BucketTests
 					}))
 					.Replace(ServiceDescriptor.Singleton(fakeBucketEventRepository))));
 
-		_ = fakeClientMessageSender.RequestAsync(
+		_ = fakeClientMessageSender.RequestAsync<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>(
 			Arg.Is("tgs.bucket.create"),
 			Arg.Any<ReadOnlyMemory<byte>>())
 			.Returns(callInfo =>
@@ -238,22 +241,22 @@ public class BucketTests
 
 				var processor = ActivatorUtilities.CreateInstance<CreateBucketProcessor>(web.Services);
 
-				return processor.HandleAsync(data);
+				return processor.HandleAsync("test", data, null);
 			});
 
 		_ = fakeClientMessageSender.SendAsync(
 			Arg.Is("tgs.bucket.clean"),
-			Arg.Any<ReadOnlyMemory<byte>>())
+			Arg.Any<byte[]>())
 			.Returns(callInfo =>
 			{
-				var data = callInfo.Arg<ReadOnlyMemory<byte>>();
+				var data = callInfo.Arg<byte[]>();
 
 				var processor = ActivatorUtilities.CreateInstance<CleanBucketHandler>(web.Services);
 
-				return processor.HandleAsync(data);
+				return processor.HandleAsync("test", data, null);
 			});
 
-		_ = fakeClientMessageSender.RequestAsync(
+		_ = fakeClientMessageSender.RequestAsync<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>(
 			Arg.Is("tgs.bucket.amount"),
 			Arg.Any<ReadOnlyMemory<byte>>())
 			.Returns(callInfo =>
@@ -262,7 +265,7 @@ public class BucketTests
 
 				var processor = ActivatorUtilities.CreateInstance<GetBucketAmountProcessor>(web.Services);
 
-				return processor.HandleAsync(data);
+				return processor.HandleAsync("test", data, null);
 			});
 
 		var expected = new FillInBucketInfo(

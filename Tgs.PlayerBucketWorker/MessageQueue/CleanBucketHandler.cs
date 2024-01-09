@@ -5,7 +5,7 @@ using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBucketWorker.MessageQueue;
 
-public class CleanBucketHandler : IMessageHandler
+public class CleanBucketHandler : IMessageHandler<ReadOnlyMemory<byte>>
 {
 	private readonly IBucketDispatcher _bucketDispatcher;
 
@@ -14,7 +14,11 @@ public class CleanBucketHandler : IMessageHandler
 		_bucketDispatcher = bucketDispatcher ?? throw new ArgumentNullException(nameof(bucketDispatcher));
 	}
 
-	public async ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
+	public async ValueTask HandleAsync(
+		string subject,
+		ReadOnlyMemory<byte> data,
+		IEnumerable<MessageHeaderValue>? headerValues,
+		CancellationToken cancellationToken = default)
 	{
 		var request = CleanBucketRequest.Parser.ParseFrom(data.Span);
 
@@ -32,4 +36,5 @@ public class CleanBucketHandler : IMessageHandler
 			command,
 			cancellationToken).ConfigureAwait(false);
 	}
+
 }

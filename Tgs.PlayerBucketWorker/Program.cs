@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using FluentdForward.OpenTelemetry.MessagePack;
 using Microsoft.EntityFrameworkCore;
+using NATS.Client.Core;
 using Npgsql;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Metrics;
@@ -49,14 +50,15 @@ builder.Services
 			builder.Configuration.GetValue<Uri>("PlayerBucket:ServiceBaseUrl")));
 
 builder.Services
+	.AddKeyedSingleton(
+		"Nats",
+		(sp, _) => new NatsConnection(NatsOpts.Default with
+		{
+			Url = builder.Configuration.GetConnectionString("Nats")!
+		}))
 	.AddMessageQueue()
 	.AddNatsMessageQueue(config => config
-		.ConfigQueueOptions((options, sp) =>
-		{
-			var configuration = sp.GetRequiredService<IConfiguration>();
-
-			options.Url = configuration.GetConnectionString("Nats")!;
-		})
+		.ConfigureResolveConnection(sp => sp.GetRequiredKeyedService<NatsConnection>("Nats"))
 		.AddProcessor<BidProcessor>("tgs.bucket.bid")
 		.AddProcessor<CreateBucketProcessor>($"tgs.bucket.worker.create.{Environment.MachineName}")
 		.AddReplyHandler<FillInBucketHandler>($"tgs.bucket.worker.fill.{Environment.MachineName}")
@@ -103,7 +105,14 @@ builder.Services
 		.AddSource("TGS.*")
 		.AddSource("Valhalla.*")
 		.AddNpgsql()
-		.AddAspNetCoreInstrumentation()
+		.AddAspNetCoreInstrumentation(options => options.Filter =
+			httpContext => !httpContext.Request.Path.HasValue
+				|| !httpContext.Request.Path.StartsWithSegments("/swagger")
+				&& !httpContext.Request.Path.StartsWithSegments("/healthz")
+				&& !httpContext.Request.Path.StartsWithSegments("/metrics")
+				&& !httpContext.Request.Path.StartsWithSegments("/profiler/")
+				&& !new[] { "html", "ico", "png", "jpg" }.Any(
+					ext => httpContext.Request.Path.Value.EndsWith($".{ext}")))
 		.AddEntityFrameworkCoreInstrumentation(options => options.SetDbStatementForText = true)
 		.AddProfileViewExporter()
 		.AddOtlpExporter())
@@ -116,15 +125,7 @@ builder.Services
 			.AddAspNetCoreInstrumentation()
 			.AddOtlpExporter())
 	.Services
-	.AddProfileViewer()
-	.Configure<AspNetCoreInstrumentationOptions>(options => options.Filter =
-		httpContext => !httpContext.Request.Path.HasValue
-			|| !httpContext.Request.Path.StartsWithSegments("/swagger")
-			&& !httpContext.Request.Path.StartsWithSegments("/healthz")
-			&& !httpContext.Request.Path.StartsWithSegments("/metrics")
-			&& !httpContext.Request.Path.StartsWithSegments("/profiler/")
-			&& !new[] { "html", "ico", "png", "jpg" }.Any(
-				ext => httpContext.Request.Path.Value.EndsWith($".{ext}")));
+	.AddProfileViewer();
 
 builder.Services
 	.AddInterceptionService()

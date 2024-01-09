@@ -1,5 +1,6 @@
 ﻿using Google.Protobuf;
 using NATS.Client;
+using NATS.Client.Core;
 using Polly;
 using Tgs.Service.PlayerBuckets;
 using Tgs.Services.PlayerBucket.Protos;
@@ -24,7 +25,7 @@ public abstract class BucketRequestDispatcher
 
 	protected Task<string> GetBidTokenAsync(string playerCode, CancellationToken cancellationToken)
 		=> Policy
-			.Handle<NATSNoRespondersException>()
+			.Handle<NatsNoRespondersException>()
 			.RetryAsync(
 				1,
 				async (ex, count) =>
@@ -68,7 +69,7 @@ public abstract class BucketRequestDispatcher
 
 		if (string.IsNullOrEmpty(bidToken))
 		{
-			var bidResponseData = await MessageSender.RequestAsync(
+			var bidResponseData = await MessageSender.RequestAsync<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>(
 				"tgs.bucket.bid",
 				new BidRequest
 				{

@@ -1,4 +1,5 @@
 ﻿using NATS.Client;
+using NATS.Client.Core;
 using Polly;
 using Tgs.Service.PlayerBuckets;
 using Tgs.Services.PlayerBucket.Protos;
@@ -6,7 +7,7 @@ using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBucketWorker.MessageQueue;
 
-public class FillInBucketDispatchHandler : BucketRequestDispatcher, IMessageHandler
+public class FillInBucketDispatchHandler : BucketRequestDispatcher, IMessageHandler<ReadOnlyMemory<byte>>
 {
 	private readonly ILogger<FillInBucketDispatchHandler> _logger;
 
@@ -19,12 +20,16 @@ public class FillInBucketDispatchHandler : BucketRequestDispatcher, IMessageHand
 		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	}
 
-	public async ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
+	public async ValueTask HandleAsync(
+		string subject,
+		ReadOnlyMemory<byte> data,
+		IEnumerable<MessageHeaderValue>? headerValues,
+		CancellationToken cancellationToken = default)
 	{
 		var request = FillInRequest.Parser.ParseFrom(data.Span);
 
 		await Policy
-			.Handle<NATSNoRespondersException>()
+			.Handle<NatsNoRespondersException>()
 			.RetryAsync(
 				 1,
 				 async (ex, count) =>
@@ -56,4 +61,5 @@ public class FillInBucketDispatchHandler : BucketRequestDispatcher, IMessageHand
 				},
 				cancellationToken).ConfigureAwait(false);
 	}
+
 }

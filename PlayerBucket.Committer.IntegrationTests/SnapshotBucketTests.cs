@@ -43,7 +43,7 @@ public class SnapshotBucketTests
 				Arg.Any<CancellationToken>()))
 			.Do(_ => tcs.SetResult());
 
-		await sut.HandleAsync(request.ToByteArray());
+		await sut.HandleAsync("test", request.ToByteArray(), null);
 
 		await tcs.Task.WaitAsync(TimeSpan.FromSeconds(3D));
 	}

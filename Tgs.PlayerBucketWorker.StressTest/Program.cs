@@ -1,19 +1,28 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NATS.Client.Core;
 using NBomber.CSharp;
 using Tgs.Service.PlayerBuckets;
 
-var builder = Host.CreateDefaultBuilder(args)
-	.ConfigureLogging(logging => logging.ClearProviders())
-	.ConfigureServices(services => services
+var builder = Host.CreateApplicationBuilder(args);
+
+builder.Logging.ClearProviders();
+
+builder.Services
+	.AddKeyedSingleton(
+		"Nats",
+		(sp, _) => new NatsConnection(NatsOpts.Default with
+		{
+			Url = "nats://localhost:5222"
+		}))
 	.AddPlayerBucketClient(httpClientBuilder => httpClientBuilder
 		.ConfigureHttpClient(http => http.BaseAddress =
 			new Uri("http://localhost:5800")))
 	.AddMessageQueue()
 	.AddNatsMessageQueue(config => config
-		.ConfigQueueOptions((options, _) => options.Url = "nats://localhost:5222"))
-	.AddNatsGlobPatternExchange("*"));
+		.ConfigureResolveConnection(sp => sp.GetRequiredKeyedService<NatsConnection>("Nats")))
+	.AddNatsGlobPatternExchange("*");
 
 var app = builder.Build();
 
