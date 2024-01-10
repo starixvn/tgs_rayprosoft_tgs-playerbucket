@@ -3,16 +3,16 @@ using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBuckets.Committer.MessageQueue;
 
-public class SnapshotBucketDispatchHandler : BucketRequestDispatcher, IMessageHandler
+public class SnapshotBucketDispatchHandler(
+	IMessageSender messageSender,
+	IDistributedResourceManager distributedResourceManager,
+	ILogger<SnapshotBucketDispatchHandler> logger) : BucketRequestDispatcher(messageSender, distributedResourceManager, logger), IMessageHandler<ReadOnlyMemory<byte>>
 {
-	public SnapshotBucketDispatchHandler(
-		IMessageSender messageSender,
-		IDistributedResourceManager distributedResourceManager,
-		ILogger<SnapshotBucketDispatchHandler> logger) : base(messageSender, distributedResourceManager, logger)
-	{
-	}
-
-	public async ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
+	public async ValueTask HandleAsync(
+		string subject,
+		ReadOnlyMemory<byte> data,
+		IEnumerable<MessageHeaderValue>? headerValues,
+		CancellationToken cancellationToken = default)
 	{
 		var request = SnapshotRequest.Parser.ParseFrom(data.Span);
 
@@ -20,10 +20,10 @@ public class SnapshotBucketDispatchHandler : BucketRequestDispatcher, IMessageHa
 			request.BucketId,
 			cancellationToken).ConfigureAwait(false);
 
-		var subject = $"tgs.bucket.commit.snapshot.{bidToken}";
+		var publishSubject = $"tgs.bucket.commit.snapshot.{bidToken}";
 
 		await MessageSender.PublishAsync(
-			subject,
+			publishSubject,
 			data,
 			cancellationToken).ConfigureAwait(false);
 	}

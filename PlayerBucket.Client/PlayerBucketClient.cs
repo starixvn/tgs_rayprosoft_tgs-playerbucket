@@ -35,7 +35,7 @@ internal class PlayerBucketClient : IPlayerBucketClient
 		};
 
 		var result = await _messageSender
-			.RequestAsync(
+			.RequestAsync<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>(
 				"tgs.bucket.create",
 				request.ToByteArray(),
 				cancellationToken)
@@ -94,7 +94,7 @@ internal class PlayerBucketClient : IPlayerBucketClient
 		};
 
 		var result = await _messageSender
-			.RequestAsync(
+			.RequestAsync<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>(
 				"tgs.bucket.amount",
 				request.ToByteArray(),
 				cancellationToken)

@@ -5,16 +5,10 @@ using Tgs.SerialNumberGenerator;
 
 namespace Tgs.Service.PlayerBuckets.Repositories;
 
-internal class TgsRepository : ITgsRepository
+internal class TgsRepository(PlayerBucketDataAccess playerBucketDataAccess, ISerialNumberGenerator serialNumberGenerator) : ITgsRepository
 {
-	private readonly PlayerBucketDataAccess _playerBucketDataAccess;
-	private readonly ISerialNumberGenerator _serialNumberGenerator;
-
-	public TgsRepository(PlayerBucketDataAccess playerBucketDataAccess, ISerialNumberGenerator serialNumberGenerator)
-	{
-		_playerBucketDataAccess = playerBucketDataAccess ?? throw new ArgumentNullException(nameof(playerBucketDataAccess));
-		_serialNumberGenerator = serialNumberGenerator ?? throw new ArgumentNullException(nameof(serialNumberGenerator));
-	}
+	private readonly PlayerBucketDataAccess _playerBucketDataAccess = playerBucketDataAccess ?? throw new ArgumentNullException(nameof(playerBucketDataAccess));
+	private readonly ISerialNumberGenerator _serialNumberGenerator = serialNumberGenerator ?? throw new ArgumentNullException(nameof(serialNumberGenerator));
 
 	public IAsyncEnumerable<BucketInfo> QueryPlayerBucketsAsync(string playerCode, CancellationToken cancellationToken = default)
 	{

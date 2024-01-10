@@ -3,14 +3,9 @@ using StackExchange.Redis;
 
 namespace Tgs.Service.PlayerBuckets.Repositories;
 
-internal class RedisDistributedResourceManager : IDistributedResourceManager, IBucketEventRepository
+internal class RedisDistributedResourceManager(IDatabase redisDatabase) : IDistributedResourceManager, IBucketEventRepository
 {
-	private readonly IDatabase _redisDatabase;
-
-	public RedisDistributedResourceManager(IDatabase redisDatabase)
-	{
-		_redisDatabase = redisDatabase ?? throw new ArgumentNullException(nameof(redisDatabase));
-	}
+	private readonly IDatabase _redisDatabase = redisDatabase ?? throw new ArgumentNullException(nameof(redisDatabase));
 
 	public async ValueTask<string> BidAsync(string playerCode, string token, CancellationToken cancellationToken = default)
 	{

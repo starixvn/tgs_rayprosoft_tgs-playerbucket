@@ -1,4 +1,5 @@
 ﻿using NATS.Client;
+using NATS.Client.Core;
 using Polly;
 using Tgs.Service.PlayerBuckets;
 using Tgs.Services.PlayerBucket.Protos;
@@ -6,24 +7,23 @@ using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBucketWorker.MessageQueue;
 
-public class CleanBucketDispatchHandler : BucketRequestDispatcher, IMessageHandler
+public class CleanBucketDispatchHandler(
+	IMessageSender messageSender,
+	IDistributedResourceManager distributedResourceManager,
+	ILogger<CleanBucketDispatchHandler> logger) : BucketRequestDispatcher(messageSender, distributedResourceManager, logger), IMessageHandler<ReadOnlyMemory<byte>>
 {
-	private readonly ILogger<CleanBucketDispatchHandler> _logger;
+	private readonly ILogger<CleanBucketDispatchHandler> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-	public CleanBucketDispatchHandler(
-		IMessageSender messageSender,
-		IDistributedResourceManager distributedResourceManager,
-		ILogger<CleanBucketDispatchHandler> logger) : base(messageSender, distributedResourceManager, logger)
-	{
-		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-	}
-
-	public async ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
+	public async ValueTask HandleAsync(
+		string subject,
+		ReadOnlyMemory<byte> data,
+		IEnumerable<MessageHeaderValue>? headerValues,
+		CancellationToken cancellationToken = default)
 	{
 		var request = CleanBucketRequest.Parser.ParseFrom(data.Span);
 
 		await Policy
-			.Handle<NATSNoRespondersException>()
+			.Handle<NatsNoRespondersException>()
 			.RetryAsync(
 				 1,
 				 async (ex, count) =>

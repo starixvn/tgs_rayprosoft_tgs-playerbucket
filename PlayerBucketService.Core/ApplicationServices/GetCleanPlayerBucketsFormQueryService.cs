@@ -2,16 +2,11 @@
 
 namespace Tgs.Service.PlayerBuckets.ApplicationServices;
 
-internal class GetCleanPlayerBucketsFormQueryService
-	: IGetService<GetCleanPlayerBucketsFormQuery, CleanPlayerBucketForm?>
+internal class GetCleanPlayerBucketsFormQueryService(ITgsRepository tgsRepository)
+		: IGetService<GetCleanPlayerBucketsFormQuery, CleanPlayerBucketForm?>
 	, IGetService<GetCleanPlayerBucketsFormV2Query, CleanPlayerBucketForm?>
 {
-	private readonly ITgsRepository _tgsRepository;
-
-	public GetCleanPlayerBucketsFormQueryService(ITgsRepository tgsRepository)
-	{
-		_tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
-	}
+	private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
 
 	public ValueTask<CleanPlayerBucketForm?> GetAsync(GetCleanPlayerBucketsFormQuery query, CancellationToken cancellationToken = default)
 		=> _tgsRepository.GetCleanPlayerBucketFormV2Async(query.FormId, cancellationToken);

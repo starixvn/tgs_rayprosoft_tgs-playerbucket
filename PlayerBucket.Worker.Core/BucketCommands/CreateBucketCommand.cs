@@ -1,20 +1,12 @@
 ﻿namespace Tgs.Service.PlayerBuckets.BucketCommands;
 
-public class CreateBucketCommand : IBucketCommand
+public class CreateBucketCommand(decimal amount, BucketType type, string? externalId, string? remark) : IBucketCommand
 {
-	private readonly decimal _amount;
-	private readonly BucketType _type;
-	private readonly string? _externalId;
-	private readonly string? _remark;
+	private readonly decimal _amount = amount;
+	private readonly BucketType _type = type;
+	private readonly string? _externalId = externalId;
+	private readonly string? _remark = remark;
 	private readonly TaskCompletionSource<Guid> _taskCompletionSource = new();
-
-	public CreateBucketCommand(decimal amount, BucketType type, string? externalId, string? remark)
-	{
-		_amount = amount;
-		_type = type;
-		_externalId = externalId;
-		_remark = remark;
-	}
 
 	public async ValueTask ExecuteAsync(IBucketStore bucketStore, CancellationToken cancellationToken = default)
 	{

@@ -4,16 +4,15 @@ using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBuckets.Committer.MessageQueue;
 
-public class ProcessBucketEventRequestHandler : IMessageHandler
+public class ProcessBucketEventRequestHandler(IEventSource eventSouce) : IMessageHandler<ReadOnlyMemory<byte>>
 {
-	private readonly IEventSource _eventSouce;
+	private readonly IEventSource _eventSouce = eventSouce ?? throw new ArgumentNullException(nameof(eventSouce));
 
-	public ProcessBucketEventRequestHandler(IEventSource eventSouce)
-	{
-		_eventSouce = eventSouce ?? throw new ArgumentNullException(nameof(eventSouce));
-	}
-
-	public ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
+	public ValueTask HandleAsync(
+		string subject,
+		ReadOnlyMemory<byte> data,
+		IEnumerable<MessageHeaderValue>? headerValues,
+		CancellationToken cancellationToken = default)
 	{
 		var eventData = BsonSerializer.Deserialize<BucketChangedEvent>(data.ToArray());
 

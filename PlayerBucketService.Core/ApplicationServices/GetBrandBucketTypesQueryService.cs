@@ -2,14 +2,9 @@
 
 namespace Tgs.Service.PlayerBuckets.ApplicationServices;
 
-internal class GetBrandBucketTypesQueryService : IQueryService<GetBrandBucketTypesQuery, string>
+internal class GetBrandBucketTypesQueryService(ITgsRepository tgsRepository) : IQueryService<GetBrandBucketTypesQuery, string>
 {
-	private readonly ITgsRepository _tgsRepository;
-
-	public GetBrandBucketTypesQueryService(ITgsRepository tgsRepository)
-	{
-		_tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
-	}
+	private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
 
 	public IAsyncEnumerable<string> QueryAsync(
 		GetBrandBucketTypesQuery query,

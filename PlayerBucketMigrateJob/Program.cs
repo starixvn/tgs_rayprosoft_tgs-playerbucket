@@ -2,24 +2,26 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NATS.Client.Core;
 using PlayerBucketMigrateJob.Entities;
 using Tgs.Service.PlayerBuckets;
 
-var builder = Host.CreateDefaultBuilder(args);
+var builder = Host.CreateApplicationBuilder(args);
 
-builder.ConfigureServices(services => services
+builder.Services
 	.AddDbContext<TgsContext>(dbBuilder => dbBuilder
 		.UseNpgsql("name=Tgs"))
 	.AddPlayerBucketClient(httpBuilder => { })
+	.AddKeyedSingleton(
+		"Nats",
+		(sp, _) => new NatsConnection(NatsOpts.Default with
+		{
+			Url = builder.Configuration.GetConnectionString("Nats")!
+		}))
 	.AddMessageQueue()
 	.AddNatsMessageQueue(config => config
-		.ConfigQueueOptions((options, sp) =>
-		{
-			var configuration = sp.GetRequiredService<IConfiguration>();
-
-			options.Url = configuration.GetConnectionString("Nats")!;
-		}))
-		.AddNatsGlobPatternExchange("*"));
+		.ConfigureResolveConnection(sp => sp.GetRequiredKeyedService<NatsConnection>("Nats")))
+	.AddNatsGlobPatternExchange("*");
 
 var app = builder.Build();
 

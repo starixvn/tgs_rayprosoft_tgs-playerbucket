@@ -39,7 +39,7 @@ public class ProcessBucketEventsTests
 				Arg.Any<CancellationToken>()))
 			.Do(_ => tcs.SetResult());
 
-		await sut.HandleAsync(request.ToBson());
+		await sut.HandleAsync("test", request.ToBson(), null);
 
 		await tcs.Task.WaitAsync(TimeSpan.FromSeconds(3D));
 	}

@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>Tgs.PlayerBucket.Client</RootNamespace>
     <PackageId>Tgs.PlayerBucketType.Client</PackageId>
     <Title>遊戲類型封裝的PlayerBucket Client函式庫</Title>
-    <Version>0.0.10</Version>
+    <Version>0.1.0</Version>
     <Authors>Raypro</Authors>
     <PackageProjectUrl>https://gitlab.com/rayprosoft/tgs-playerbucket</PackageProjectUrl>
     <PackageTags>Tgs PlayerBucket Bucket</PackageTags>

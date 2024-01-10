@@ -4,17 +4,16 @@ using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBuckets.Committer.MessageQueue;
 
-public class ProcessBucketEventRequestDispatchHandler : BucketRequestDispatcher, IMessageHandler
+public class ProcessBucketEventRequestDispatchHandler(
+	IMessageSender messageSender,
+	IDistributedResourceManager distributedResourceManager,
+	ILogger<ProcessBucketEventRequestHandler> logger) : BucketRequestDispatcher(messageSender, distributedResourceManager, logger), IMessageHandler<ReadOnlyMemory<byte>>
 {
-	public ProcessBucketEventRequestDispatchHandler(
-		IMessageSender messageSender,
-		IDistributedResourceManager distributedResourceManager,
-		ILogger<ProcessBucketEventRequestHandler> logger)
-		: base(messageSender, distributedResourceManager, logger)
-	{
-	}
-
-	public async ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
+	public async ValueTask HandleAsync(
+		string subject,
+		ReadOnlyMemory<byte> data,
+		IEnumerable<MessageHeaderValue>? headerValues,
+		CancellationToken cancellationToken = default)
 	{
 		var request = BsonSerializer.Deserialize<BucketChangedEvent>(data.ToArray());
 
@@ -22,10 +21,10 @@ public class ProcessBucketEventRequestDispatchHandler : BucketRequestDispatcher,
 			request.BucketId,
 			cancellationToken).ConfigureAwait(false);
 
-		var subject = $"tgs.bucket.commit.batch.{bidToken}";
+		var publishSubject = $"tgs.bucket.commit.batch.{bidToken}";
 
 		await MessageSender.PublishAsync(
-			subject,
+			publishSubject,
 			data,
 			cancellationToken).ConfigureAwait(false);
 	}

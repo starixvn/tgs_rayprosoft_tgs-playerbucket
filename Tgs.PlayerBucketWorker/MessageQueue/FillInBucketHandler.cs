@@ -5,16 +5,15 @@ using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBucketWorker.MessageQueue;
 
-public class FillInBucketHandler : IMessageHandler
+public class FillInBucketHandler(IBucketDispatcher bucketDispatcher) : IMessageHandler<ReadOnlyMemory<byte>>
 {
-	private readonly IBucketDispatcher _bucketDispatcher;
+	private readonly IBucketDispatcher _bucketDispatcher = bucketDispatcher ?? throw new ArgumentNullException(nameof(bucketDispatcher));
 
-	public FillInBucketHandler(IBucketDispatcher bucketDispatcher)
-	{
-		_bucketDispatcher = bucketDispatcher ?? throw new ArgumentNullException(nameof(bucketDispatcher));
-	}
-
-	public async ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
+	public async ValueTask HandleAsync(
+		string subject,
+		ReadOnlyMemory<byte> data,
+		IEnumerable<MessageHeaderValue>? headerValues,
+		CancellationToken cancellationToken = default)
 	{
 		var request = FillInRequest.Parser.ParseFrom(data.Span);
 

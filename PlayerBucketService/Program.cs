@@ -3,8 +3,8 @@ using FluentdForward.OpenTelemetry.MessagePack;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using NATS.Client.Core;
 using Npgsql;
-using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -52,14 +52,15 @@ builder.Services
 	.AddPlayerBucketClient(clientBuilder => { });
 
 builder.Services
+	.AddKeyedSingleton(
+		"Nats",
+		(sp, _) => new NatsConnection(NatsOpts.Default with
+		{
+			Url = builder.Configuration.GetConnectionString("Nats")!
+		}))
 	.AddMessageQueue()
 	.AddNatsMessageQueue(config => config
-		.ConfigQueueOptions((options, sp) =>
-		{
-			var configuration = sp.GetRequiredService<IConfiguration>();
-
-			options.Url = configuration.GetConnectionString("Nats")!;
-		}))
+		.ConfigureResolveConnection(sp => sp.GetRequiredKeyedService<NatsConnection>("Nats")))
 	.AddNatsGlobPatternExchange("*");
 
 builder.Services
@@ -77,6 +78,7 @@ builder.Services
 builder.Services
 	.AddHealthChecks();
 
+var excludeExtensions = new[] { "html", "ico", "png", "jpg" };
 builder.Services
 	.AddOpenTelemetry()
 	.WithTracing(tracingBuilder => tracingBuilder
@@ -86,7 +88,14 @@ builder.Services
 		.AddSource("TGS.*")
 		.AddSource("Valhalla.*")
 		.AddNpgsql()
-		.AddAspNetCoreInstrumentation()
+		.AddAspNetCoreInstrumentation(options => options.Filter =
+			httpContext => !httpContext.Request.Path.HasValue
+				|| !httpContext.Request.Path.StartsWithSegments("/swagger")
+				&& !httpContext.Request.Path.StartsWithSegments("/healthz")
+				&& !httpContext.Request.Path.StartsWithSegments("/metrics")
+				&& !httpContext.Request.Path.StartsWithSegments("/profiler/")
+				&& !excludeExtensions.Any(
+					ext => httpContext.Request.Path.Value.EndsWith($".{ext}")))
 		.AddProfileViewExporter()
 		.AddOtlpExporter())
 	.WithMetrics(meterBuiler => meterBuiler
@@ -96,15 +105,7 @@ builder.Services
 			.AddAspNetCoreInstrumentation()
 			.AddOtlpExporter())
 	.Services
-	.AddProfileViewer()
-	.Configure<AspNetCoreInstrumentationOptions>(options => options.Filter =
-		httpContext => !httpContext.Request.Path.HasValue
-			|| !httpContext.Request.Path.StartsWithSegments("/swagger")
-			&& !httpContext.Request.Path.StartsWithSegments("/healthz")
-			&& !httpContext.Request.Path.StartsWithSegments("/metrics")
-			&& !httpContext.Request.Path.StartsWithSegments("/profiler/")
-			&& !new[] { "html", "ico", "png", "jpg" }.Any(
-				ext => httpContext.Request.Path.Value.EndsWith($".{ext}")));
+	.AddProfileViewer();
 
 var app = builder.Build();
 

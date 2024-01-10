@@ -4,16 +4,15 @@ using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBucketWorker.MessageQueue;
 
-public class ExtendExpiryHandler : IMessageHandler
+public class ExtendExpiryHandler(IBucketDispatcher bucketDispatcher) : IMessageHandler<ReadOnlyMemory<byte>>
 {
-	private readonly IBucketDispatcher _bucketDispatcher;
+	private readonly IBucketDispatcher _bucketDispatcher = bucketDispatcher ?? throw new ArgumentNullException(nameof(bucketDispatcher));
 
-	public ExtendExpiryHandler(IBucketDispatcher bucketDispatcher)
-	{
-		_bucketDispatcher = bucketDispatcher ?? throw new ArgumentNullException(nameof(bucketDispatcher));
-	}
-
-	public ValueTask HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
+	public ValueTask HandleAsync(
+		string subject,
+		ReadOnlyMemory<byte> data,
+		IEnumerable<MessageHeaderValue>? headerValues,
+		CancellationToken cancellationToken = default)
 	{
 		var request = ExtendExpiryRequest.Parser.ParseFrom(data.Span);
 

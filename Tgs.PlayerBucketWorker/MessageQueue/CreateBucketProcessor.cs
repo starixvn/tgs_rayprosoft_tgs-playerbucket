@@ -6,16 +6,15 @@ using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBucketWorker.MessageQueue;
 
-public class CreateBucketProcessor : IMessageProcessor
+public class CreateBucketProcessor(IBucketDispatcher bucketDispatcher) : IMessageProcessor<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>
 {
-	private readonly IBucketDispatcher _bucketDispatcher;
+	private readonly IBucketDispatcher _bucketDispatcher = bucketDispatcher ?? throw new ArgumentNullException(nameof(bucketDispatcher));
 
-	public CreateBucketProcessor(IBucketDispatcher bucketDispatcher)
-	{
-		_bucketDispatcher = bucketDispatcher ?? throw new ArgumentNullException(nameof(bucketDispatcher));
-	}
-
-	public async ValueTask<ReadOnlyMemory<byte>> HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
+	public async ValueTask<ReadOnlyMemory<byte>> HandleAsync(
+		string subject,
+		ReadOnlyMemory<byte> data,
+		IEnumerable<MessageHeaderValue>? headerValues,
+		CancellationToken cancellationToken = default)
 	{
 		var request = CreateBucketRequest.Parser.ParseFrom(data.Span);
 
@@ -32,9 +31,9 @@ public class CreateBucketProcessor : IMessageProcessor
 		var command = new CreateBucketCommand(amount, bucketType, externalId, remark);
 
 		await _bucketDispatcher.PushCommandAsync(
-			playerCode,
-			command,
-			cancellationToken).ConfigureAwait(false);
+		   playerCode,
+		   command,
+		   cancellationToken).ConfigureAwait(false);
 
 		var bucketId = await command.GetCreatedIdAsync().ConfigureAwait(false);
 

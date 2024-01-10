@@ -2,14 +2,9 @@
 
 namespace Tgs.Service.PlayerBuckets.ApplicationServices;
 
-internal class RejectCleanBucketsFormCommandService : ICommandService<RejectCleanBucketsFormCommand>
+internal class RejectCleanBucketsFormCommandService(ITgsRepository tgsRepository) : ICommandService<RejectCleanBucketsFormCommand>
 {
-	private readonly ITgsRepository _tgsRepository;
-
-	public RejectCleanBucketsFormCommandService(ITgsRepository tgsRepository)
-	{
-		_tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
-	}
+	private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
 
 	public async ValueTask ExecuteAsync(RejectCleanBucketsFormCommand command, CancellationToken cancellationToken = default)
 	{

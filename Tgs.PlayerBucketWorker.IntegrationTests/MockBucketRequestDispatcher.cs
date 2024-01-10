@@ -7,16 +7,11 @@ using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBucketWorker.IntegrationTests;
 
-internal class MockBucketRequestDispatcher : BucketRequestDispatcher
+internal class MockBucketRequestDispatcher(
+	IMessageSender messageSender,
+	IDistributedResourceManager distributedResourceManager,
+	ILogger logger) : BucketRequestDispatcher(messageSender, distributedResourceManager, logger)
 {
-	public MockBucketRequestDispatcher(
-		IMessageSender messageSender,
-		IDistributedResourceManager distributedResourceManager,
-		ILogger logger)
-		: base(messageSender, distributedResourceManager, logger)
-	{
-	}
-
 	public Task<string> InvokeGetBidTokenAsync(string playerCode, CancellationToken cancellationToken = default)
 		=> GetBidTokenAsync(playerCode, cancellationToken);
 }

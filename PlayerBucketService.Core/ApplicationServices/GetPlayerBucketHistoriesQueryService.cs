@@ -2,17 +2,12 @@
 
 namespace Tgs.Service.PlayerBuckets.ApplicationServices;
 
-internal class GetPlayerBucketHistoriesQueryService
-	: IQueryService<GetPlayerBucketHistoriesQuery, BucketEvent>,
+internal class GetPlayerBucketHistoriesQueryService(ITgsRepository tgsRepository)
+		: IQueryService<GetPlayerBucketHistoriesQuery, BucketEvent>,
 	IQueryService<GetPlayerBucketHistoriesByIdQuery, BucketEvent>,
 	IQueryService<GetPlayerBucketHistoriesByDateQuery, BucketEvent>
 {
-	private readonly ITgsRepository _tgsRepository;
-
-	public GetPlayerBucketHistoriesQueryService(ITgsRepository tgsRepository)
-	{
-		_tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
-	}
+	private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
 
 	public IAsyncEnumerable<BucketEvent> QueryAsync(GetPlayerBucketHistoriesQuery query, CancellationToken cancellationToken = default)
 		=> _tgsRepository.QueryPlayerBucketHistoriesAsync(query.BucketId, cancellationToken);

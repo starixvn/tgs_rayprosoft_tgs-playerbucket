@@ -16,7 +16,7 @@ public class SetBrandBucketTypesCommandServiceTests
 
 		var command = new SetBrandBucketTypesCommand(
 			Guid.NewGuid(),
-			new[] { "Test1", "Test2" });
+			["Test1", "Test2"]);
 
 		// Act
 		await sut.ExecuteAsync(command);
