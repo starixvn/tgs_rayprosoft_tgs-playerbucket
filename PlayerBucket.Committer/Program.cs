@@ -73,6 +73,8 @@ builder.Services
 			if (ex is OutOfMemoryException)
 				OutOfMemoryExceptionHealthCheck.SetExceptionHappened();
 
+			Console.WriteLine(ex.ToString());
+
 			return Task.CompletedTask;
 		}))
 	.AddNatsGlobPatternExchange("*");
