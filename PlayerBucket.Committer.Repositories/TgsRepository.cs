@@ -7,16 +7,10 @@ using Tgs.Service.PlayerBuckets;
 
 namespace Tgs.PlayerBuckets.Committer.Repositories;
 
-internal class TgsRepository : ITgsRepository
+internal class TgsRepository(PlayerBucketDataAccess playerBucketDataAccess, ILogger<TgsRepository> logger) : ITgsRepository
 {
-	private readonly PlayerBucketDataAccess _playerBucketDataAccess;
-	private readonly ILogger<TgsRepository> _logger;
-
-	public TgsRepository(PlayerBucketDataAccess playerBucketDataAccess, ILogger<TgsRepository> logger)
-	{
-		_playerBucketDataAccess = playerBucketDataAccess ?? throw new ArgumentNullException(nameof(playerBucketDataAccess));
-		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-	}
+	private readonly PlayerBucketDataAccess _playerBucketDataAccess = playerBucketDataAccess ?? throw new ArgumentNullException(nameof(playerBucketDataAccess));
+	private readonly ILogger<TgsRepository> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
 	public async ValueTask InsertBucketEventsAsync(IEnumerable<BucketEvent> events, CancellationToken cancellationToken = default)
 	{

@@ -26,7 +26,7 @@ public class BucketEventProcessTests
 		var command = new ProcessBucketEventsCommand(Guid.NewGuid(), "test1");
 
 		var eventBatchQueue = new Queue<BucketEvent[]>(new[] {
-			new[]{
+			[
 				new BucketEvent(
 					Guid.NewGuid(),
 					command.BucketId,
@@ -36,7 +36,7 @@ public class BucketEventProcessTests
 					JsonDocument.Parse("[]"),
 					DateTime.UtcNow,
 					null)
-			},
+			],
 			Array.Empty<BucketEvent>()
 		});
 

@@ -4,14 +4,9 @@ using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBuckets.Committer.MessageQueue;
 
-public class BidProcessor : IMessageProcessor<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>
+public class BidProcessor(IDistributedResourceManager distributedResourceManager) : IMessageProcessor<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>
 {
-	private readonly IDistributedResourceManager _distributedResourceManager;
-
-	public BidProcessor(IDistributedResourceManager distributedResourceManager)
-	{
-		_distributedResourceManager = distributedResourceManager ?? throw new ArgumentNullException(nameof(distributedResourceManager));
-	}
+	private readonly IDistributedResourceManager _distributedResourceManager = distributedResourceManager ?? throw new ArgumentNullException(nameof(distributedResourceManager));
 
 	public async ValueTask<ReadOnlyMemory<byte>> HandleAsync(
 		string subject,
@@ -30,5 +25,4 @@ public class BidProcessor : IMessageProcessor<ReadOnlyMemory<byte>, ReadOnlyMemo
 
 		return response.ToByteArray();
 	}
-
 }

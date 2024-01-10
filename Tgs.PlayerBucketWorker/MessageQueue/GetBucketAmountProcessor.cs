@@ -6,14 +6,9 @@ using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBucketWorker.MessageQueue;
 
-public class GetBucketAmountProcessor : IMessageProcessor<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>
+public class GetBucketAmountProcessor(IBucketDispatcher bucketDispatcher) : IMessageProcessor<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>
 {
-	private readonly IBucketDispatcher _bucketDispatcher;
-
-	public GetBucketAmountProcessor(IBucketDispatcher bucketDispatcher)
-	{
-		_bucketDispatcher = bucketDispatcher ?? throw new ArgumentNullException(nameof(bucketDispatcher));
-	}
+	private readonly IBucketDispatcher _bucketDispatcher = bucketDispatcher ?? throw new ArgumentNullException(nameof(bucketDispatcher));
 
 	public async ValueTask<ReadOnlyMemory<byte>> HandleAsync(
 		string subject,
@@ -42,5 +37,4 @@ public class GetBucketAmountProcessor : IMessageProcessor<ReadOnlyMemory<byte>, 
 
 		return response.ToByteArray();
 	}
-
 }

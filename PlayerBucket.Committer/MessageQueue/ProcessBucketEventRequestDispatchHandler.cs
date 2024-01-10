@@ -4,16 +4,11 @@ using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBuckets.Committer.MessageQueue;
 
-public class ProcessBucketEventRequestDispatchHandler : BucketRequestDispatcher, IMessageHandler<ReadOnlyMemory<byte>>
+public class ProcessBucketEventRequestDispatchHandler(
+	IMessageSender messageSender,
+	IDistributedResourceManager distributedResourceManager,
+	ILogger<ProcessBucketEventRequestHandler> logger) : BucketRequestDispatcher(messageSender, distributedResourceManager, logger), IMessageHandler<ReadOnlyMemory<byte>>
 {
-	public ProcessBucketEventRequestDispatchHandler(
-		IMessageSender messageSender,
-		IDistributedResourceManager distributedResourceManager,
-		ILogger<ProcessBucketEventRequestHandler> logger)
-		: base(messageSender, distributedResourceManager, logger)
-	{
-	}
-
 	public async ValueTask HandleAsync(
 		string subject,
 		ReadOnlyMemory<byte> data,

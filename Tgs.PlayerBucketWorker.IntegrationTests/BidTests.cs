@@ -3,7 +3,6 @@ extern alias Server;
 
 using Google.Protobuf;
 using Microsoft.Extensions.Logging.Abstractions;
-using NATS.Client;
 using NATS.Client.Core;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;

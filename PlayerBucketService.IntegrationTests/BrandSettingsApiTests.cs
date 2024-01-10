@@ -10,14 +10,9 @@ using Xunit.Abstractions;
 
 namespace PlayerBucketService.IntegrationTests;
 
-public class BrandSettingsApiTests
+public class BrandSettingsApiTests(ITestOutputHelper testOutputHelper)
 {
-    private readonly ITestOutputHelper _testOutputHelper;
-
-    public BrandSettingsApiTests(ITestOutputHelper testOutputHelper)
-    {
-        _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
-    }
+    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper ?? throw new ArgumentNullException(nameof(testOutputHelper));
 
     [Fact]
     public async Task 設定Brand的遊戲水桶種類()

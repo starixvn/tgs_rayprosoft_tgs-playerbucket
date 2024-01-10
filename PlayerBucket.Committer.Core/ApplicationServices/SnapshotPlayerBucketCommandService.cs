@@ -5,16 +5,13 @@ using Tgs.ServiceUtility;
 
 namespace Tgs.PlayerBuckets.Committer.ApplicationServices;
 
-public class SnapshotPlayerBucketCommandService : ICommandService<SnapshotPlayerBucketCommand>
+public class SnapshotPlayerBucketCommandService(
+	ITgsRepository tgsRepository,
+	IBucketEventRepository bucketEventRepository)
+	: ICommandService<SnapshotPlayerBucketCommand>
 {
-	private readonly ITgsRepository _tgsRepository;
-	private readonly IBucketEventRepository _bucketEventRepository;
-
-	public SnapshotPlayerBucketCommandService(ITgsRepository tgsRepository, IBucketEventRepository bucketEventRepository)
-	{
-		_tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
-		_bucketEventRepository = bucketEventRepository ?? throw new ArgumentNullException(nameof(bucketEventRepository));
-	}
+	private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
+	private readonly IBucketEventRepository _bucketEventRepository = bucketEventRepository ?? throw new ArgumentNullException(nameof(bucketEventRepository));
 
 	public async ValueTask ExecuteAsync(SnapshotPlayerBucketCommand command, CancellationToken cancellationToken = default)
 	{

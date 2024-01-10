@@ -3,14 +3,9 @@ using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBuckets.Committer.MessageQueue;
 
-public class SnapshotBucketHandler : IMessageHandler<ReadOnlyMemory<byte>>
+public class SnapshotBucketHandler(IEventSource eventSource) : IMessageHandler<ReadOnlyMemory<byte>>
 {
-	private readonly IEventSource _eventSource;
-
-	public SnapshotBucketHandler(IEventSource eventSource)
-	{
-		_eventSource = eventSource ?? throw new ArgumentNullException(nameof(eventSource));
-	}
+	private readonly IEventSource _eventSource = eventSource ?? throw new ArgumentNullException(nameof(eventSource));
 
 	public ValueTask HandleAsync(
 		string subject,
@@ -24,5 +19,4 @@ public class SnapshotBucketHandler : IMessageHandler<ReadOnlyMemory<byte>>
 			request.BucketId,
 			request.PlayerCode), cancellationToken);
 	}
-
 }

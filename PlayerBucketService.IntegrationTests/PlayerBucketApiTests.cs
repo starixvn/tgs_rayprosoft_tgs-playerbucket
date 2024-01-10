@@ -13,14 +13,9 @@ using Xunit.Abstractions;
 
 namespace PlayerBucketService.IntegrationTests;
 
-public class PlayerBucketApiTests
+public class PlayerBucketApiTests(ITestOutputHelper testOutputHelper)
 {
-    public ITestOutputHelper TestOutputHelper { get; }
-
-    public PlayerBucketApiTests(ITestOutputHelper testOutputHelper)
-    {
-        TestOutputHelper = testOutputHelper;
-    }
+    public ITestOutputHelper TestOutputHelper { get; } = testOutputHelper;
 
     [Fact]
     public async Task 查詢玩家Buckets()

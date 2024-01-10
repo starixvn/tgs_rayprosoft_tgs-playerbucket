@@ -10,21 +10,14 @@ using Tgs.ServiceUtility;
 
 namespace Tgs.PlayerBuckets.Committer;
 
-internal class BucketCommitterDispatcher : BackgroundService
+internal class BucketCommitterDispatcher(
+	IEventBus eventBus,
+	IServiceProvider serviceProvider,
+	ILogger<BucketCommitterDispatcher> logger) : BackgroundService
 {
-	private readonly IEventBus _eventBus;
-	private readonly IServiceProvider _serviceProvider;
-	private readonly ILogger<BucketCommitterDispatcher> _logger;
-
-	public BucketCommitterDispatcher(
-		IEventBus eventBus,
-		IServiceProvider serviceProvider,
-		ILogger<BucketCommitterDispatcher> logger)
-	{
-		_eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
-		_serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-	}
+	private readonly IEventBus _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
+	private readonly IServiceProvider _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+	private readonly ILogger<BucketCommitterDispatcher> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
 	protected override Task ExecuteAsync(CancellationToken stoppingToken)
 	{

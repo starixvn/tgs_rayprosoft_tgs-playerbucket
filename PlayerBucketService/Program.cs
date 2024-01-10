@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NATS.Client.Core;
 using Npgsql;
-using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -79,6 +78,7 @@ builder.Services
 builder.Services
 	.AddHealthChecks();
 
+var excludeExtensions = new[] { "html", "ico", "png", "jpg" };
 builder.Services
 	.AddOpenTelemetry()
 	.WithTracing(tracingBuilder => tracingBuilder
@@ -94,7 +94,7 @@ builder.Services
 				&& !httpContext.Request.Path.StartsWithSegments("/healthz")
 				&& !httpContext.Request.Path.StartsWithSegments("/metrics")
 				&& !httpContext.Request.Path.StartsWithSegments("/profiler/")
-				&& !new[] { "html", "ico", "png", "jpg" }.Any(
+				&& !excludeExtensions.Any(
 					ext => httpContext.Request.Path.Value.EndsWith($".{ext}")))
 		.AddProfileViewExporter()
 		.AddOtlpExporter())

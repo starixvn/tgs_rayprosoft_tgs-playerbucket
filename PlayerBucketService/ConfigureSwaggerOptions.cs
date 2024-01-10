@@ -10,15 +10,13 @@ namespace PlayerBucketService;
 /// </summary>
 /// <remarks>This allows API versioning to define a Swagger document per API version after the
 /// <see cref="IApiVersionDescriptionProvider"/> service has been resolved from the service container.</remarks>
-public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
+/// <remarks>
+/// Initializes a new instance of the <see cref="ConfigureSwaggerOptions"/> class.
+/// </remarks>
+/// <param name="provider">The <see cref="IApiVersionDescriptionProvider">provider</see> used to generate Swagger documents.</param>
+public class ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider) : IConfigureOptions<SwaggerGenOptions>
 {
-	private readonly IApiVersionDescriptionProvider _provider;
-
-	/// <summary>
-	/// Initializes a new instance of the <see cref="ConfigureSwaggerOptions"/> class.
-	/// </summary>
-	/// <param name="provider">The <see cref="IApiVersionDescriptionProvider">provider</see> used to generate Swagger documents.</param>
-	public ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider) => _provider = provider ?? throw new ArgumentNullException(nameof(provider));
+	private readonly IApiVersionDescriptionProvider _provider = provider ?? throw new ArgumentNullException(nameof(provider));
 
 	/// <inheritdoc />
 	public void Configure(SwaggerGenOptions options)

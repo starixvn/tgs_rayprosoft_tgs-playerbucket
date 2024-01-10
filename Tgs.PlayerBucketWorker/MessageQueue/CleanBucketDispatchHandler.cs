@@ -7,17 +7,12 @@ using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBucketWorker.MessageQueue;
 
-public class CleanBucketDispatchHandler : BucketRequestDispatcher, IMessageHandler<ReadOnlyMemory<byte>>
+public class CleanBucketDispatchHandler(
+	IMessageSender messageSender,
+	IDistributedResourceManager distributedResourceManager,
+	ILogger<CleanBucketDispatchHandler> logger) : BucketRequestDispatcher(messageSender, distributedResourceManager, logger), IMessageHandler<ReadOnlyMemory<byte>>
 {
-	private readonly ILogger<CleanBucketDispatchHandler> _logger;
-
-	public CleanBucketDispatchHandler(
-		IMessageSender messageSender,
-		IDistributedResourceManager distributedResourceManager,
-		ILogger<CleanBucketDispatchHandler> logger) : base(messageSender, distributedResourceManager, logger)
-	{
-		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-	}
+	private readonly ILogger<CleanBucketDispatchHandler> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
 	public async ValueTask HandleAsync(
 		string subject,

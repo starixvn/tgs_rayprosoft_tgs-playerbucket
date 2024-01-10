@@ -15,7 +15,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 	private readonly ITgsRepository _tgsRepository;
 	private readonly IBucketEventRepository _bucketEventRepository;
 	private readonly IEventSource _eventSource;
-	private readonly List<BucketInfo> _buckets = new();
+	private readonly List<BucketInfo> _buckets = [];
 
 	private readonly Channel<IBucketCommand> _channel = Channel.CreateUnbounded<IBucketCommand>(
 		new UnboundedChannelOptions

@@ -5,24 +5,16 @@ using Tgs.ServiceUtility;
 
 namespace Tgs.PlayerBuckets.Committer.ApplicationServices;
 
-internal class ProcessBucketEventsCommandService : ICommandService<ProcessBucketEventsCommand>
+internal class ProcessBucketEventsCommandService(
+	ITgsRepository tgsRepository,
+	IBucketEventRepository bucketEventRepository,
+	IEventSource eventSource,
+	ILogger<ProcessBucketEventsCommandService> logger) : ICommandService<ProcessBucketEventsCommand>
 {
-	private readonly ITgsRepository _tgsRepository;
-	private readonly IBucketEventRepository _bucketEventRepository;
-	private readonly IEventSource _eventSource;
-	private readonly ILogger<ProcessBucketEventsCommandService> _logger;
-
-	public ProcessBucketEventsCommandService(
-		ITgsRepository tgsRepository,
-		IBucketEventRepository bucketEventRepository,
-		IEventSource eventSource,
-		ILogger<ProcessBucketEventsCommandService> logger)
-	{
-		_tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
-		_bucketEventRepository = bucketEventRepository ?? throw new ArgumentNullException(nameof(bucketEventRepository));
-		_eventSource = eventSource ?? throw new ArgumentNullException(nameof(eventSource));
-		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-	}
+	private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
+	private readonly IBucketEventRepository _bucketEventRepository = bucketEventRepository ?? throw new ArgumentNullException(nameof(bucketEventRepository));
+	private readonly IEventSource _eventSource = eventSource ?? throw new ArgumentNullException(nameof(eventSource));
+	private readonly ILogger<ProcessBucketEventsCommandService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
 	public async ValueTask ExecuteAsync(ProcessBucketEventsCommand command, CancellationToken cancellationToken = default)
 	{

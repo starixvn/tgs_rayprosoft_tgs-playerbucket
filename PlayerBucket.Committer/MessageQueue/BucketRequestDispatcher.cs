@@ -1,5 +1,4 @@
 ﻿using Google.Protobuf;
-using NATS.Client;
 using NATS.Client.Core;
 using Polly;
 using Tgs.Services.PlayerBucket.Protos;

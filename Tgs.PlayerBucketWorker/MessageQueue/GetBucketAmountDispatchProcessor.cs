@@ -1,6 +1,4 @@
-﻿using System.Data;
-using NATS.Client;
-using NATS.Client.Core;
+﻿using NATS.Client.Core;
 using Polly;
 using Tgs.Service.PlayerBuckets;
 using Tgs.Services.PlayerBucket.Protos;
@@ -8,17 +6,12 @@ using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBucketWorker.MessageQueue;
 
-public class GetBucketAmountDispatchProcessor : BucketRequestDispatcher, IMessageProcessor<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>
+public class GetBucketAmountDispatchProcessor(
+	IMessageSender messageSender,
+	IDistributedResourceManager distributedResourceManager,
+	ILogger<GetBucketAmountDispatchProcessor> logger) : BucketRequestDispatcher(messageSender, distributedResourceManager, logger), IMessageProcessor<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>
 {
-	private readonly ILogger<GetBucketAmountDispatchProcessor> _logger;
-
-	public GetBucketAmountDispatchProcessor(
-		IMessageSender messageSender,
-		IDistributedResourceManager distributedResourceManager,
-		ILogger<GetBucketAmountDispatchProcessor> logger) : base(messageSender, distributedResourceManager, logger)
-	{
-		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-	}
+	private readonly ILogger<GetBucketAmountDispatchProcessor> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
 	public async ValueTask<ReadOnlyMemory<byte>> HandleAsync(
 		string subject,
@@ -63,5 +56,4 @@ public class GetBucketAmountDispatchProcessor : BucketRequestDispatcher, IMessag
 				},
 				cancellationToken).ConfigureAwait(false);
 	}
-
 }

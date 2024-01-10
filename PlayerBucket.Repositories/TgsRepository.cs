@@ -3,14 +3,9 @@ using Tgs.PlayerBuckets.DatabaseAccess;
 
 namespace Tgs.Service.PlayerBuckets.Repositories;
 
-internal class TgsRepository : ITgsRepository
+internal class TgsRepository(PlayerBucketDataAccess playerBucketDataAccess) : ITgsRepository
 {
-	private readonly PlayerBucketDataAccess _playerBucketDataAccess;
-
-	public TgsRepository(PlayerBucketDataAccess playerBucketDataAccess)
-	{
-		_playerBucketDataAccess = playerBucketDataAccess ?? throw new ArgumentNullException(nameof(playerBucketDataAccess));
-	}
+	private readonly PlayerBucketDataAccess _playerBucketDataAccess = playerBucketDataAccess ?? throw new ArgumentNullException(nameof(playerBucketDataAccess));
 
 	public IAsyncEnumerable<BucketInfo> GetPlayerNotFullBucketsAsync(string playerCode, CancellationToken cancellationToken = default)
 		=> _playerBucketDataAccess.GetPlayerNotFullBucketsAsync(playerCode, cancellationToken)

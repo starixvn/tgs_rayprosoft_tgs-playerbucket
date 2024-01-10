@@ -2,14 +2,9 @@
 
 namespace Tgs.Service.PlayerBuckets.ApplicationServices;
 
-internal class CompleteCleanBucketsFormCommandService : ICommandService<CompleteCleanBucketsFormCommand>
+internal class CompleteCleanBucketsFormCommandService(ITgsRepository tgsRepository) : ICommandService<CompleteCleanBucketsFormCommand>
 {
-	private readonly ITgsRepository _tgsRepository;
-
-	public CompleteCleanBucketsFormCommandService(ITgsRepository tgsRepository)
-	{
-		_tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
-	}
+	private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
 
 	public async ValueTask ExecuteAsync(CompleteCleanBucketsFormCommand command, CancellationToken cancellationToken = default)
 	{

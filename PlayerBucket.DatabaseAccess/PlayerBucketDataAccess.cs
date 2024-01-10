@@ -4,14 +4,9 @@ using Tgs.PlayerBuckets.DatabaseAccess.Entities;
 
 namespace Tgs.PlayerBuckets.DatabaseAccess;
 
-internal class PlayerBucketDataAccess
+internal class PlayerBucketDataAccess(TgsContext dbContext)
 {
-	private readonly TgsContext _dbContext;
-
-	public PlayerBucketDataAccess(TgsContext dbContext)
-	{
-		_dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-	}
+	private readonly TgsContext _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
 
 	public IAsyncEnumerable<PlayerBucket> GetPlayerNotFullBucketsAsync(string playerCode, CancellationToken cancellationToken = default)
 		=> _dbContext.PlayerBuckets.AsQueryable()
@@ -78,7 +73,7 @@ internal class PlayerBucketDataAccess
 
 	public ValueTask<PlayerBucket?> FindPlayerBucketAsync(Guid bucketId, CancellationToken cancellationToken = default)
 		=> _dbContext.PlayerBuckets
-			.FindAsync(new object?[] { bucketId }, cancellationToken: cancellationToken);
+			.FindAsync([bucketId], cancellationToken: cancellationToken);
 
 	public async ValueTask<PlayerBucket> GetOrAddPlayerBucketAsync(Guid bucketId, CancellationToken cancellationToken = default)
 		=> (await FindPlayerBucketAsync(
@@ -117,7 +112,7 @@ internal class PlayerBucketDataAccess
 	public async ValueTask<bool> GetHasMigrateAsync(string playerCode, CancellationToken cancellationToken = default)
 	{
 		var record = await _dbContext.PlayerBucketMigrations.FindAsync(
-			new object?[] { playerCode },
+			[playerCode],
 			cancellationToken: cancellationToken).ConfigureAwait(false);
 
 		return record is not null;
@@ -134,7 +129,7 @@ internal class PlayerBucketDataAccess
 	public async ValueTask UpsertPlayerBucketCleanFormAsync(PlayerBucketCleanFormV2 formRow, CancellationToken cancellationToken = default)
 	{
 		var existsRow = await _dbContext.PlayerBucketCleanFormV2s.FindAsync(
-			new object?[] { formRow.Id },
+			[formRow.Id],
 			cancellationToken: cancellationToken).ConfigureAwait(false);
 
 		if (existsRow is not null)
@@ -152,12 +147,12 @@ internal class PlayerBucketDataAccess
 
 	public ValueTask<PlayerBucketCleanForm?> FindPlayerBucketCleanFormAsync(Guid formId, CancellationToken cancellationToken = default)
 		=> _dbContext.PlayerBucketCleanForms.FindAsync(
-			new object?[] { formId },
+			[formId],
 			cancellationToken: cancellationToken);
 
 	public ValueTask<PlayerBucketCleanFormV2?> FindPlayerBucketCleanFormV2Async(Guid formId, CancellationToken cancellationToken = default)
 		=> _dbContext.PlayerBucketCleanFormV2s.FindAsync(
-			new object?[] { formId },
+			[formId],
 			cancellationToken: cancellationToken);
 
 	public async ValueTask InsertPlayerBucketCleanEventSourceAsync(
@@ -232,7 +227,7 @@ internal class PlayerBucketDataAccess
 	public async ValueTask SetBrandBucketTypesAsync(Guid brandId, IEnumerable<string> bucketTypes, CancellationToken cancellationToken = default)
 	{
 		var row = await _dbContext.BrandBucketTypes
-			.FindAsync(new object?[] { brandId }, cancellationToken: cancellationToken)
+			.FindAsync([brandId], cancellationToken: cancellationToken)
 			.ConfigureAwait(false)
 			?? (await _dbContext.BrandBucketTypes
 				.AddAsync(new BrandBucketType
@@ -246,7 +241,7 @@ internal class PlayerBucketDataAccess
 
 	public IAsyncEnumerable<string> GetBrandBucketTypesAsync(Guid brandId, CancellationToken cancellationToken = default)
 		=> _dbContext.BrandBucketTypes
-			.FindAsync(new object?[] { brandId }, cancellationToken: cancellationToken)
+			.FindAsync([brandId], cancellationToken: cancellationToken)
 			.AsTask()
 			.ToAsyncEnumerable()
 			.Where(row => row is not null)

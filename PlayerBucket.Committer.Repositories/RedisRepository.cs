@@ -4,14 +4,9 @@ using Tgs.Service.PlayerBuckets;
 
 namespace Tgs.PlayerBuckets.Committer.Repositories;
 
-internal class RedisRepository : IBucketEventRepository, IDistributedResourceManager
+internal class RedisRepository(IDatabase redisDatabase) : IBucketEventRepository, IDistributedResourceManager
 {
-	private readonly IDatabase _redisDatabase;
-
-	public RedisRepository(IDatabase redisDatabase)
-	{
-		_redisDatabase = redisDatabase ?? throw new ArgumentNullException(nameof(redisDatabase));
-	}
+	private readonly IDatabase _redisDatabase = redisDatabase ?? throw new ArgumentNullException(nameof(redisDatabase));
 
 	public IAsyncEnumerable<BucketEvent> GetBucketAllEventsAsync(Guid bucketId, CancellationToken cancellationToken = default)
 		=> _redisDatabase
