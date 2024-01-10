@@ -6,7 +6,6 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UserSecretsId>10b26c3a-327a-427e-9fe8-299b92858085</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-		<DockerfileBuildArguments>--build-arg "BuildConfiguration=$(Configuration)"</DockerfileBuildArguments>
 		<DockerfileTag Condition="$(DockerfileTag) == ''">pgtgs/bucket-worker</DockerfileTag>
 		<SqlQueryToolsConnectionString />
 	</PropertyGroup>

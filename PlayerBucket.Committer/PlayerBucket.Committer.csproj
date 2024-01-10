@@ -7,8 +7,8 @@
 		<RootNamespace>Tgs.PlayerBuckets.Committer</RootNamespace>
 		<UserSecretsId>cbca1def-9cd8-4dd2-a4f0-9aa1b1955ac6</UserSecretsId>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-		<DockerfileBuildArguments>--build-arg "BuildConfiguration=$(Configuration)"</DockerfileBuildArguments>
 		<DockerfileTag Condition="$(DockerfileTag) == ''">pgtgs/bucket-committer</DockerfileTag>
+		<ContainerRepository>pgtgs/bucket-committer</ContainerRepository>
 	</PropertyGroup>
 
 	<ItemGroup>

@@ -21,7 +21,13 @@ namespace PlayerBucketMigrateJob.Entities.Configurations
 
             entity.HasIndex(e => e.BetLimitId, "ix_players_bet_limit_id");
 
+            entity.HasIndex(e => e.Username, "ix_players_username");
+
             entity.HasIndex(e => e.VipId, "ix_players_vip_id");
+
+            entity.HasIndex(e => e.Username, "ix_trgm_players_username")
+            .HasMethod("gin")
+            .HasOperators(new[] { "gin_trgm_ops" });
 
             entity.HasIndex(e => new { e.BrandId, e.AreaCode, e.Phone }, "ux_players_brand_phone").IsUnique();
 
@@ -70,6 +76,7 @@ namespace PlayerBucketMigrateJob.Entities.Configurations
             entity.Property(e => e.RegisteredOn).HasColumnName("registered_on");
             entity.Property(e => e.Remark).HasColumnName("remark");
             entity.Property(e => e.Salt).HasColumnName("salt");
+            entity.Property(e => e.SnapshotEventId).HasColumnName("snapshot_event_id");
             entity.Property(e => e.Status).HasColumnName("status");
             entity.Property(e => e.Type).HasColumnName("type");
             entity.Property(e => e.UpdatedByUsername).HasColumnName("updated_by_username");

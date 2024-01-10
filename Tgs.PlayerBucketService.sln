@@ -67,7 +67,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CommitterRole", "CommitterR
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucketType.Client", "PlayerBucketType.Client\PlayerBucketType.Client.csproj", "{F34DC3BC-E991-490A-8716-683F50460C1C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerBucketType.Client.UnitTests", "PlayerBucketType.Client.UnitTests\PlayerBucketType.Client.UnitTests.csproj", "{81338090-116A-414A-8057-9BC22945A679}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerBucketType.Client.UnitTests", "PlayerBucketType.Client.UnitTests\PlayerBucketType.Client.UnitTests.csproj", "{81338090-116A-414A-8057-9BC22945A679}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{0B507C5D-1B4D-4538-9A67-875B0F044A40}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -207,6 +209,8 @@ Global
 		{24744ACF-CB76-46BE-903D-DDA8B0101B9A} = {B315C701-C3A8-4F89-A049-8453DD3BB6F5}
 		{239D8079-0711-48E8-B7D6-4202323CD7DE} = {B315C701-C3A8-4F89-A049-8453DD3BB6F5}
 		{C49C777E-F633-47C6-B862-5975138D13B3} = {B315C701-C3A8-4F89-A049-8453DD3BB6F5}
+		{B3FE30B6-2C6B-4688-9D3E-618F8B26A98A} = {0B507C5D-1B4D-4538-9A67-875B0F044A40}
+		{24106A20-BC02-4584-8CCB-9534EE19DDF4} = {0B507C5D-1B4D-4538-9A67-875B0F044A40}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2FB56F94-2F42-4DD3-9314-EB26B4247A34}

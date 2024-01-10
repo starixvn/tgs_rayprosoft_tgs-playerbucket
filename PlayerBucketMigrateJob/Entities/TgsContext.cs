@@ -24,8 +24,8 @@ public partial class TgsContext : DbContext
             .HasPostgresExtension("ltree")
             .HasPostgresExtension("pg_trgm");
 
-            modelBuilder.ApplyConfiguration(new Configurations.PlayerConfiguration());
-            modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketMigrationConfiguration());
+        modelBuilder.ApplyConfiguration(new Configurations.PlayerConfiguration());
+        modelBuilder.ApplyConfiguration(new Configurations.PlayerBucketMigrationConfiguration());
         OnModelCreatingPartial(modelBuilder);
     }
 
