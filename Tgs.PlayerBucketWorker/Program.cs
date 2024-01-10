@@ -13,14 +13,10 @@ using Valhalla.MessageQueue.MongoDB.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration
-	.AddJsonFile("/config/appsettings.json", true);
-
 builder.Logging
 	.AddOpenTelemetry(options =>
 	{
 		options.IncludeFormattedMessage = true;
-		options.ParseStateValues = true;
 		_ = options.AddFluentdForwardExporter(fluentOptions =>
 		{
 			var nodeIp = builder.Configuration.GetValue<string>("NODE_IP")!;
