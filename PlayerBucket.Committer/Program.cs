@@ -66,7 +66,7 @@ builder.Services
 			ConnectionString = builder.Configuration.GetConnectionString("Mongo")!
 		})
 		.DeclareQueue("bucket_event_requests")
-		.AddHandler<ReadOnlyMemory<byte>, ProcessBucketEventRequestDispatchHandler>("bucket_event_requests", TimeSpan.FromSeconds(10D)))
+		.AddHandler<ProcessBucketEventRequestDispatchHandler>("bucket_event_requests", TimeSpan.FromSeconds(10D)))
 	.AddNatsMessageQueue(config => config
 		.ConfigureResolveConnection(sp => sp.GetRequiredKeyedService<NatsConnection>("Nats"))
 		.AddProcessor<BidProcessor>("tgs.bucket.commit.bid")

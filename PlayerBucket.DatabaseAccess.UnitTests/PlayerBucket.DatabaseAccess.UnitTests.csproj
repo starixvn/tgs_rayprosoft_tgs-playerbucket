@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="JunitXml.TestLogger" Version="3.0.134" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="PhoenixToolkits.CodeAnalysis.Analyzers" Version="0.0.8">
       <PrivateAssets>all</PrivateAssets>
