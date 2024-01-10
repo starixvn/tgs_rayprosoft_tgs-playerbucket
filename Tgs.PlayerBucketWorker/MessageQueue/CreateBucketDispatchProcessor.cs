@@ -10,7 +10,12 @@ namespace Tgs.PlayerBucketWorker.MessageQueue;
 public class CreateBucketDispatchProcessor(
 	IMessageSender messageSender,
 	IDistributedResourceManager distributedResourceManager,
-	ILogger<CreateBucketDispatchProcessor> logger) : BucketRequestDispatcher(messageSender, distributedResourceManager, logger), IMessageProcessor<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>
+	ILogger<CreateBucketDispatchProcessor> logger)
+	: BucketRequestDispatcher(
+		messageSender,
+		distributedResourceManager,
+		logger)
+	, IMessageProcessor<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>>
 {
 	private readonly ILogger<CreateBucketDispatchProcessor> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 

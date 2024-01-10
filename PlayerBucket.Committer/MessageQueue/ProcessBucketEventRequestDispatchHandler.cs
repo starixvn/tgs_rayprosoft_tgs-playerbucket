@@ -7,15 +7,19 @@ namespace Tgs.PlayerBuckets.Committer.MessageQueue;
 public class ProcessBucketEventRequestDispatchHandler(
 	IMessageSender messageSender,
 	IDistributedResourceManager distributedResourceManager,
-	ILogger<ProcessBucketEventRequestHandler> logger) : BucketRequestDispatcher(messageSender, distributedResourceManager, logger), IMessageHandler<ReadOnlyMemory<byte>>
+	ILogger<ProcessBucketEventRequestHandler> logger)
+	: BucketRequestDispatcher(
+		messageSender,
+		distributedResourceManager,
+		logger), IMessageHandler<byte[]>
 {
 	public async ValueTask HandleAsync(
 		string subject,
-		ReadOnlyMemory<byte> data,
+		byte[] data,
 		IEnumerable<MessageHeaderValue>? headerValues,
 		CancellationToken cancellationToken = default)
 	{
-		var request = BsonSerializer.Deserialize<BucketChangedEvent>(data.ToArray());
+		var request = BsonSerializer.Deserialize<BucketChangedEvent>(data);
 
 		var bidToken = await GetBidTokenAsync(
 			request.BucketId,
