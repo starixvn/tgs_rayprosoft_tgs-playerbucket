@@ -19,7 +19,7 @@
 		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.7.0" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.7.0" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.7.0" />
-		<PackageReference Include="PhoenixToolkits.MessageQueue.Nats" Version="2.0.0" />
+		<PackageReference Include="PhoenixToolkits.MessageQueue.Nats" Version="2.0.1" />
 		<PackageReference Include="ProfileViewer.OpenTelemetry.Exporter" Version="0.3.1" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
 		<PackageReference Include="Tgs.WebApi.Toolkits" Version="0.3.0" />
