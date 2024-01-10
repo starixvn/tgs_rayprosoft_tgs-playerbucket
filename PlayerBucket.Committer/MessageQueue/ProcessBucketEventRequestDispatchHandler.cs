@@ -11,15 +11,15 @@ public class ProcessBucketEventRequestDispatchHandler(
 	: BucketRequestDispatcher(
 		messageSender,
 		distributedResourceManager,
-		logger), IMessageHandler<byte[]>
+		logger), IMessageHandler<ReadOnlyMemory<byte>>
 {
 	public async ValueTask HandleAsync(
 		string subject,
-		byte[] data,
+		ReadOnlyMemory<byte> data,
 		IEnumerable<MessageHeaderValue>? headerValues,
 		CancellationToken cancellationToken = default)
 	{
-		var request = BsonSerializer.Deserialize<BucketChangedEvent>(data);
+		var request = BsonSerializer.Deserialize<BucketChangedEvent>(data.ToArray());
 
 		var bidToken = await GetBidTokenAsync(
 			request.BucketId,

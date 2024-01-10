@@ -6,7 +6,12 @@ namespace Tgs.PlayerBuckets.Committer.MessageQueue;
 public class SnapshotBucketDispatchHandler(
 	IMessageSender messageSender,
 	IDistributedResourceManager distributedResourceManager,
-	ILogger<SnapshotBucketDispatchHandler> logger) : BucketRequestDispatcher(messageSender, distributedResourceManager, logger), IMessageHandler<ReadOnlyMemory<byte>>
+	ILogger<SnapshotBucketDispatchHandler> logger) 
+	: BucketRequestDispatcher(
+		messageSender, 
+		distributedResourceManager, 
+		logger)
+	, IMessageHandler<ReadOnlyMemory<byte>>
 {
 	public async ValueTask HandleAsync(
 		string subject,
