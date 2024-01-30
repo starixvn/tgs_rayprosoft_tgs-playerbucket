@@ -13,7 +13,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="AsyncMethodNameFixer" Version="2.3.0" />
-		<PackageReference Include="FluentdForward.OpenTelemetry.MessagePack" Version="0.3.4" />
+		<PackageReference Include="FluentdForward.OpenTelemetry.MessagePack" Version="0.3.7" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6" />
 		<PackageReference Include="MongoDB.Driver" Version="2.23.1" />
 		<PackageReference Include="Npgsql.OpenTelemetry" Version="8.0.1" />
@@ -22,8 +22,8 @@
 		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.7.0" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.0.0-beta.8" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.7.0" />
-		<PackageReference Include="PhoenixToolkits.MessageQueue.MongoDB" Version="2.0.3" />
-		<PackageReference Include="PhoenixToolkits.MessageQueue.Nats" Version="2.0.1" />
+		<PackageReference Include="PhoenixToolkits.MessageQueue.MongoDB" Version="2.1.0" />
+		<PackageReference Include="PhoenixToolkits.MessageQueue.Nats" Version="2.1.2" />
 		<PackageReference Include="Polly" Version="8.2.1" />
 		<PackageReference Include="ProfileViewer.OpenTelemetry.Exporter" Version="0.3.1" />
 		<PackageReference Include="Tgs.Interceptors" Version="0.2.1" />
