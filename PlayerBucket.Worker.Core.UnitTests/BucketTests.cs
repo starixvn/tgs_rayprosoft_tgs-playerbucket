@@ -95,7 +95,7 @@ public class BucketTests
 			DateTime.Now,
 			null);
 
-		var returnBuckets = new Queue<BucketInfo>(new[] { firstBucket, secondBucket });
+		var returnBuckets = new Queue<BucketInfo>([firstBucket, secondBucket]);
 
 		_ = fakeBucketStore.PlayerCode
 			.Returns("player1");

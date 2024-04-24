@@ -23,8 +23,8 @@
 	<ItemGroup>
 		<PackageReference Include="AsyncMethodNameFixer" Version="2.3.0" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6" />
-		<PackageReference Include="StackExchange.Redis" Version="2.7.17" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.20.1" />
+		<PackageReference Include="StackExchange.Redis" Version="2.7.33" />
 		<PackageReference Include="System.Interactive.Async" Version="6.0.1" />
 	</ItemGroup>
 

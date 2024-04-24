@@ -1,4 +1,5 @@
 ﻿using Google.Protobuf;
+using Microsoft.Extensions.Logging.Abstractions;
 using NATS.Client.Core;
 using Polly;
 using Tgs.Services.PlayerBucket.Protos;
@@ -6,39 +7,67 @@ using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBuckets.Committer.MessageQueue;
 
-public abstract class BucketRequestDispatcher
+public abstract class BucketRequestDispatcher(
+	IMessageSender messageSender,
+	IDistributedResourceManager distributedResourceManager,
+	ILogger logger)
 {
-	private readonly ILogger _logger;
+	private static readonly ResiliencePropertyKey<IDistributedResourceManager> _DistributedResourceManagerPropertyKey =
+		new("DistributedResourceManager");
 
-	protected IMessageSender MessageSender { get; }
+	private static readonly ResiliencePropertyKey<Guid> _BidBucketIdPropertyKey =
+		new("BucketId");
 
-	protected IDistributedResourceManager DistributedResourceManager { get; }
+	private static readonly ResiliencePropertyKey<ILogger> _LoggerPropertyKey =
+		new("Logger");
 
-	protected BucketRequestDispatcher(IMessageSender messageSender, IDistributedResourceManager distributedResourceManager, ILogger logger)
+	private static readonly ResiliencePipeline<string> _BidTokenPipeline = new ResiliencePipelineBuilder<string>()
+		.AddRetry(new Polly.Retry.RetryStrategyOptions<string>
+		{
+			ShouldHandle = new PredicateBuilder<string>().Handle<NatsNoRespondersException>().Handle<NatsNoReplyException>(),
+			MaxRetryAttempts = 1,
+			OnRetry = async arg =>
+			{
+				if (!arg.Context.Properties.TryGetValue(_DistributedResourceManagerPropertyKey, out var mgr))
+					throw new ArgumentException("找不到 DistributedResourceManager");
+				if (!arg.Context.Properties.TryGetValue(_BidBucketIdPropertyKey, out var bucketId))
+					throw new ArgumentException("找不到 BucketId");
+
+				var logger = arg.Context.Properties.GetValue(_LoggerPropertyKey, NullLogger.Instance);
+
+				await mgr.DiscardBidAsync(
+					bucketId,
+					arg.Context.CancellationToken).ConfigureAwait(false);
+
+				logger.LogWarning(arg.Outcome.Exception, "NoReponders error retry {count}", arg.AttemptNumber);
+			},
+		})
+		.Build();
+
+	protected IMessageSender MessageSender { get; } = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
+
+	protected IDistributedResourceManager DistributedResourceManager { get; } = distributedResourceManager ?? throw new ArgumentNullException(nameof(distributedResourceManager));
+
+	protected async Task<string> GetBidTokenAsync(Guid bucketId, CancellationToken cancellationToken)
 	{
-		MessageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
-		DistributedResourceManager = distributedResourceManager ?? throw new ArgumentNullException(nameof(distributedResourceManager));
-		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-	}
+		var executeContext = ResilienceContextPool.Shared.Get(cancellationToken);
+		try
+		{
+			executeContext.Properties.Set(_BidBucketIdPropertyKey, bucketId);
+			executeContext.Properties.Set(_DistributedResourceManagerPropertyKey, DistributedResourceManager);
+			executeContext.Properties.Set(_LoggerPropertyKey, logger);
 
-	protected Task<string> GetBidTokenAsync(Guid bucketId, CancellationToken cancellationToken)
-		=> Policy
-			.Handle<NatsNoRespondersException>()
-			.RetryAsync(
-				1,
-				async (ex, count) =>
-				{
-					await DistributedResourceManager.DiscardBidAsync(
-						bucketId,
-						cancellationToken).ConfigureAwait(false);
-
-					_logger.LogWarning(ex, "NoReponders error retry {count}", count);
-				})
-			.ExecuteAsync(
+			return await _BidTokenPipeline.ExecuteAsync(
 				async ct => await InternalGetBidTokenAsync(
 					bucketId,
 					cancellationToken).ConfigureAwait(false),
-				cancellationToken);
+				cancellationToken).ConfigureAwait(false);
+		}
+		finally
+		{
+			ResilienceContextPool.Shared.Return(executeContext);
+		}
+	}
 
 	private async ValueTask<string> InternalGetBidTokenAsync(Guid bucketId, CancellationToken cancellationToken)
 	{

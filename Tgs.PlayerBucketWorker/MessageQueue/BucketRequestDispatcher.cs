@@ -7,24 +7,16 @@ using Valhalla.MessageQueue;
 
 namespace Tgs.PlayerBucketWorker.MessageQueue;
 
-public abstract class BucketRequestDispatcher
+public abstract class BucketRequestDispatcher(IMessageSender messageSender, IDistributedResourceManager distributedResourceManager, ILogger logger)
 {
-	private readonly ILogger _logger;
+	protected IMessageSender MessageSender { get; } = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
 
-	protected IMessageSender MessageSender { get; }
-
-	protected IDistributedResourceManager DistributedResourceManager { get; }
-
-	protected BucketRequestDispatcher(IMessageSender messageSender, IDistributedResourceManager distributedResourceManager, ILogger logger)
-	{
-		MessageSender = messageSender ?? throw new ArgumentNullException(nameof(messageSender));
-		DistributedResourceManager = distributedResourceManager ?? throw new ArgumentNullException(nameof(distributedResourceManager));
-		_logger = logger ?? throw new ArgumentNullException(nameof(logger));
-	}
+	protected IDistributedResourceManager DistributedResourceManager { get; } = distributedResourceManager ?? throw new ArgumentNullException(nameof(distributedResourceManager));
 
 	protected Task<string> GetBidTokenAsync(string playerCode, CancellationToken cancellationToken)
 		=> Policy
 			.Handle<NatsNoRespondersException>()
+			.Or<NatsNoReplyException>()
 			.RetryAsync(
 				1,
 				async (ex, count) =>
@@ -33,7 +25,7 @@ public abstract class BucketRequestDispatcher
 						playerCode,
 						cancellationToken).ConfigureAwait(false);
 
-					_logger.LogWarning(ex, "NoReponders error retry {count}", count);
+					logger.LogWarning(ex, "NoReponders error retry {count}", count);
 				})
 			.ExecuteAsync(
 				async ct => await InternalGetBidTokenAsync(

@@ -207,14 +207,13 @@ public class BucketCleanFormController : ControllerBase
 			orderModel.BrandId,
 			orderModel.WalletId,
 			orderModel.CurrentBalance,
-			new[]
-			{
+			[
 				new TypeBucketResult(
 					null,
 					new ReadBucketResult(
 						orderModel.CurrentBucketAmount,
 						orderModel.BucketAnchorId))
-			},
+			],
 			orderModel.DepositFormId,
 			orderModel.ClearWageringRequirementBalance);
 
@@ -256,14 +255,13 @@ public class BucketCleanFormController : ControllerBase
 		var command = new CompleteCleanBucketsFormCommand(
 			formId,
 			viewModel.CleaningBalance,
-			new[]
-			{
+			[
 				new TypeBucketResult(
 					null,
 					new ReadBucketResult(
 						viewModel.CleaningBucketAmount,
 						null))
-			},
+			],
 			viewModel.GameBalanceReturn);
 
 		return completeService.ExecuteAsync(command, HttpContext.RequestAborted);
@@ -300,14 +298,13 @@ public class BucketCleanFormController : ControllerBase
 		var command = new RejectCleanBucketsFormCommand(
 			formId,
 			viewModel.CleaningBalance,
-			new[]
-			{
+			[
 				new TypeBucketResult(
 					null,
 					new ReadBucketResult(
 						viewModel.CleaningBucketAmount,
 						null))
-			},
+			],
 			viewModel.GameBalanceReturn);
 
 		return rejectService.ExecuteAsync(command, HttpContext.RequestAborted);

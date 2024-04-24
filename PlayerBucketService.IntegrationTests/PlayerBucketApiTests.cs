@@ -368,14 +368,13 @@ public class PlayerBucketApiTests(ITestOutputHelper testOutputHelper)
             Guid.NewGuid(),
             Guid.NewGuid(),
             0M,
-            new[]
-            {
+            [
                 new TypeBucketResult(
                     null,
                     new ReadBucketResult(
                         1000M,
                         Guid.NewGuid()))
-            },
+            ],
             Guid.NewGuid(),
             5M);
 
@@ -450,12 +449,11 @@ public class PlayerBucketApiTests(ITestOutputHelper testOutputHelper)
             row.WalletId,
             row.BrandId,
             row.CurrentBalance,
-            new[]
-            {
+            [
                 new TypeBucketResult(
                     null,
                     new ReadBucketResult(1000M,  anchorId))
-            },
+            ],
             row.DepositFormId,
             row.ClearWageringRequirementBalance,
             null,
@@ -536,14 +534,13 @@ public class PlayerBucketApiTests(ITestOutputHelper testOutputHelper)
 
         var request = new ReviewCleanBucketRequest<object>(
             100M,
-            new[]
-            {
+            [
                 new TypeBucketResult(
                     null,
                     new ReadBucketResult(
                         2000M,
                         Guid.NewGuid()))
-            },
+            ],
             new object());
 
         var expected = new PlayerBucketCleanFormV2
@@ -619,14 +616,13 @@ public class PlayerBucketApiTests(ITestOutputHelper testOutputHelper)
 
         var request = new ReviewCleanBucketRequest<object?>(
             100M,
-            new[]
-            {
+            [
                 new TypeBucketResult(
                     null,
                     new ReadBucketResult(
                         2000M,
                         Guid.NewGuid()))
-            },
+            ],
             null);
 
         var expected = new PlayerBucketCleanFormV2
@@ -700,14 +696,13 @@ public class PlayerBucketApiTests(ITestOutputHelper testOutputHelper)
 
         var request = new ReviewCleanBucketRequest<object>(
             100M,
-            new[]
-            {
+            [
                 new TypeBucketResult(
                     null,
                     new ReadBucketResult(
                         2000M,
                         Guid.NewGuid()))
-            },
+            ],
             new object());
 
         var expected = new PlayerBucketCleanFormV2
@@ -781,14 +776,13 @@ public class PlayerBucketApiTests(ITestOutputHelper testOutputHelper)
 
         var request = new ReviewCleanBucketRequest<object?>(
             100M,
-            new[]
-            {
+            [
                 new TypeBucketResult(
                     null,
                     new ReadBucketResult(
                         2000M,
                         Guid.NewGuid()))
-            },
+            ],
             null);
 
         var expected = new PlayerBucketCleanFormV2
@@ -892,7 +886,7 @@ public class PlayerBucketApiTests(ITestOutputHelper testOutputHelper)
 
         // Assert
         Assert.Equal(2, actual.Length);
-        Assert.Equal(new[] { form2Id, form1Id }, actual.Select(form => form.Id));
+        Assert.Equal([form2Id, form1Id], actual.Select(form => form.Id));
     }
 
     [Fact]
@@ -970,7 +964,7 @@ public class PlayerBucketApiTests(ITestOutputHelper testOutputHelper)
 
         // Assert
         _ = Assert.Single(actual);
-        Assert.Equal(new[] { form2Id }, actual.Select(form => form.Id));
+        Assert.Equal([form2Id], actual.Select(form => form.Id));
     }
 
     [Fact]
@@ -1111,6 +1105,6 @@ public class PlayerBucketApiTests(ITestOutputHelper testOutputHelper)
 
         // Assert
         _ = Assert.Single(actual);
-        Assert.Equal(new[] { form2Id }, actual.Select(form => form.Id));
+        Assert.Equal([form2Id], actual.Select(form => form.Id));
     }
 }

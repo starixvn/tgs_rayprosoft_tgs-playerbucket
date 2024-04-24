@@ -163,12 +163,11 @@ internal class TgsRepository(PlayerBucketDataAccess playerBucketDataAccess, ISer
 				row.BrandId,
 				row.WalletId,
 				row.CurrentBalance,
-				new[]
-				{
+				[
 					new TypeBucketResult(
 						null,
 						new ReadBucketResult(row.CurrentBucketAmount, row.BucketAnchorId))
-				},
+				],
 				row.DepositFormId,
 				row.ClearWageringRequirementBalance,
 				row.CleaningBalance,
@@ -203,12 +202,11 @@ internal class TgsRepository(PlayerBucketDataAccess playerBucketDataAccess, ISer
 				row.BrandId,
 				row.WalletId,
 				row.CurrentBalance,
-				new[]
-				{
+				[
 					new TypeBucketResult(
 						null,
 						new ReadBucketResult(row.CurrentBucketAmount, row.BucketAnchorId))
-				},
+				],
 				row.DepositFormId,
 				row.ClearWageringRequirementBalance,
 				row.CleaningBalance,
