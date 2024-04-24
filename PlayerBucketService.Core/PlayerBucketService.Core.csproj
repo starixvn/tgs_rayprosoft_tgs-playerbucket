@@ -10,11 +10,11 @@
 
   <ItemGroup>
     <PackageReference Include="AsyncMethodNameFixer" Version="2.3.0" />
-    <PackageReference Include="JsonPatch.Net" Version="2.1.0" />
-    <PackageReference Include="MongoDB.Driver" Version="2.23.1" />
-    <PackageReference Include="PhoenixToolkits.MessageQueue" Version="2.1.0" />
-    <PackageReference Include="PhoenixToolkits.MessageQueue.MongoDB" Version="2.1.0" />
-    <PackageReference Include="PhoenixToolkits.MessageQueue.Nats" Version="2.1.2" />
+    <PackageReference Include="JsonPatch.Net" Version="3.0.0.2" />
+    <PackageReference Include="MongoDB.Driver" Version="2.25.0" />
+    <PackageReference Include="PhoenixToolkits.MessageQueue" Version="2.2.0" />
+    <PackageReference Include="PhoenixToolkits.MessageQueue.MongoDB" Version="2.2.0" />
+    <PackageReference Include="PhoenixToolkits.MessageQueue.Nats" Version="2.2.0" />
     <PackageReference Include="System.Interactive.Async" Version="6.0.1" />
     <PackageReference Include="Tgs.SerialNumberGenerator" Version="1.0.1" />
     <PackageReference Include="TGS.ServiceUtility" Version="0.2.0" />

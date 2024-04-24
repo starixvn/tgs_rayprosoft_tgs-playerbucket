@@ -25,7 +25,7 @@ public class BucketEventProcessTests
 
 		var command = new ProcessBucketEventsCommand(Guid.NewGuid(), "test1");
 
-		var eventBatchQueue = new Queue<BucketEvent[]>(new[] {
+		var eventBatchQueue = new Queue<BucketEvent[]>([
 			[
 				new BucketEvent(
 					Guid.NewGuid(),
@@ -37,8 +37,8 @@ public class BucketEventProcessTests
 					DateTime.UtcNow,
 					null)
 			],
-			Array.Empty<BucketEvent>()
-		});
+			[]
+		]);
 
 		_ = fakeBucketEventRepository.GetWaitingInsertEventsAsync(Arg.Is(command.BucketId))
 			.Returns(_ => eventBatchQueue.Dequeue().ToAsyncEnumerable());

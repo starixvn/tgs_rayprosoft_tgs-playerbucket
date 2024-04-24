@@ -49,7 +49,7 @@ public class TgsRepositoryTests
 			Remark = bucketEvent.Remark
 		};
 
-		await sut.InsertBucketEventsAsync(new[] { bucketEvent });
+		await sut.InsertBucketEventsAsync([bucketEvent]);
 
 		var rows = await tgsContext.PlayerBucketEventSources.ToArrayAsync();
 

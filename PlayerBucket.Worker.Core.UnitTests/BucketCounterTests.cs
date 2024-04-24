@@ -128,8 +128,7 @@ public class BucketCounterTests
 			Substitute.For<IEventSource>(),
 			NullLogger<BucketCounter>.Instance);
 
-		var buckets = new Queue<BucketInfo>(new[]
-		{
+		var buckets = new Queue<BucketInfo>([
 			new BucketInfo(
 				Guid.Parse("0985a64a-8401-0000-0001-000080cd2019"),
 				"test1",
@@ -157,7 +156,7 @@ public class BucketCounterTests
 				false,
 				DateTime.Now,
 				null)
-		});
+		]);
 
 		_ = fakeTgsRepository.GetPlayerNotFullBucketsAsync(
 			Arg.Is("test1"),
@@ -534,8 +533,8 @@ public class BucketCounterTests
 			Substitute.For<IEventSource>(),
 			NullLogger<BucketCounter>.Instance);
 
-		var buckets = new Queue<BucketInfo>(new[]
-		{
+		var buckets = new Queue<BucketInfo>(
+		[
 			new BucketInfo(
 				Guid.Parse("0985a64a-8401-0000-0001-000080cd2019"),
 				"test1",
@@ -563,7 +562,7 @@ public class BucketCounterTests
 				false,
 				DateTime.Now,
 				null)
-		});
+		]);
 
 		_ = fakeTgsRepository.GetPlayerNotFullBucketsAsync(
 			Arg.Is("test1"),
@@ -610,8 +609,7 @@ public class BucketCounterTests
 			Substitute.For<IEventSource>(),
 			NullLogger<BucketCounter>.Instance);
 
-		var buckets = new Queue<BucketInfo>(new[]
-		{
+		var buckets = new Queue<BucketInfo>([
 			new BucketInfo(
 				Guid.Parse("567f6112-8401-0000-0002-0000a3bf33ef"),
 				"test1",
@@ -630,7 +628,7 @@ public class BucketCounterTests
 				false,
 				DateTime.Now,
 				Guid.Parse("567f70ad-8401-0000-0001-0000a3bf33ef"))
-		});
+		]);
 
 		_ = fakeTgsRepository.GetPlayerNotFullBucketsAsync(
 			Arg.Is("test1"),
@@ -709,8 +707,8 @@ public class BucketCounterTests
 			Substitute.For<IEventSource>(),
 			NullLogger<BucketCounter>.Instance);
 
-		var buckets = new Queue<BucketInfo>(new[]
-		{
+		var buckets = new Queue<BucketInfo>(
+		[
 			new BucketInfo(
 				Guid.Parse("567f6112-8401-0000-0002-0000a3bf33ef"),
 				"test1",
@@ -729,7 +727,7 @@ public class BucketCounterTests
 				false,
 				DateTime.Now,
 				Guid.Parse("567f70ad-8401-0000-0001-0000a3bf33ef"))
-		});
+		]);
 
 		_ = fakeTgsRepository.GetPlayerNotFullBucketsAsync(
 			Arg.Is("test1"),

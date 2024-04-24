@@ -103,14 +103,13 @@ public class PlayerBucketTests
 			Guid.NewGuid(),
 			Guid.NewGuid(),
 			0M,
-			new[]
-			{
+			[
 				new TypeBucketResult(
 					null,
 					  new ReadBucketResult(
 						  1000M,
 						  Guid.NewGuid()))
-			},
+			],
 			Guid.NewGuid(),
 			0M);
 
@@ -190,13 +189,13 @@ public class PlayerBucketTests
 		var command = new CompleteCleanBucketsFormCommand(
 			Guid.NewGuid(),
 			100M,
-			new[] {
+			[
 				new TypeBucketResult(
 					null,
 					  new ReadBucketResult(
 						  2000M,
 						  Guid.NewGuid()))
-			},
+			],
 			null);
 
 		var form = new CleanPlayerBucketForm(
@@ -205,12 +204,11 @@ public class PlayerBucketTests
 			Guid.NewGuid(),
 			Guid.NewGuid(),
 			0M,
-			new[]
-			{
+			[
 				new TypeBucketResult(
 					null,
 					new ReadBucketResult(1000M, Guid.NewGuid()))
-			},
+			],
 			Guid.NewGuid(),
 			0M,
 			null,
@@ -250,14 +248,13 @@ public class PlayerBucketTests
 		var command = new RejectCleanBucketsFormCommand(
 			Guid.NewGuid(),
 			100M,
-			new[]
-			{
+			[
 				new TypeBucketResult(
 					null,
 					new ReadBucketResult(
 						2000M,
 						Guid.NewGuid()))
-			},
+			],
 			null);
 
 		var form = new CleanPlayerBucketForm(
@@ -266,12 +263,11 @@ public class PlayerBucketTests
 			Guid.NewGuid(),
 			Guid.NewGuid(),
 			0M,
-			new[]
-			{
+			[
 				new TypeBucketResult(
 					null,
 					  new ReadBucketResult(1000M, Guid.NewGuid()))
-			},
+			],
 			Guid.NewGuid(),
 			0M,
 			null,
