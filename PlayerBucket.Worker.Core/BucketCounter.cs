@@ -102,6 +102,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 				if (_expiry <= 0)
 					Dispose();
 			}, null, 0, 1000);
+
 			_backgroundTask = Task.Run(
 				() => ProcessCommandLoopAsync(_cancellationTokenSource.Token),
 				_cancellationTokenSource.Token);
@@ -143,7 +144,7 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 			amount,
 			type,
 			0M,
-			false,
+			amount <= 0M,
 			DateTime.Now,
 			createId));
 
@@ -165,9 +166,21 @@ internal class BucketCounter : IBucketStore, IDisposable, IAsyncDisposable
 
 		if (bucket.IsFull is true || bucket.FillInAmount >= bucket.Amount)
 		{
-			await _eventSource.PublishBucketChangedAsync(
-				new BucketChangedEvent(bucket.Id, PlayerCode),
-				cancellationToken).ConfigureAwait(false);
+			if (!bucket.IsFull)
+				await ((IBucketStore)this).FillInBucketAsync(
+					bucket,
+					new FillInBucketInfo(
+						bucket.PlayerCode,
+						0M,
+						FillType.Fix,
+						null,
+						true),
+					null,
+					cancellationToken).ConfigureAwait(false);
+			else
+				await _eventSource.PublishBucketChangedAsync(
+					new BucketChangedEvent(bucket.Id, PlayerCode),
+					cancellationToken).ConfigureAwait(false);
 
 			_buckets.RemoveAt(0);
 

@@ -9,4 +9,5 @@ public enum FillType
 	Adjust,
 	Create,
 	CleanUp,
+	Fix,
 }

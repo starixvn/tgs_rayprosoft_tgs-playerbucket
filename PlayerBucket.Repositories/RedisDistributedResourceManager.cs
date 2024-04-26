@@ -67,7 +67,7 @@ internal class RedisDistributedResourceManager(IDatabase redisDatabase) : IDistr
 			bucket.Amount,
 			bucket.Type,
 			0M,
-			false,
+			bucket.Amount <= 0M,
 			DateTime.Now,
 			createId);
 

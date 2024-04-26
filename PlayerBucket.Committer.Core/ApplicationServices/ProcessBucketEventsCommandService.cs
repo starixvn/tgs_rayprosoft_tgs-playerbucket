@@ -9,15 +9,13 @@ internal class ProcessBucketEventsCommandService(
 	ITgsRepository tgsRepository,
 	IBucketEventRepository bucketEventRepository,
 	IEventSource eventSource,
-	ILogger<ProcessBucketEventsCommandService> logger) : ICommandService<ProcessBucketEventsCommand>
+	ILogger<ProcessBucketEventsCommandService> logger)
+	: ICommandService<ProcessBucketEventsCommand>
 {
-	private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
-	private readonly IBucketEventRepository _bucketEventRepository = bucketEventRepository ?? throw new ArgumentNullException(nameof(bucketEventRepository));
-	private readonly IEventSource _eventSource = eventSource ?? throw new ArgumentNullException(nameof(eventSource));
-	private readonly ILogger<ProcessBucketEventsCommandService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
 	public async ValueTask ExecuteAsync(ProcessBucketEventsCommand command, CancellationToken cancellationToken = default)
 	{
+		logger.LogInformation("Process {BucketId}, {PlayerCode}", command.BucketId, command.PlayerCode);
+
 		await foreach (var waitPersistentEvents in GetWaitingProcessBatchAsync(command.BucketId, cancellationToken))
 		{
 			if (waitPersistentEvents.Length == 0)
@@ -26,27 +24,27 @@ internal class ProcessBucketEventsCommandService(
 			var processCount = waitPersistentEvents.Length;
 			try
 			{
-				await _tgsRepository.InsertBucketEventsAsync(
+				await tgsRepository.InsertBucketEventsAsync(
 					waitPersistentEvents,
 					cancellationToken).ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
-				_logger.LogWarning(ex, "{waitPersistentEvents}", waitPersistentEvents);
+				logger.LogWarning(ex, "{waitPersistentEvents}", waitPersistentEvents);
 
-				await _tgsRepository.MigrateBucketEventsAsync(
+				await tgsRepository.MigrateBucketEventsAsync(
 					waitPersistentEvents,
 					cancellationToken).ConfigureAwait(false);
 			}
 
-			await _bucketEventRepository.RemoveEventsAsync(
+			await bucketEventRepository.RemoveEventsAsync(
 				command.BucketId,
 				processCount,
 				cancellationToken).ConfigureAwait(false);
 		}
 
 		var snapshotEvent = new SnapshotEvent(command.BucketId, command.PlayerCode);
-		await _eventSource.PublishSnapshotRequestAsync(
+		await eventSource.PublishSnapshotRequestAsync(
 			snapshotEvent,
 			cancellationToken).ConfigureAwait(false);
 	}
@@ -57,7 +55,7 @@ internal class ProcessBucketEventsCommandService(
 	{
 		while (true)
 		{
-			yield return await _bucketEventRepository
+			yield return await bucketEventRepository
 				.GetWaitingInsertEventsAsync(bucketId, cancellationToken)
 				.ToArrayAsync(cancellationToken: cancellationToken)
 				.ConfigureAwait(false);
