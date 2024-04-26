@@ -62,8 +62,9 @@ public class SnapshotPlayerBucketCommandService(
 		}
 		else
 			logger.LogWarning(
-				"Bucket: {BucketId}, PlayerCode: {PlayerCode}, dotn't update snapshot.",
+				"Bucket: {BucketId}, PlayerCode: {PlayerCode}, SnapshotId: {SnapshotId}, dotn't update snapshot.",
 				command.BucketId,
-				command.PlayerCode);
+				command.PlayerCode,
+				snapshotId);
 	}
 }
