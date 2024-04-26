@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Json.Patch;
+using Microsoft.Extensions.Logging;
 using Tgs.Service.PlayerBuckets;
 using Tgs.ServiceUtility;
 
@@ -7,25 +8,23 @@ namespace Tgs.PlayerBuckets.Committer.ApplicationServices;
 
 public class SnapshotPlayerBucketCommandService(
 	ITgsRepository tgsRepository,
-	IBucketEventRepository bucketEventRepository)
+	IBucketEventRepository bucketEventRepository,
+	ILogger<SnapshotPlayerBucketCommandService> logger)
 	: ICommandService<SnapshotPlayerBucketCommand>
 {
-	private readonly ITgsRepository _tgsRepository = tgsRepository ?? throw new ArgumentNullException(nameof(tgsRepository));
-	private readonly IBucketEventRepository _bucketEventRepository = bucketEventRepository ?? throw new ArgumentNullException(nameof(bucketEventRepository));
-
 	public async ValueTask ExecuteAsync(SnapshotPlayerBucketCommand command, CancellationToken cancellationToken = default)
 	{
-		var existsBucketSnapshot = await _tgsRepository.GetCreatedBucketSnapshotAsync(
+		var existsBucketSnapshot = await tgsRepository.GetCreatedBucketSnapshotAsync(
 			command.BucketId,
 			cancellationToken).ConfigureAwait(false);
 
 		var allBucketEvents = existsBucketSnapshot switch
 		{
-			null => _tgsRepository.GetBucketAllEventsAsync(command.BucketId, cancellationToken),
-			not null when existsBucketSnapshot.SnapshotId is null => _tgsRepository.GetBucketAllEventsAsync(
+			null => tgsRepository.GetBucketAllEventsAsync(command.BucketId, cancellationToken),
+			not null when existsBucketSnapshot.SnapshotId is null => tgsRepository.GetBucketAllEventsAsync(
 				existsBucketSnapshot.Id,
 				cancellationToken),
-			not null => _tgsRepository.GetBucketAllEventsAsync(
+			not null => tgsRepository.GetBucketAllEventsAsync(
 				existsBucketSnapshot.Id,
 				existsBucketSnapshot.SnapshotId.Value,
 				cancellationToken)
@@ -49,17 +48,22 @@ public class SnapshotPlayerBucketCommandService(
 
 		if (snapshotId != Guid.Empty && snapshotId.CompareTo(existsBucketSnapshot?.SnapshotId ?? Guid.Empty) > 0)
 		{
-			await _tgsRepository.UpdatePlayerBucketAsync(
+			await tgsRepository.UpdatePlayerBucketAsync(
 				snapshotBucket! with
 				{
 					SnapshotId = snapshotId,
 					FillInAmount = Math.Abs(usedAmount)
 				},
 				cancellationToken).ConfigureAwait(false);
-			await _bucketEventRepository.DeleteCreatedBucketAsync(
+			await bucketEventRepository.DeleteCreatedBucketAsync(
 				command.PlayerCode,
 				command.BucketId,
 				cancellationToken).ConfigureAwait(false);
 		}
+		else
+			logger.LogWarning(
+				"Bucket: {BucketId}, PlayerCode: {PlayerCode}, dotn't update snapshot.",
+				command.BucketId,
+				command.PlayerCode);
 	}
 }

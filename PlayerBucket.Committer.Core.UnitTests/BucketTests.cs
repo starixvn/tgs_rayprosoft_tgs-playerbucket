@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using Tgs.PlayerBuckets.Committer;
 using Tgs.PlayerBuckets.Committer.ApplicationServices;
@@ -15,7 +16,10 @@ public class BucketTests
 		var fakeTgsRepository = Substitute.For<ITgsRepository>();
 		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
 
-		var sut = new SnapshotPlayerBucketCommandService(fakeTgsRepository, fakeBucketEventRepository);
+		var sut = new SnapshotPlayerBucketCommandService(
+			fakeTgsRepository,
+			fakeBucketEventRepository,
+			NullLogger<SnapshotPlayerBucketCommandService>.Instance);
 
 		var command = new SnapshotPlayerBucketCommand(Guid.NewGuid(), "test1");
 
@@ -98,7 +102,10 @@ public class BucketTests
 		var fakeTgsRepository = Substitute.For<ITgsRepository>();
 		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
 
-		var sut = new SnapshotPlayerBucketCommandService(fakeTgsRepository, fakeBucketEventRepository);
+		var sut = new SnapshotPlayerBucketCommandService(
+			fakeTgsRepository,
+			fakeBucketEventRepository,
+			NullLogger<SnapshotPlayerBucketCommandService>.Instance);
 
 		var command = new SnapshotPlayerBucketCommand(Guid.NewGuid(), "test1");
 
@@ -193,7 +200,10 @@ public class BucketTests
 		var fakeTgsRepository = Substitute.For<ITgsRepository>();
 		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
 
-		var sut = new SnapshotPlayerBucketCommandService(fakeTgsRepository, fakeBucketEventRepository);
+		var sut = new SnapshotPlayerBucketCommandService(
+			fakeTgsRepository,
+			fakeBucketEventRepository,
+			NullLogger<SnapshotPlayerBucketCommandService>.Instance);
 
 		var command = new SnapshotPlayerBucketCommand(Guid.NewGuid(), "test1");
 

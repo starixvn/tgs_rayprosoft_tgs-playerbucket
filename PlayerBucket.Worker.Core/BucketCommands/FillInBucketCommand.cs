@@ -12,7 +12,7 @@ public class FillInBucketCommand(decimal amount, FillType type, string? external
 	{
 		var remainingAmount = _amount;
 
-		while (remainingAmount > 0)
+		while (remainingAmount > 0M)
 		{
 			var bucket = await bucketStore
 				.GetNotFullBucketAsync(cancellationToken)

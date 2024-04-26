@@ -1,6 +1,8 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 using Tgs.SerialNumberGenerator;
 using Tgs.Service.PlayerBuckets;
 using Tgs.Service.PlayerBuckets.BucketCommands;
@@ -63,6 +65,49 @@ public class BucketCounterTests
 				Arg.Is(expected),
 				Arg.Is("test"),
 				Arg.Any<CancellationToken>());
+	}
+
+	[TestMethod]
+	public async Task BucketCounter_取得未填滿的水桶時_如果前面有已經滿卻未設定成滿的水桶_會將其設定為滿的()
+	{
+		var fakeSerialNumberGenerator = Substitute.For<ISerialNumberGenerator>();
+		var fakeTgsRepository = Substitute.For<ITgsRepository>();
+		var fakeBucketEventRepository = Substitute.For<IBucketEventRepository>();
+
+		var sut = new BucketCounter(
+			"test1",
+			fakeSerialNumberGenerator,
+			fakeTgsRepository,
+			fakeBucketEventRepository,
+			Substitute.For<IEventSource>(),
+			NullLogger<BucketCounter>.Instance);
+
+		var targetBucketId = Guid.NewGuid();
+		_ = fakeTgsRepository.GetPlayerNotFullBucketsAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+			.Returns(new[] {
+				new BucketInfo(
+					targetBucketId,
+					"test1",
+					0M,
+					BucketType.Promotion,
+					0M,
+					false,
+					DateTime.UtcNow,
+					Guid.Empty)
+			}.ToAsyncEnumerable());
+		_ = fakeTgsRepository.GetHasMigrateAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+			.Returns(true);
+
+		await sut.PrepareAsync();
+		_ = await ((IBucketStore)sut).GetNotFullBucketAsync();
+
+		_ = fakeBucketEventRepository.Received(1)
+			.FillInBucketAsync(
+			Arg.Any<Guid>(),
+			Arg.Is(targetBucketId),
+			Arg.Is<FillInBucketInfo>(info => info.SetFull == true),
+			Arg.Any<string>(),
+			Arg.Any<CancellationToken>());
 	}
 
 	[TestMethod]
