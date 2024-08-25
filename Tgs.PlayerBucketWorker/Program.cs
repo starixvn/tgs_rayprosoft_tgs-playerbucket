@@ -13,15 +13,17 @@ using Valhalla.MessageQueue.MongoDB.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.UseSentry();
+
 builder.Logging
 	.AddOpenTelemetry(options =>
 	{
 		options.IncludeFormattedMessage = true;
 		_ = options.AddFluentdForwardExporter(fluentOptions =>
 		{
-			var nodeIp = builder.Configuration.GetValue<string>("NODE_IP")!;
+			var nodeIp = builder.Configuration.GetValue<string>("Otel:NodeIp")!;
 			fluentOptions.Host = nodeIp;
-			fluentOptions.Tag = builder.Configuration.GetValue<string>("OTEL_SERVICE_NAME")!;
+			fluentOptions.Tag = builder.Configuration.GetValue<string>("Otel:ServiceName")!;
 			fluentOptions.UseMessagePack(LogRecordFormatterResolver.GetResolverInstanceWithExtendInfo(
 				"MachineInfo",
 				() => new
@@ -94,9 +96,8 @@ builder.Services
 var excludeExtensions = new[] { "html", "ico", "png", "jpg" };
 builder.Services
 	.AddOpenTelemetry()
+	.ConfigureResource(_ => _.AddService(builder.Configuration.GetValue<string>("Otel:ServiceName")))
 	.WithTracing(tracingBuilder => tracingBuilder
-		.SetResourceBuilder(ResourceBuilder.CreateDefault()
-			.AddEnvironmentVariableDetector())
 		.AddSource("Tgs.*")
 		.AddSource("TGS.*")
 		.AddSource("Valhalla.*")
@@ -111,7 +112,7 @@ builder.Services
 					ext => httpContext.Request.Path.Value.EndsWith($".{ext}")))
 		.AddEntityFrameworkCoreInstrumentation(options => options.SetDbStatementForText = true)
 		.AddProfileViewExporter()
-		.AddOtlpExporter())
+		.AddOtlpExporter(options => options.Endpoint = builder.Configuration.GetValue<Uri>("Otel:Collector")))
 	.WithMetrics(meterBuiler => meterBuiler
 		.SetResourceBuilder(ResourceBuilder.CreateDefault()
 			.AddEnvironmentVariableDetector())
@@ -135,5 +136,8 @@ app.MapProfileViewer();
 app.MapHealthChecks("/healthz");
 
 app.UseSwaggerUI();
+
+
+SentrySdk.CaptureMessage($"Started result PlayerBucketWorker service at {DateTime.Now.ToString()}");
 
 app.Run();
