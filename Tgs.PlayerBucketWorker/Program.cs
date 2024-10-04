@@ -114,8 +114,6 @@ builder.Services
 		.AddProfileViewExporter()
 		.AddOtlpExporter(options => options.Endpoint = builder.Configuration.GetValue<Uri>("Otel:Collector")))
 	.WithMetrics(meterBuiler => meterBuiler
-		.SetResourceBuilder(ResourceBuilder.CreateDefault()
-			.AddEnvironmentVariableDetector())
 			.AddMeter("Tgs.PlayerBucket")
 			.AddInstrumentation<PlayerBucketMetrics>()
 			.AddRuntimeInstrumentation()
